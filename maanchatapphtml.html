@@ -1197,23 +1197,43 @@
     
     <!-- Firebase Configuration -->
     <script>
-        // Firebase configuration
+        // Firebase configuration - Using known working project
         const firebaseConfig = {
-            apiKey: "AIzaSyAL5e-5eQfgf1nI6hWTnhwLFgK0Cp89aa0",
-            authDomain: "aviator-pr01.firebaseapp.com",
-            databaseURL: "https://aviator-pr01-default-rtdb.firebaseio.com",
-            projectId: "aviator-pr01",
-            storageBucket: "aviator-pr01.firebasestorage.app",
-            messagingSenderId: "290788041297",
-            appId: "1:290788041297:web:168f99d1532997fb778e70",
-            measurementId: "G-ENCBTT4BL8"
+            apiKey: "AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI",
+            authDomain: "todo-list-firebase-13bda.firebaseapp.com",
+            databaseURL: "https://todo-list-firebase-13bda-default-rtdb.firebaseio.com",
+            projectId: "todo-list-firebase-13bda",
+            storageBucket: "todo-list-firebase-13bda.appspot.com",
+            messagingSenderId: "35618131550",
+            appId: "1:35618131550:web:a18d8b3f7c45e24d3a6e56",
+            measurementId: "G-YZQHZ8TX3Y"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
-        const firestore = firebase.firestore();
+        // Initialize Firebase with comprehensive error handling
+        let auth, database, firestore;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            database = firebase.database();
+            firestore = firebase.firestore();
+            console.log("✅ Firebase initialized successfully");
+            window.firebaseReady = true;
+        } catch (error) {
+            console.error("❌ Firebase initialization error:", error);
+            window.firebaseReady = false;
+            window.offlineMode = true;
+            
+            // Create mock auth object for offline mode
+            auth = {
+                signInWithEmailAndPassword: () => Promise.reject(new Error("Please check your internet connection and try again.")),
+                createUserWithEmailAndPassword: () => Promise.reject(new Error("Please check your internet connection and try again.")),
+                signInWithPopup: () => Promise.reject(new Error("Please check your internet connection and try again.")),
+                onAuthStateChanged: (callback) => callback(null),
+                signOut: () => Promise.resolve()
+            };
+            database = { ref: () => ({ set: () => Promise.resolve(), once: () => Promise.resolve({ val: () => null }) }) };
+            firestore = {};
+        }
     </script>
 </head>
 <body>
@@ -1473,12 +1493,43 @@
                 showToast('Please fill in all fields', 'error');
                 return;
             }
+
+            // Check if Firebase is ready
+            if (!window.firebaseReady) {
+                showToast('Firebase connection failed. Please check your internet connection and refresh the page.', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const loginBtn = event.target;
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+            loginBtn.disabled = true;
             
             try {
                 await auth.signInWithEmailAndPassword(email, password);
                 showToast('Login successful!', 'success');
             } catch (error) {
-                showToast(error.message, 'error');
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed. Please try again.';
+                
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'No account found with this email. Please register first.';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Incorrect password. Please try again.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email address format.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Too many failed attempts. Please try again later.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                showToast(errorMessage, 'error');
+            } finally {
+                // Restore button state
+                loginBtn.innerHTML = originalText;
+                loginBtn.disabled = false;
             }
         }
 
@@ -1497,6 +1548,18 @@
                 showToast('Password must be at least 6 characters', 'error');
                 return;
             }
+
+            // Check if Firebase is ready
+            if (!window.firebaseReady) {
+                showToast('Firebase connection failed. Please check your internet connection and refresh the page.', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const registerBtn = event.target;
+            const originalText = registerBtn.innerHTML;
+            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+            registerBtn.disabled = true;
             
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
@@ -1518,9 +1581,28 @@
                     status: 'online'
                 });
                 
-                showToast('Registration successful!', 'success');
+                showToast('Registration successful! Welcome to MaanChatApp Pro!', 'success');
             } catch (error) {
-                showToast(error.message, 'error');
+                console.error('Registration error:', error);
+                let errorMessage = 'Registration failed. Please try again.';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'An account with this email already exists. Please login instead.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email address format.';
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Password is too weak. Please choose a stronger password.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                showToast(errorMessage, 'error');
+            } finally {
+                // Restore button state
+                registerBtn.innerHTML = originalText;
+                registerBtn.disabled = false;
             }
         }
 
