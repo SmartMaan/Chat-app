@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>MaanChat - Hot Mobile Experience</title>
+    <title>MaanChatApp Pro - Complete Social Messaging Platform</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#1976d2">
-    <meta name="description" content="Hot mobile chat experience designed for Android">
+    <meta name="theme-color" content="#1a73e8">
+    <meta name="description" content="Complete social messaging platform with friends, private chat, groups, channels, and discovery - Android optimized">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     
     <!-- Open Graph Tags -->
-    <meta property="og:title" content="MaanChat - Hot Mobile Chat">
-    <meta property="og:description" content="Native Android-style mobile chat experience">
+    <meta property="og:title" content="MaanChatApp Pro - Complete Social Messaging Platform">
+    <meta property="og:description" content="Advanced social chat with friend system, private messaging, public discovery, and real-time features">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://via.placeholder.com/1200x630/1976d2/ffffff?text=MaanChat">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630/1a73e8/ffffff?text=MaanChatApp+Pro">
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -27,29 +27,8 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
     <style>
-        /* 🔥 HOT ANDROID MOBILE EXPERIENCE - MATERIAL DESIGN */
-        :root {
-            --primary: #1976d2;
-            --primary-dark: #1565c0;
-            --primary-light: #42a5f5;
-            --secondary: #ff4081;
-            --surface: #ffffff;
-            --background: #f5f5f5;
-            --on-primary: #ffffff;
-            --on-surface: #212121;
-            --on-background: #212121;
-            --shadow: rgba(0,0,0,0.12);
-            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-            --elevation-2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-            --elevation-3: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-            --elevation-4: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
-            --ripple: rgba(255,255,255,0.2);
-        }
-
+        /* ORIGINAL UI DESIGN - ANDROID OPTIMIZED FOR LIGHT THEME */
         * {
             margin: 0;
             padding: 0;
@@ -60,99 +39,118 @@
             user-select: none;
         }
 
-        html, body {
+        body {
+            font-family: 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
             height: 100vh;
             overflow: hidden;
-            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--background);
-            color: var(--on-background);
-            font-size: 14px;
-            line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            font-size: 16px; /* Prevent zoom on Android */
+            line-height: 1.4;
             overscroll-behavior: none;
         }
 
-        /* 🚀 ANDROID MATERIAL RIPPLE EFFECT */
-        .ripple {
+        /* Android Screen Optimizations */
+        @media screen and (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
+        }
+
+        @media screen and (max-width: 360px) {
+            body {
+                font-size: 13px;
+            }
+        }
+
+        /* Android Touch Optimizations */
+        button, input, textarea, select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border-radius: 8px;
+            font-size: 16px; /* Prevent zoom */
+            outline: none;
+            min-height: 44px; /* Android touch target */
+            min-width: 44px;
+        }
+
+        /* Disable zoom on input focus for Android */
+        input, textarea, select {
+            font-size: 16px !important;
+        }
+
+        /* Mobile Header */
+        .mobile-header {
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: relative;
-            overflow: hidden;
-            transform: translate3d(0, 0, 0);
+            z-index: 100;
         }
 
-        .ripple:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--ripple);
-            border-radius: inherit;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
+        .mobile-menu-btn, .mobile-search-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            min-width: 48px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
         }
 
-        .ripple:active:before {
-            opacity: 1;
+        .mobile-menu-btn:active, .mobile-search-btn:active {
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        /* 🔥 LOADING SCREEN - ANDROID STYLE */
-        .splash-screen {
+        .mobile-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Show mobile header on small screens */
+        @media screen and (max-width: 768px) {
+            .mobile-header {
+                display: flex !important;
+            }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            color: var(--on-primary);
+            color: white;
         }
 
-        .splash-logo {
-            width: 80px;
-            height: 80px;
-            background: var(--on-primary);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            color: var(--primary);
-            margin-bottom: 20px;
-            animation: logoScale 2s ease infinite;
-            box-shadow: var(--elevation-3);
-        }
-
-        @keyframes logoScale {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .splash-title {
-            font-size: 24px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-
-        .splash-subtitle {
-            font-size: 14px;
-            opacity: 0.8;
-            margin-bottom: 40px;
-        }
-
-        .material-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid var(--on-primary);
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
 
         @keyframes spin {
@@ -160,347 +158,397 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 📱 AUTH SCREEN - HOT MOBILE DESIGN */
-        .auth-container {
+        /* Auth Screen */
+        .auth-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            display: none;
-            flex-direction: column;
-            justify-content: flex-end;
-            z-index: 8888;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
 
-        .auth-sheet {
-            background: var(--surface);
-            border-radius: 24px 24px 0 0;
-            padding: 32px 24px 24px;
-            box-shadow: var(--elevation-4);
-            max-height: 80vh;
-            overflow-y: auto;
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+            animation: slideUp 0.5s ease-out;
         }
 
-        .auth-sheet.show {
-            transform: translateY(0);
-        }
-
-        .auth-handle {
-            width: 40px;
-            height: 4px;
-            background: #ccc;
-            border-radius: 2px;
-            margin: 0 auto 24px;
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .auth-header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 30px;
+        }
+
+        .auth-header i {
+            font-size: 48px;
+            color: #1a73e8;
+            margin-bottom: 15px;
         }
 
         .auth-header h1 {
             font-size: 28px;
-            font-weight: 500;
-            color: var(--on-surface);
             margin-bottom: 8px;
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .auth-header p {
             color: #666;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .auth-tabs {
             display: flex;
-            background: #f0f0f0;
-            border-radius: 12px;
+            margin-bottom: 25px;
+            background: #f5f5f5;
+            border-radius: 10px;
             padding: 4px;
-            margin-bottom: 24px;
         }
 
         .auth-tab {
             flex: 1;
-            padding: 12px 16px;
+            padding: 12px;
             border: none;
             background: transparent;
             border-radius: 8px;
-            font-weight: 500;
-            color: #666;
-            transition: all 0.2s ease;
             cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-height: 44px;
         }
 
         .auth-tab.active {
-            background: var(--surface);
-            color: var(--primary);
-            box-shadow: var(--elevation-1);
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            color: #1a73e8;
         }
 
-        .material-input {
-            position: relative;
-            margin-bottom: 20px;
+        .auth-form {
+            display: none;
         }
 
-        .material-input input {
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form input {
             width: 100%;
-            padding: 16px 16px 16px 0;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 15px;
             font-size: 16px;
-            border: none;
-            border-bottom: 2px solid #e0e0e0;
-            background: transparent;
+            transition: border-color 0.3s ease;
+            min-height: 50px;
+        }
+
+        .auth-form input:focus {
             outline: none;
-            transition: border-color 0.2s ease;
+            border-color: #1a73e8;
         }
 
-        .material-input input:focus {
-            border-bottom-color: var(--primary);
-        }
-
-        .material-input label {
-            position: absolute;
-            top: 16px;
-            left: 0;
-            font-size: 16px;
-            color: #666;
-            pointer-events: none;
-            transition: all 0.2s ease;
-        }
-
-        .material-input input:focus + label,
-        .material-input input:not(:placeholder-shown) + label {
-            top: 0;
-            font-size: 12px;
-            color: var(--primary);
-        }
-
-        .material-button {
+        .auth-btn {
             width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: var(--on-primary);
+            padding: 15px;
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            box-shadow: var(--elevation-2);
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
+            transition: transform 0.2s ease;
+            min-height: 50px;
         }
 
-        .material-button:active {
-            transform: scale(0.98);
-            box-shadow: var(--elevation-1);
+        .auth-btn:hover {
+            transform: translateY(-2px);
         }
 
-        .google-button {
-            background: var(--surface);
-            color: var(--on-surface);
-            border: 2px solid #e0e0e0;
-            margin-top: 16px;
+        .social-auth {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
+            transition: all 0.3s ease;
+            min-height: 48px;
         }
 
-        /* 🔥 MAIN APP - ANDROID NATIVE FEEL */
+        .google-btn:hover {
+            border-color: #4285f4;
+            color: #4285f4;
+        }
+
+        /* Main App - Android Optimized Light Theme */
         .main-app {
             display: none;
             height: 100vh;
+            background: white;
+            flex-direction: row;
+        }
+
+        /* Android Mobile Layout */
+        @media screen and (max-width: 768px) {
+            .main-app {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: min(320px, 85vw);
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                box-shadow: 5px 0 20px rgba(0, 0, 0, 0.2);
+            }
+            
+            .sidebar.mobile-open {
+                left: 0;
+            }
+            
+            .chat-area {
+                width: 100%;
+                height: 100vh;
+            }
+            
+            .mobile-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+            
+            .mobile-overlay.active {
+                display: block;
+            }
+        }
+
+        /* Small Android Screens */
+        @media screen and (max-width: 360px) {
+            .sidebar {
+                width: 90vw;
+            }
+            
+            .chat-item {
+                padding: 12px 15px;
+            }
+            
+            .message-input-area {
+                padding: 12px 15px;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 350px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            display: flex;
             flex-direction: column;
-            background: var(--background);
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: white;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
             position: relative;
         }
 
-        /* 📱 TOP APP BAR - MATERIAL DESIGN */
-        .app-bar {
-            background: var(--primary);
-            color: var(--on-primary);
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: var(--elevation-2);
-            z-index: 100;
-            position: relative;
-        }
-
-        .app-bar-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .app-bar-title {
-            font-size: 20px;
-            font-weight: 500;
-        }
-
-        .icon-button {
-            width: 48px;
-            height: 48px;
+        .avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: transparent;
-            border: none;
-            color: inherit;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            transition: background-color 0.2s ease;
+            object-fit: cover;
         }
 
-        .icon-button:active {
-            background: var(--ripple);
-        }
-
-        /* 📋 BOTTOM NAVIGATION - ANDROID STYLE */
-        .bottom-nav {
-            background: var(--surface);
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            padding: 8px 0;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 100;
-        }
-
-        .nav-item {
+        .user-info {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            border-radius: 12px;
-            margin: 0 4px;
         }
 
-        .nav-item.active {
-            background: rgba(25, 118, 210, 0.12);
-            color: var(--primary);
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+            display: block;
         }
 
-        .nav-item i {
-            font-size: 24px;
-            margin-bottom: 4px;
-        }
-
-        .nav-item span {
+        .user-status {
             font-size: 12px;
-            font-weight: 500;
+            color: #28a745;
         }
 
-        .nav-badge {
+        .verification-badge {
             position: absolute;
-            top: 4px;
-            right: 20px;
-            background: var(--secondary);
-            color: white;
-            border-radius: 10px;
-            min-width: 20px;
-            height: 20px;
-            font-size: 11px;
+            top: -5px;
+            right: 0;
+            color: #1da1f2;
+            font-size: 18px;
+            display: none;
+        }
+
+        .sidebar-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 10px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 500;
         }
 
-        /* 📱 CONTENT AREA - SMOOTH SCROLLING */
-        .content-area {
-            flex: 1;
-            overflow: hidden;
+        .action-btn:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .search-bar {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
             position: relative;
-            background: var(--background);
         }
 
-        .page {
+        .search-bar i {
             position: absolute;
-            top: 0;
-            left: 0;
+            left: 35px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .search-bar input {
             width: 100%;
-            height: 100%;
-            background: var(--background);
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 12px 40px;
+            border: 1px solid #dee2e6;
+            border-radius: 25px;
+            background: white;
+            font-size: 14px;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        /* Sidebar Tabs */
+        .sidebar-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin: 0 20px;
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            min-height: 44px;
+        }
+
+        .sidebar-tab.active {
+            color: #1a73e8;
+            border-bottom-color: #1a73e8;
+        }
+
+        .sidebar-tab:hover {
+            color: #1a73e8;
+            background: #f8f9fa;
+        }
+
+        .chat-list {
+            flex: 1;
             overflow-y: auto;
+            padding: 10px 0;
             -webkit-overflow-scrolling: touch;
         }
 
-        .page.active {
-            transform: translateX(0);
-        }
-
-        .page.prev {
-            transform: translateX(-100%);
-        }
-
-        /* 💬 CHAT LIST - MATERIAL CARDS */
-        .chat-list {
-            padding: 8px 16px;
-        }
-
-        .chat-card {
-            background: var(--surface);
-            border-radius: 12px;
-            margin-bottom: 8px;
-            padding: 16px;
-            box-shadow: var(--elevation-1);
+        .chat-item {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
+            padding: 15px 20px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #f1f3f4;
+            min-height: 70px;
         }
 
-        .chat-card:active {
-            transform: scale(0.98);
-            box-shadow: var(--elevation-2);
+        .chat-item:hover {
+            background-color: #f1f3f4;
+        }
+
+        .chat-item.active {
+            background-color: #e3f2fd;
+            border-left: 4px solid #1a73e8;
         }
 
         .chat-avatar {
-            width: 56px;
-            height: 56px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--on-primary);
-            font-size: 24px;
-            font-weight: 500;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chat-avatar img {
-            width: 100%;
-            height: 100%;
             object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .online-dot {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 16px;
-            height: 16px;
-            background: #4caf50;
-            border: 3px solid var(--surface);
-            border-radius: 50%;
         }
 
         .chat-info {
@@ -509,21 +557,15 @@
         }
 
         .chat-name {
+            font-weight: 600;
             font-size: 16px;
-            font-weight: 500;
-            color: var(--on-surface);
             margin-bottom: 4px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
         }
 
-        .verified-icon {
-            color: #1da1f2;
-            font-size: 16px;
-        }
-
-        .chat-preview {
+        .chat-last-message {
             font-size: 14px;
             color: #666;
             white-space: nowrap;
@@ -533,121 +575,100 @@
 
         .chat-meta {
             text-align: right;
-            min-width: 60px;
         }
 
         .chat-time {
             font-size: 12px;
-            color: #666;
+            color: #999;
             margin-bottom: 4px;
         }
 
-        .unread-badge {
-            background: var(--primary);
-            color: var(--on-primary);
-            border-radius: 12px;
-            padding: 4px 8px;
-            font-size: 12px;
-            font-weight: 500;
-            min-width: 24px;
-            text-align: center;
+        .member-count {
+            font-size: 11px;
+            color: #666;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 10px;
         }
 
-        /* 🔥 FLOATING ACTION BUTTON */
-        .fab {
-            position: fixed;
-            bottom: 80px;
-            right: 16px;
-            width: 56px;
-            height: 56px;
-            background: var(--secondary);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: var(--elevation-3);
-            transition: all 0.2s ease;
-            z-index: 200;
-        }
-
-        .fab:active {
-            transform: scale(0.9);
-            box-shadow: var(--elevation-2);
-        }
-
-        /* 📱 CHAT SCREEN - FULL SCREEN */
-        .chat-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--background);
-            z-index: 1000;
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
             display: flex;
             flex-direction: column;
+            height: 100vh;
         }
 
-        .chat-screen.active {
-            transform: translateX(0);
+        /* Mobile Chat Area Adjustments */
+        @media screen and (max-width: 768px) {
+            .chat-area {
+                height: calc(100vh - 60px); /* Account for mobile header */
+            }
         }
 
         .chat-header {
-            background: var(--primary);
-            color: var(--on-primary);
-            padding: 12px 16px;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: white;
             display: flex;
             align-items: center;
-            gap: 16px;
-            box-shadow: var(--elevation-2);
+            justify-content: space-between;
         }
 
-        .chat-header-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--on-primary);
-            color: var(--primary);
+        .chat-info {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: 500;
+            gap: 12px;
         }
 
-        .chat-header-info h3 {
+        .chat-info h3 {
+            margin: 0;
             font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 2px;
         }
 
-        .chat-header-info p {
+        .chat-status {
             font-size: 12px;
-            opacity: 0.8;
+            color: #666;
         }
 
-        /* 💬 MESSAGES AREA */
-        .messages-area {
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .messages-container {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
-            background: #e8f4fd;
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(25, 118, 210, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(255, 64, 129, 0.1) 0%, transparent 50%);
+            padding: 20px;
+            background: #f8f9fa;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #666;
+            margin-top: 50px;
+        }
+
+        .welcome-message i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .welcome-message h2 {
+            margin-bottom: 10px;
+            color: #333;
         }
 
         .message {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            animation: messageSlide 0.3s ease;
+            flex-direction: column;
+            animation: messageSlideIn 0.3s ease;
         }
 
-        @keyframes messageSlide {
+        @keyframes messageSlideIn {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -659,272 +680,518 @@
         }
 
         .message.sent {
-            flex-direction: row-reverse;
+            align-items: flex-end;
+        }
+
+        .message.sent .message-content {
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+        }
+
+        .message.received .message-content {
+            background: white;
+            color: #333;
+            border-radius: 18px 18px 18px 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .message.sent .message-header {
+            justify-content: flex-end;
         }
 
         .message-avatar {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: var(--primary);
-            color: var(--on-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        }
+
+        .message-sender {
+            font-weight: 600;
+        }
+
+        .verified-badge {
+            color: #1da1f2;
             font-size: 14px;
-            font-weight: 500;
-            flex-shrink: 0;
-        }
-
-        .message-bubble {
-            max-width: 75%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 14px;
-            line-height: 1.4;
-            position: relative;
-            box-shadow: var(--elevation-1);
-        }
-
-        .message.received .message-bubble {
-            background: var(--surface);
-            color: var(--on-surface);
-            border-bottom-left-radius: 4px;
-        }
-
-        .message.sent .message-bubble {
-            background: var(--primary);
-            color: var(--on-primary);
-            border-bottom-right-radius: 4px;
         }
 
         .message-time {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: 4px;
-            text-align: right;
+            color: #999;
         }
 
-        .message.received .message-time {
-            text-align: left;
-        }
-
-        /* ⌨️ MESSAGE INPUT - MODERN DESIGN */
-        .message-input-container {
-            background: var(--surface);
-            padding: 16px;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-        }
-
-        .message-input-wrapper {
-            flex: 1;
-            background: #f5f5f5;
-            border-radius: 24px;
+        .message-content {
+            max-width: 60%;
             padding: 12px 16px;
+            word-wrap: break-word;
+        }
+
+        .message-media {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        /* Message Input Area - Fixed for Android */
+        .message-input-area {
+            background: white;
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .attachment-options {
+            display: none;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .attachment-options.show {
+            display: flex;
+        }
+
+        .attach-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 12px;
-            min-height: 48px;
-            max-height: 120px;
+            gap: 5px;
+            min-height: 40px;
+        }
+
+        .attach-btn:hover {
+            background: #e9ecef;
         }
 
         .message-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 5px 15px;
+        }
+
+        .attach-toggle {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 10px;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .attach-toggle:hover {
+            color: #1a73e8;
+        }
+
+        .message-text {
             flex: 1;
             border: none;
-            background: transparent;
-            outline: none;
+            background: none;
+            padding: 12px;
             font-size: 14px;
+            outline: none;
             resize: none;
-            line-height: 1.4;
+            min-height: 20px;
+            max-height: 100px;
             font-family: inherit;
         }
 
-        .attachment-button {
-            color: #666;
-            font-size: 20px;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-
-        .attachment-button:active {
-            color: var(--primary);
-        }
-
-        .send-button {
-            width: 48px;
-            height: 48px;
-            background: var(--primary);
-            color: var(--on-primary);
+        .send-btn {
+            background: #1a73e8;
+            color: white;
             border: none;
             border-radius: 50%;
-            font-size: 20px;
+            width: 44px;
+            height: 44px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: var(--elevation-2);
-            transition: all 0.2s ease;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
         }
 
-        .send-button:active {
-            transform: scale(0.9);
-            box-shadow: var(--elevation-1);
+        .send-btn:hover {
+            background: #1557b0;
+            transform: scale(1.1);
         }
 
-        .send-button:disabled {
+        .send-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
             transform: none;
         }
 
-        /* 🌟 BOTTOM SHEETS - ANDROID STYLE */
-        .bottom-sheet-overlay {
+        /* Modals - Light Theme */
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
 
-        .bottom-sheet-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .bottom-sheet {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--surface);
-            border-radius: 24px 24px 0 0;
-            box-shadow: var(--elevation-4);
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            z-index: 2001;
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
             max-height: 80vh;
-            overflow: hidden;
-        }
-
-        .bottom-sheet.active {
-            transform: translateY(0);
-        }
-
-        .bottom-sheet-handle {
-            width: 40px;
-            height: 4px;
-            background: #ccc;
-            border-radius: 2px;
-            margin: 12px auto;
-        }
-
-        .bottom-sheet-header {
-            padding: 16px 24px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .bottom-sheet-title {
-            font-size: 20px;
-            font-weight: 500;
-            color: var(--on-surface);
-        }
-
-        .bottom-sheet-content {
-            padding: 24px;
             overflow-y: auto;
-            max-height: 60vh;
+            animation: modalSlideIn 0.3s ease-out;
         }
 
-        /* 🎯 SEARCH BAR - MATERIAL DESIGN */
-        .search-bar {
-            background: var(--surface);
-            margin: 16px;
-            border-radius: 28px;
-            padding: 12px 20px;
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: var(--elevation-1);
+            justify-content: space-between;
         }
 
-        .search-bar i {
-            color: #666;
-            font-size: 20px;
+        .modal-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
         }
 
-        .search-input {
-            flex: 1;
-            border: none;
+        .close-btn {
+            padding: 10px;
             background: transparent;
-            outline: none;
-            font-size: 16px;
-            color: var(--on-surface);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .search-input::placeholder {
-            color: #999;
+        .close-btn:hover {
+            background: #f8f9fa;
+            color: #333;
         }
 
-        /* 📱 RESPONSIVE DESIGN */
-        @media (max-width: 360px) {
-            .chat-card {
-                padding: 12px;
-            }
-            
-            .nav-item {
-                padding: 6px 8px;
-            }
-            
-            .nav-item span {
-                font-size: 11px;
-            }
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            color: white;
+            font-weight: 500;
         }
 
-        /* 🔥 HAPTIC FEEDBACK SIMULATION */
-        .haptic:active {
-            animation: hapticPulse 0.1s ease;
+        .toast.success {
+            background: #4caf50;
         }
 
-        @keyframes hapticPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.95); }
-            100% { transform: scale(1); }
+        .toast.error {
+            background: #f44336;
         }
 
-        /* 🌈 DARK MODE SUPPORT */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --surface: #1e1e1e;
-                --background: #121212;
-                --on-surface: #ffffff;
-                --on-background: #ffffff;
-            }
-            
-            .messages-area {
-                background: #1a1a1a;
-                background-image: 
-                    radial-gradient(circle at 25% 25%, rgba(25, 118, 210, 0.2) 0%, transparent 50%),
-                    radial-gradient(circle at 75% 75%, rgba(255, 64, 129, 0.2) 0%, transparent 50%);
-            }
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
 
-        /* ⚡ PERFORMANCE OPTIMIZATIONS */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #1557b0, #5a3d7a);
+        }
+
+        /* Android Performance Optimizations */
+        .smooth-scroll {
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
         .gpu-accelerated {
             transform: translateZ(0);
             will-change: transform;
         }
 
-        .smooth-scroll {
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
+        /* Friend System Styles */
+        .friends-section {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .friends-header {
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .friends-header h3 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .friend-search-container {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .friend-search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            background: #f8f9fa;
+        }
+
+        .friend-search-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            background: white;
+        }
+
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px 20px;
+        }
+
+        .user-search-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .user-search-item:hover {
+            background: #e3f2fd;
+            border-color: #1a73e8;
+        }
+
+        .user-search-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-search-info {
+            flex: 1;
+        }
+
+        .user-search-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-search-details {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .friend-action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            min-height: 36px;
+        }
+
+        .send-request-btn {
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
+        }
+
+        .send-request-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        }
+
+        .pending-btn {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .accepted-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .message-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .badge {
+            background: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* Discovery Styles */
+        .discovery-section {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .discovery-header {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-chip {
+            padding: 6px 12px;
+            background: #e9ecef;
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-chip.active {
+            background: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+
+        .filter-chip:hover {
+            background: #dee2e6;
+        }
+
+        .filter-chip.active:hover {
+            background: #1565c0;
+        }
+
+        /* Responsive Design Improvements */
+        @media (max-width: 768px) {
+            .auth-container {
+                margin: 20px;
+                padding: 30px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+            
+            .sidebar-actions {
+                flex-wrap: wrap;
+            }
+            
+            .chat-actions {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-header h1 {
+                font-size: 24px;
+            }
+            
+            .auth-container {
+                padding: 20px;
+            }
+            
+            .sidebar-actions {
+                justify-content: center;
+            }
         }
     </style>
     
@@ -949,288 +1216,217 @@
     </script>
 </head>
 <body>
-    <!-- 🔥 SPLASH SCREEN -->
-    <div id="splashScreen" class="splash-screen">
-        <div class="splash-logo">
-            <i class="fas fa-comments"></i>
-        </div>
-        <div class="splash-title">MaanChat</div>
-        <div class="splash-subtitle">Hot Mobile Experience</div>
-        <div class="material-spinner"></div>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Loading MaanChatApp Pro...</p>
     </div>
 
-    <!-- 📱 AUTH CONTAINER -->
-    <div id="authContainer" class="auth-container">
-        <div class="auth-sheet" id="authSheet">
-            <div class="auth-handle"></div>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-container">
             <div class="auth-header">
-                <h1>Welcome</h1>
-                <p>Join the hottest mobile chat experience</p>
+                <i class="fas fa-comments"></i>
+                <h1>MaanChatApp Pro</h1>
+                <p>Complete Social Messaging Platform</p>
             </div>
             
             <div class="auth-tabs">
-                <button class="auth-tab active ripple" data-tab="login">Login</button>
-                <button class="auth-tab ripple" data-tab="register">Register</button>
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
             </div>
             
-            <div id="loginForm" class="auth-form">
-                <div class="material-input">
-                    <input type="email" id="loginEmail" placeholder=" " required>
-                    <label>Email</label>
-                </div>
-                <div class="material-input">
-                    <input type="password" id="loginPassword" placeholder=" " required>
-                    <label>Password</label>
-                </div>
-                <button onclick="login()" class="material-button ripple haptic">
+            <div id="loginForm" class="auth-form active">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button onclick="login()" class="auth-btn">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </button>
             </div>
             
-            <div id="registerForm" class="auth-form" style="display: none;">
-                <div class="material-input">
-                    <input type="text" id="registerName" placeholder=" " required>
-                    <label>Full Name</label>
-                </div>
-                <div class="material-input">
-                    <input type="email" id="registerEmail" placeholder=" " required>
-                    <label>Email</label>
-                </div>
-                <div class="material-input">
-                    <input type="password" id="registerPassword" placeholder=" " required>
-                    <label>Password</label>
-                </div>
-                <div class="material-input">
-                    <input type="text" id="registerUsername" placeholder=" " required>
-                    <label>Username</label>
-                </div>
-                <button onclick="register()" class="material-button ripple haptic">
-                    <i class="fas fa-user-plus"></i> Create Account
+            <div id="registerForm" class="auth-form">
+                <input type="text" id="registerName" placeholder="Full Name" required>
+                <input type="email" id="registerEmail" placeholder="Email" required>
+                <input type="password" id="registerPassword" placeholder="Password" required>
+                <input type="text" id="registerUsername" placeholder="Username" required>
+                <button onclick="register()" class="auth-btn">
+                    <i class="fas fa-user-plus"></i> Register
                 </button>
             </div>
             
-            <button onclick="signInWithGoogle()" class="material-button google-button ripple haptic">
-                <i class="fab fa-google"></i> Continue with Google
-            </button>
+            <div class="social-auth">
+                <button onclick="signInWithGoogle()" class="google-btn">
+                    <i class="fab fa-google"></i> Continue with Google
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- 🔥 MAIN APP -->
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- Main App -->
     <div id="mainApp" class="main-app">
-        <!-- 📱 TOP APP BAR -->
-        <div class="app-bar">
-            <div class="app-bar-left">
-                <div class="app-bar-title">MaanChat</div>
-            </div>
-            <div class="app-bar-actions">
-                <button class="icon-button ripple haptic" onclick="showSearch()">
-                    <i class="fas fa-search"></i>
-                </button>
-                <button class="icon-button ripple haptic" onclick="showProfile()">
-                    <i class="fas fa-user-circle"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- 📱 CONTENT PAGES -->
-        <div class="content-area">
-            <!-- 💬 CHATS PAGE -->
-            <div id="chatsPage" class="page active smooth-scroll">
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" class="search-input" placeholder="Search chats..." onkeyup="searchChats(this.value)">
-                </div>
-                
-                <div class="chat-list" id="chatList">
-                    <!-- Chat items will be populated here -->
-                </div>
-            </div>
-
-            <!-- 👥 FRIENDS PAGE -->
-            <div id="friendsPage" class="page smooth-scroll">
-                <div class="search-bar">
-                    <i class="fas fa-user-friends"></i>
-                    <input type="text" class="search-input" placeholder="Search friends..." onkeyup="searchFriends(this.value)">
-                </div>
-                
-                <div id="friendsList" class="chat-list">
-                    <!-- Friends will be populated here -->
-                </div>
-            </div>
-
-            <!-- 🔍 DISCOVER PAGE -->
-            <div id="discoverPage" class="page smooth-scroll">
-                <div class="search-bar">
-                    <i class="fas fa-compass"></i>
-                    <input type="text" class="search-input" placeholder="Discover people and groups..." onkeyup="searchDiscover(this.value)">
-                </div>
-                
-                <div id="discoverList" class="chat-list">
-                    <!-- Discover content will be populated here -->
-                </div>
-            </div>
-
-            <!-- ⚙️ SETTINGS PAGE -->
-            <div id="settingsPage" class="page smooth-scroll">
-                <div class="chat-list">
-                    <div class="chat-card ripple haptic" onclick="showProfile()">
-                        <div class="chat-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="chat-info">
-                            <div class="chat-name">Profile</div>
-                            <div class="chat-preview">Edit your profile information</div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: #ccc;"></i>
-                    </div>
-                    
-                    <div class="chat-card ripple haptic" onclick="showThemeSettings()">
-                        <div class="chat-avatar">
-                            <i class="fas fa-palette"></i>
-                        </div>
-                        <div class="chat-info">
-                            <div class="chat-name">Theme</div>
-                            <div class="chat-preview">Customize your experience</div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: #ccc;"></i>
-                    </div>
-                    
-                    <div class="chat-card ripple haptic" onclick="showNotificationSettings()">
-                        <div class="chat-avatar">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        <div class="chat-info">
-                            <div class="chat-name">Notifications</div>
-                            <div class="chat-preview">Manage notification preferences</div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: #ccc;"></i>
-                    </div>
-                    
-                    <div class="chat-card ripple haptic" onclick="logout()">
-                        <div class="chat-avatar" style="background: #f44336;">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </div>
-                        <div class="chat-info">
-                            <div class="chat-name" style="color: #f44336;">Logout</div>
-                            <div class="chat-preview">Sign out of your account</div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: #ccc;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 📱 BOTTOM NAVIGATION -->
-        <div class="bottom-nav">
-            <div class="nav-item active ripple haptic" onclick="switchPage('chats')">
-                <i class="fas fa-comments"></i>
-                <span>Chats</span>
-                <div class="nav-badge" id="chatsBadge" style="display: none;">3</div>
-            </div>
-            <div class="nav-item ripple haptic" onclick="switchPage('friends')">
-                <i class="fas fa-user-friends"></i>
-                <span>Friends</span>
-                <div class="nav-badge" id="friendsBadge" style="display: none;">2</div>
-            </div>
-            <div class="nav-item ripple haptic" onclick="switchPage('discover')">
-                <i class="fas fa-compass"></i>
-                <span>Discover</span>
-            </div>
-            <div class="nav-item ripple haptic" onclick="switchPage('settings')">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </div>
-        </div>
-
-        <!-- 🔥 FLOATING ACTION BUTTON -->
-        <button class="fab ripple haptic" onclick="showNewChatOptions()">
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
-
-    <!-- 💬 CHAT SCREEN -->
-    <div id="chatScreen" class="chat-screen gpu-accelerated">
-        <div class="chat-header">
-            <button class="icon-button ripple haptic" onclick="closeChatScreen()">
-                <i class="fas fa-arrow-left"></i>
+        <!-- Mobile Header (Hidden on Desktop) -->
+        <div class="mobile-header" style="display: none;">
+            <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                <i class="fas fa-bars"></i>
             </button>
-            <div class="chat-header-avatar" id="chatHeaderAvatar">
-                <i class="fas fa-user"></i>
-            </div>
-            <div class="chat-header-info" style="flex: 1;">
-                <h3 id="chatHeaderName">Select a chat</h3>
-                <p id="chatHeaderStatus">Tap to start messaging</p>
-            </div>
-            <button class="icon-button ripple haptic" onclick="showChatOptions()">
-                <i class="fas fa-ellipsis-v"></i>
+            <h1>MaanChatApp Pro</h1>
+            <button class="mobile-search-btn" onclick="showUserSearch()">
+                <i class="fas fa-search"></i>
             </button>
         </div>
 
-        <div class="messages-area smooth-scroll" id="messagesArea">
-            <!-- Messages will be populated here -->
-        </div>
-
-        <div class="message-input-container">
-            <div class="message-input-wrapper">
-                <button class="attachment-button ripple haptic" onclick="showAttachmentOptions()">
-                    <i class="fas fa-paperclip"></i>
-                </button>
-                <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1" onkeypress="handleMessageInput(event)"></textarea>
+        <!-- Sidebar -->
+        <div class="sidebar" id="mobileSidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <img id="userAvatar" src="https://via.placeholder.com/40" alt="Avatar" class="avatar">
+                    <div class="user-info">
+                        <span id="userName" class="user-name">User</span>
+                        <span id="userStatus" class="user-status">Online</span>
+                    </div>
+                    <div class="verification-badge" id="verificationBadge">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="sidebar-actions">
+                    <button onclick="showFriends()" class="action-btn" title="Friends">
+                        <i class="fas fa-user-friends"></i>
+                    </button>
+                    <button onclick="showDiscovery()" class="action-btn" title="Discover">
+                        <i class="fas fa-compass"></i>
+                    </button>
+                    <button onclick="showAdminPanel()" class="action-btn" title="Admin Panel">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button onclick="createGroup()" class="action-btn" title="Create Group">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button onclick="logout()" class="action-btn" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
             </div>
-            <button class="send-button ripple haptic" id="sendButton" onclick="sendMessage()">
-                <i class="fas fa-paper-plane"></i>
-            </button>
+            
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search chats..." onkeyup="searchChats(this.value)">
+            </div>
+            
+            <!-- Sidebar Tabs -->
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" onclick="showChatList('all')">All</button>
+                <button class="sidebar-tab" onclick="showChatList('people')">People</button>
+                <button class="sidebar-tab" onclick="showChatList('groups')">Groups</button>
+                <button class="sidebar-tab" onclick="showChatList('channels')">Channels</button>
+            </div>
+            
+            <div class="chat-list" id="chatList">
+                <!-- Chat items will be populated here -->
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header" id="chatHeader">
+                <div class="chat-info">
+                    <img id="chatAvatar" src="https://via.placeholder.com/40" alt="Chat Avatar" class="avatar">
+                    <div>
+                        <h3 id="chatName">Select a chat</h3>
+                        <span id="chatStatus" class="chat-status">Click on a chat to start messaging</span>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button onclick="addBots()" class="action-btn" title="Add Bots">
+                        <i class="fas fa-robot"></i>
+                    </button>
+                    <button onclick="manageChannel()" class="action-btn" title="Manage Channel">
+                        <i class="fas fa-users-cog"></i>
+                    </button>
+                    <button onclick="showMembers()" class="action-btn" title="Members">
+                        <i class="fas fa-users"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-message">
+                    <i class="fas fa-comments"></i>
+                    <h2>Welcome to MaanChatApp Pro</h2>
+                    <p>Select a chat to start messaging</p>
+                </div>
+            </div>
+            
+            <div class="message-input-area" id="messageInputArea" style="display: none;">
+                <div class="attachment-options" id="attachmentOptions">
+                    <button onclick="attachPhoto()" class="attach-btn">
+                        <i class="fas fa-camera"></i> Photo
+                    </button>
+                    <button onclick="attachVideo()" class="attach-btn">
+                        <i class="fas fa-video"></i> Video
+                    </button>
+                    <button onclick="attachFile()" class="attach-btn">
+                        <i class="fas fa-file"></i> File
+                    </button>
+                </div>
+                
+                <div class="message-input">
+                    <button onclick="toggleAttachments()" class="attach-toggle">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <textarea id="messageText" placeholder="Type a message..." onkeypress="handleEnterKey(event)" rows="1" class="message-text"></textarea>
+                    <button onclick="sendMessage()" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <input type="file" id="fileInput" accept="image/*,video/*" style="display: none;" onchange="handleFileSelect(event)">
+            </div>
         </div>
     </div>
 
-    <!-- 🌟 BOTTOM SHEETS -->
-    <div id="bottomSheetOverlay" class="bottom-sheet-overlay" onclick="closeBottomSheet()"></div>
-    
-    <div id="bottomSheet" class="bottom-sheet">
-        <div class="bottom-sheet-handle"></div>
-        <div class="bottom-sheet-header">
-            <div class="bottom-sheet-title" id="bottomSheetTitle">Options</div>
-        </div>
-        <div class="bottom-sheet-content" id="bottomSheetContent">
-            <!-- Dynamic content -->
-        </div>
-    </div>
+    <!-- Modals will be added here by JavaScript -->
 
     <script>
-        // 🔥 HOT MOBILE JAVASCRIPT - ANDROID NATIVE FEEL
+        // ORIGINAL JAVASCRIPT WITH ANDROID OPTIMIZATIONS
         
         // Global variables
         let currentUser = null;
         let currentChat = null;
-        let currentPage = 'chats';
+        let isAdmin = false;
         let messageListener = null;
         let loadedMessages = new Set();
         let isSending = false;
 
-        // Initialize app
+        // Initialize app when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            showSplashScreen();
-            
-            // Auto-resize message input
-            const messageInput = document.getElementById('messageInput');
-            if (messageInput) {
-                messageInput.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-                });
-            }
+            showLoadingScreen();
             
             // Setup auth tab switching
             document.querySelectorAll('.auth-tab').forEach(tab => {
                 tab.addEventListener('click', () => switchAuthTab(tab.dataset.tab));
             });
+
+            // Setup auto-resize for message textarea
+            setTimeout(() => {
+                const messageText = document.getElementById('messageText');
+                if (messageText) {
+                    messageText.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+                    });
+                }
+            }, 1000);
             
-            // Firebase auth state listener
+            // Check authentication state
             auth.onAuthStateChanged(function(user) {
+                hideLoadingScreen();
                 if (user) {
                     currentUser = user;
-                    loadUserData();
                     showMainApp();
+                    loadUserData();
                     loadChats();
                 } else {
                     showAuthScreen();
@@ -1238,46 +1434,34 @@
             });
         });
 
-        // Splash screen
-        function showSplashScreen() {
-            document.getElementById('splashScreen').style.display = 'flex';
-            setTimeout(() => {
-                hideSplashScreen();
-            }, 2000);
+        // Show/Hide screens
+        function showLoadingScreen() {
+            document.getElementById('loadingScreen').style.display = 'flex';
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'none';
         }
 
-        function hideSplashScreen() {
-            const splash = document.getElementById('splashScreen');
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.display = 'none';
-            }, 300);
+        function hideLoadingScreen() {
+            document.getElementById('loadingScreen').style.display = 'none';
         }
 
-        // Auth functions
         function showAuthScreen() {
-            hideSplashScreen();
-            const authContainer = document.getElementById('authContainer');
-            const authSheet = document.getElementById('authSheet');
-            authContainer.style.display = 'flex';
-            setTimeout(() => {
-                authSheet.classList.add('show');
-            }, 100);
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
         }
 
         function showMainApp() {
-            const authContainer = document.getElementById('authContainer');
-            const mainApp = document.getElementById('mainApp');
-            authContainer.style.display = 'none';
-            mainApp.style.display = 'flex';
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'flex';
         }
 
+        // Authentication Functions
         function switchAuthTab(tab) {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.auth-form').forEach(f => f.style.display = 'none');
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
             
             document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-            document.getElementById(`${tab}Form`).style.display = 'block';
+            document.getElementById(`${tab}Form`).classList.add('active');
         }
 
         async function login() {
@@ -1323,7 +1507,7 @@
                     name: name,
                     email: email,
                     username: username,
-                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1976d2&color=fff`,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a73e8&color=fff`,
                     isVerified: false,
                     isBot: false,
                     followers: 0,
@@ -1376,313 +1560,6 @@
             }
         }
 
-        // Navigation functions
-        function switchPage(page) {
-            // Update navigation
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            
-            // Update pages
-            document.querySelectorAll('.page').forEach(p => {
-                p.classList.remove('active', 'prev');
-                if (p.id === `${page}Page`) {
-                    p.classList.add('active');
-                } else if (p.classList.contains('active')) {
-                    p.classList.add('prev');
-                }
-            });
-            
-            currentPage = page;
-            
-            // Load page content
-            switch(page) {
-                case 'chats':
-                    loadChats();
-                    break;
-                case 'friends':
-                    loadFriends();
-                    break;
-                case 'discover':
-                    loadDiscover();
-                    break;
-                case 'settings':
-                    // Settings are static
-                    break;
-            }
-        }
-
-        // Chat functions
-        async function loadChats() {
-            const chatList = document.getElementById('chatList');
-            chatList.innerHTML = '';
-            
-            // Create sample chats for demo
-            const sampleChats = [
-                {
-                    id: 'general',
-                    name: 'General Chat',
-                    preview: 'Welcome to MaanChat! 🔥',
-                    time: '2m ago',
-                    unread: 3,
-                    avatar: 'G',
-                    online: true,
-                    verified: true
-                },
-                {
-                    id: 'tech',
-                    name: 'Tech Discussions',
-                    preview: 'Latest Android updates are amazing!',
-                    time: '5m ago',
-                    unread: 0,
-                    avatar: 'T',
-                    online: false,
-                    verified: false
-                },
-                {
-                    id: 'friends',
-                    name: 'Friends Group',
-                    preview: 'Anyone up for coffee? ☕',
-                    time: '1h ago',
-                    unread: 1,
-                    avatar: 'F',
-                    online: true,
-                    verified: false
-                }
-            ];
-            
-            sampleChats.forEach(chat => {
-                const chatElement = createChatCard(chat);
-                chatList.appendChild(chatElement);
-            });
-        }
-
-        function createChatCard(chat) {
-            const div = document.createElement('div');
-            div.className = 'chat-card ripple haptic';
-            div.onclick = () => openChat(chat);
-            
-            div.innerHTML = `
-                <div class="chat-avatar">
-                    ${chat.avatar}
-                    ${chat.online ? '<div class="online-dot"></div>' : ''}
-                </div>
-                <div class="chat-info">
-                    <div class="chat-name">
-                        ${chat.name}
-                        ${chat.verified ? '<i class="fas fa-check-circle verified-icon"></i>' : ''}
-                    </div>
-                    <div class="chat-preview">${chat.preview}</div>
-                </div>
-                <div class="chat-meta">
-                    <div class="chat-time">${chat.time}</div>
-                    ${chat.unread > 0 ? `<div class="unread-badge">${chat.unread}</div>` : ''}
-                </div>
-            `;
-            
-            return div;
-        }
-
-        function openChat(chat) {
-            currentChat = chat;
-            
-            // Update chat header
-            document.getElementById('chatHeaderName').textContent = chat.name;
-            document.getElementById('chatHeaderStatus').textContent = chat.online ? 'Online' : 'Last seen recently';
-            document.getElementById('chatHeaderAvatar').textContent = chat.avatar;
-            
-            // Show chat screen
-            const chatScreen = document.getElementById('chatScreen');
-            chatScreen.classList.add('active');
-            
-            // Load sample messages
-            loadMessages(chat.id);
-        }
-
-        function closeChatScreen() {
-            const chatScreen = document.getElementById('chatScreen');
-            chatScreen.classList.remove('active');
-            currentChat = null;
-        }
-
-        function loadMessages(chatId) {
-            const messagesArea = document.getElementById('messagesArea');
-            messagesArea.innerHTML = '';
-            
-            // Sample messages
-            const sampleMessages = [
-                {
-                    id: '1',
-                    text: 'Hey there! Welcome to the chat! 👋',
-                    sender: 'other',
-                    avatar: 'J',
-                    time: '10:30 AM'
-                },
-                {
-                    id: '2',
-                    text: 'Thanks! This mobile experience is amazing! 🔥',
-                    sender: 'me',
-                    avatar: 'M',
-                    time: '10:32 AM'
-                },
-                {
-                    id: '3',
-                    text: 'Right? The animations are so smooth!',
-                    sender: 'other',
-                    avatar: 'J',
-                    time: '10:33 AM'
-                }
-            ];
-            
-            sampleMessages.forEach(message => {
-                const messageElement = createMessageElement(message);
-                messagesArea.appendChild(messageElement);
-            });
-            
-            // Scroll to bottom
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-
-        function createMessageElement(message) {
-            const div = document.createElement('div');
-            div.className = `message ${message.sender === 'me' ? 'sent' : 'received'}`;
-            
-            div.innerHTML = `
-                <div class="message-avatar">${message.avatar}</div>
-                <div class="message-bubble">
-                    ${message.text}
-                    <div class="message-time">${message.time}</div>
-                </div>
-            `;
-            
-            return div;
-        }
-
-        function sendMessage() {
-            if (isSending) return;
-            
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            
-            if (!text) return;
-            
-            isSending = true;
-            const sendButton = document.getElementById('sendButton');
-            sendButton.disabled = true;
-            
-            // Create message element
-            const message = {
-                id: Date.now().toString(),
-                text: text,
-                sender: 'me',
-                avatar: 'M',
-                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            };
-            
-            const messageElement = createMessageElement(message);
-            document.getElementById('messagesArea').appendChild(messageElement);
-            
-            // Clear input
-            input.value = '';
-            input.style.height = 'auto';
-            
-            // Scroll to bottom
-            const messagesArea = document.getElementById('messagesArea');
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-            
-            // Re-enable send button
-            setTimeout(() => {
-                isSending = false;
-                sendButton.disabled = false;
-            }, 500);
-        }
-
-        function handleMessageInput(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        }
-
-        // Bottom sheet functions
-        function showBottomSheet(title, content) {
-            document.getElementById('bottomSheetTitle').textContent = title;
-            document.getElementById('bottomSheetContent').innerHTML = content;
-            
-            const overlay = document.getElementById('bottomSheetOverlay');
-            const sheet = document.getElementById('bottomSheet');
-            
-            overlay.classList.add('active');
-            setTimeout(() => {
-                sheet.classList.add('active');
-            }, 100);
-        }
-
-        function closeBottomSheet() {
-            const overlay = document.getElementById('bottomSheetOverlay');
-            const sheet = document.getElementById('bottomSheet');
-            
-            sheet.classList.remove('active');
-            setTimeout(() => {
-                overlay.classList.remove('active');
-            }, 300);
-        }
-
-        function showNewChatOptions() {
-            const content = `
-                <div class="chat-card ripple haptic" onclick="startNewChat(); closeBottomSheet();">
-                    <div class="chat-avatar" style="background: #4caf50;">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <div class="chat-info">
-                        <div class="chat-name">New Chat</div>
-                        <div class="chat-preview">Start a conversation</div>
-                    </div>
-                </div>
-                <div class="chat-card ripple haptic" onclick="createGroup(); closeBottomSheet();">
-                    <div class="chat-avatar" style="background: #ff9800;">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="chat-info">
-                        <div class="chat-name">New Group</div>
-                        <div class="chat-preview">Create a group chat</div>
-                    </div>
-                </div>
-                <div class="chat-card ripple haptic" onclick="createChannel(); closeBottomSheet();">
-                    <div class="chat-avatar" style="background: #9c27b0;">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    <div class="chat-info">
-                        <div class="chat-name">New Channel</div>
-                        <div class="chat-preview">Create a broadcast channel</div>
-                    </div>
-                </div>
-            `;
-            showBottomSheet('New Chat', content);
-        }
-
-        // Utility functions
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 16px;
-                right: 16px;
-                padding: 16px 20px;
-                background: ${type === 'error' ? '#f44336' : type === 'success' ? '#4caf50' : '#333'};
-                color: white;
-                border-radius: 12px;
-                z-index: 10000;
-                font-weight: 500;
-                box-shadow: var(--elevation-3);
-                animation: slideInToast 0.3s ease;
-            `;
-            toast.textContent = message;
-            
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
         // Load user data
         async function loadUserData() {
             if (!currentUser) return;
@@ -1692,6 +1569,20 @@
                 const userData = userSnapshot.val();
                 
                 if (userData) {
+                    document.getElementById('userName').textContent = userData.name;
+                    document.getElementById('userAvatar').src = userData.avatar;
+                    document.getElementById('userStatus').textContent = userData.status;
+                    
+                    // Show verification badge if verified
+                    const badge = document.getElementById('verificationBadge');
+                    if (userData.isVerified) {
+                        badge.style.display = 'block';
+                        badge.style.color = '#1da1f2';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                    
+                    // Update last seen
                     await database.ref(`users/${currentUser.uid}/lastSeen`).set(Date.now());
                     await database.ref(`users/${currentUser.uid}/status`).set('online');
                 }
@@ -1700,39 +1591,277 @@
             }
         }
 
-        // Placeholder functions
-        function loadFriends() {
-            const friendsList = document.getElementById('friendsList');
-            friendsList.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">Friends feature coming soon! 🚀</div>';
+        // Load chats
+        async function loadChats() {
+            const chatList = document.getElementById('chatList');
+            chatList.innerHTML = '';
+            
+            // Create sample chats for demo
+            const sampleChats = [
+                {
+                    id: 'general',
+                    name: 'General Chat',
+                    lastMessage: 'Welcome to MaanChatApp Pro! 🎉',
+                    time: '2m ago',
+                    avatar: 'https://ui-avatars.com/api/?name=General&background=1a73e8&color=fff',
+                    type: 'channel',
+                    isVerified: true,
+                    members: 150
+                },
+                {
+                    id: 'tech',
+                    name: 'Tech Discussions',
+                    lastMessage: 'Latest Android updates are amazing!',
+                    time: '5m ago',
+                    avatar: 'https://ui-avatars.com/api/?name=Tech&background=28a745&color=fff',
+                    type: 'group',
+                    isVerified: false,
+                    members: 87
+                },
+                {
+                    id: 'friends',
+                    name: 'Friends Group',
+                    lastMessage: 'Anyone up for coffee? ☕',
+                    time: '1h ago',
+                    avatar: 'https://ui-avatars.com/api/?name=Friends&background=ff4081&color=fff',
+                    type: 'group',
+                    isVerified: false,
+                    members: 12
+                }
+            ];
+            
+            sampleChats.forEach(chat => {
+                const chatElement = createChatElement(chat);
+                chatList.appendChild(chatElement);
+            });
         }
 
-        function loadDiscover() {
-            const discoverList = document.getElementById('discoverList');
-            discoverList.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">Discover feature coming soon! 🔍</div>';
+        function createChatElement(chat) {
+            const div = document.createElement('div');
+            div.className = 'chat-item';
+            div.dataset.chatType = chat.type;
+            div.onclick = () => openChat(chat);
+            
+            div.innerHTML = `
+                <img src="${chat.avatar}" alt="Chat" class="chat-avatar">
+                <div class="chat-info">
+                    <div class="chat-name">
+                        ${chat.name}
+                        ${chat.type === 'channel' ? '<i class="fas fa-bullhorn" style="margin-left: 5px; color: #1da1f2;"></i>' : ''}
+                        ${chat.isVerified ? '<i class="fas fa-check-circle" style="margin-left: 5px; color: #1da1f2;"></i>' : ''}
+                    </div>
+                    <div class="chat-last-message">${chat.lastMessage}</div>
+                </div>
+                <div class="chat-meta">
+                    <div class="chat-time">${chat.time}</div>
+                    <div class="member-count">${chat.members} members</div>
+                </div>
+            `;
+            
+            return div;
         }
 
-        function showSearch() { showToast('Search feature coming soon! 🔍'); }
-        function showProfile() { showToast('Profile feature coming soon! 👤'); }
-        function showChatOptions() { showToast('Chat options coming soon! ⚙️'); }
-        function showAttachmentOptions() { showToast('Attachments coming soon! 📎'); }
-        function startNewChat() { showToast('New chat feature coming soon! 💬'); }
-        function createGroup() { showToast('Group creation coming soon! 👥'); }
-        function createChannel() { showToast('Channel creation coming soon! 📢'); }
-        function searchChats(query) { /* Search implementation */ }
-        function searchFriends(query) { /* Search implementation */ }
-        function searchDiscover(query) { /* Search implementation */ }
-        function showThemeSettings() { showToast('Theme settings coming soon! 🎨'); }
-        function showNotificationSettings() { showToast('Notification settings coming soon! 🔔'); }
+        function openChat(chat) {
+            currentChat = chat;
+            
+            // Close mobile sidebar on chat selection
+            closeMobileSidebar();
+            
+            // Update active chat
+            document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget?.classList.add('active');
+            
+            // Update chat header
+            document.getElementById('chatName').textContent = chat.name;
+            document.getElementById('chatAvatar').src = chat.avatar;
+            document.getElementById('chatStatus').textContent = `${chat.members} members`;
+            
+            // Show chat header
+            document.getElementById('chatHeader').style.display = 'flex';
+            
+            // Load sample messages
+            loadMessages(chat.id);
+            
+            // Show message input area
+            document.getElementById('messageInputArea').style.display = 'block';
+            
+            // Clear welcome message
+            const welcomeMsg = document.querySelector('.welcome-message');
+            if (welcomeMsg) welcomeMsg.style.display = 'none';
+        }
 
-        // CSS animation for toast
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInToast {
-                from { transform: translateY(-100%); opacity: 0; }
-                to { transform: translateY(0); opacity: 1; }
+        function loadMessages(chatId) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.innerHTML = '';
+            
+            // Sample messages
+            const sampleMessages = [
+                {
+                    id: '1',
+                    text: 'Hey everyone! Welcome to the chat! 👋',
+                    sender: 'other',
+                    senderName: 'John Doe',
+                    senderAvatar: 'https://ui-avatars.com/api/?name=John&background=random',
+                    time: '10:30 AM',
+                    isVerified: true
+                },
+                {
+                    id: '2',
+                    text: 'Thanks! This is an amazing platform! 🚀',
+                    sender: 'me',
+                    senderName: 'You',
+                    senderAvatar: 'https://ui-avatars.com/api/?name=You&background=1a73e8',
+                    time: '10:32 AM',
+                    isVerified: false
+                },
+                {
+                    id: '3',
+                    text: 'The Android optimization is fantastic!',
+                    sender: 'other',
+                    senderName: 'Alice Smith',
+                    senderAvatar: 'https://ui-avatars.com/api/?name=Alice&background=random',
+                    time: '10:33 AM',
+                    isVerified: false
+                }
+            ];
+            
+            sampleMessages.forEach(message => {
+                const messageElement = createMessageElement(message);
+                messagesContainer.appendChild(messageElement);
+            });
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function createMessageElement(message) {
+            const div = document.createElement('div');
+            div.className = `message ${message.sender === 'me' ? 'sent' : 'received'}`;
+            
+            div.innerHTML = `
+                <div class="message-header">
+                    <img src="${message.senderAvatar}" alt="Avatar" class="message-avatar">
+                    <span class="message-sender">${message.senderName}</span>
+                    ${message.isVerified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                    <span class="message-time">${message.time}</span>
+                </div>
+                <div class="message-content">${message.text}</div>
+            `;
+            
+            return div;
+        }
+
+        function sendMessage() {
+            if (isSending) return;
+            
+            const messageTextElement = document.getElementById('messageText');
+            const messageText = messageTextElement.value.trim();
+            if (!messageText) return;
+            
+            isSending = true;
+            const sendBtn = document.querySelector('.send-btn');
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.style.opacity = '0.6';
             }
-        `;
-        document.head.appendChild(style);
+            
+            // Create message element
+            const message = {
+                id: Date.now().toString(),
+                text: messageText,
+                sender: 'me',
+                senderName: 'You',
+                senderAvatar: 'https://ui-avatars.com/api/?name=You&background=1a73e8',
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                isVerified: false
+            };
+            
+            const messageElement = createMessageElement(message);
+            document.getElementById('messagesContainer').appendChild(messageElement);
+            
+            // Clear input
+            messageTextElement.value = '';
+            messageTextElement.style.height = 'auto';
+            
+            // Scroll to bottom
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Re-enable send button
+            setTimeout(() => {
+                isSending = false;
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                }
+            }, 500);
+        }
+
+        function handleEnterKey(event) {
+            if (event.key === 'Enter' && !event.shiftKey && !isSending) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // Mobile navigation functions
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            if (sidebar.classList.contains('mobile-open')) {
+                closeMobileSidebar();
+            } else {
+                sidebar.classList.add('mobile-open');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Utility functions
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Attachment functions
+        function toggleAttachments() {
+            const options = document.getElementById('attachmentOptions');
+            if (options.classList.contains('show')) {
+                options.classList.remove('show');
+            } else {
+                options.classList.add('show');
+            }
+        }
+
+        // Placeholder functions for demo
+        function showFriends() { showToast('Friends feature coming soon! 👥'); }
+        function showDiscovery() { showToast('Discovery feature coming soon! 🔍'); }
+        function showAdminPanel() { showToast('Admin panel coming soon! ⚙️'); }
+        function createGroup() { showToast('Group creation coming soon! ➕'); }
+        function addBots() { showToast('Bot features coming soon! 🤖'); }
+        function manageChannel() { showToast('Channel management coming soon! 🛠️'); }
+        function showMembers() { showToast('Members list coming soon! 👥'); }
+        function showUserSearch() { showToast('User search coming soon! 🔍'); }
+        function attachPhoto() { showToast('Photo upload coming soon! 📷'); }
+        function attachVideo() { showToast('Video upload coming soon! 🎥'); }
+        function attachFile() { showToast('File upload coming soon! 📎'); }
+        function searchChats(query) { /* Search implementation */ }
+        function showChatList(filter) { /* Filter implementation */ }
+        function handleFileSelect(event) { /* File handling */ }
     </script>
 </body>
 </html>
