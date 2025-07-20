@@ -1209,26 +1209,187 @@
             measurementId: "G-YZQHZ8TX3Y"
         };
 
-        // Initialize Firebase with comprehensive error handling
+        // Initialize Firebase with comprehensive error handling and debugging
         let auth, database, firestore;
+        
+                 // Debug logging function
+         function debugLog(message, type = 'info') {
+             const timestamp = new Date().toLocaleTimeString();
+             console.log(`[${timestamp}] [${type.toUpperCase()}] ${message}`);
+             
+             // Always store debug logs
+             if (!window.debugLogs) window.debugLogs = [];
+             window.debugLogs.push({timestamp, type, message});
+             
+             // Show in UI if debug panel is open
+             const debugLogs = document.getElementById('debugLogs');
+             if (debugLogs && window.debugMode) {
+                 const logEntry = document.createElement('div');
+                 logEntry.style.marginBottom = '5px';
+                 logEntry.style.padding = '3px';
+                 logEntry.style.borderLeft = `3px solid ${type === 'error' ? '#ff4444' : type === 'success' ? '#44ff44' : '#44aaff'}`;
+                 logEntry.style.paddingLeft = '8px';
+                 logEntry.innerHTML = `<span style="color: #888; font-size: 10px;">${timestamp}</span> <span style="color: ${type === 'error' ? '#ff6666' : type === 'success' ? '#66ff66' : '#66aaff'};">${message}</span>`;
+                 debugLogs.appendChild(logEntry);
+                 debugLogs.scrollTop = debugLogs.scrollHeight;
+             }
+         }
+         
+         // Debug panel control functions
+         function toggleDebug() {
+             const panel = document.getElementById('debugPanel');
+             window.debugMode = !window.debugMode;
+             
+             if (window.debugMode) {
+                 panel.style.display = 'block';
+                 // Show existing logs
+                 const debugLogs = document.getElementById('debugLogs');
+                 debugLogs.innerHTML = '';
+                 if (window.debugLogs) {
+                     window.debugLogs.forEach(log => {
+                         const logEntry = document.createElement('div');
+                         logEntry.style.marginBottom = '5px';
+                         logEntry.style.padding = '3px';
+                         logEntry.style.borderLeft = `3px solid ${log.type === 'error' ? '#ff4444' : log.type === 'success' ? '#44ff44' : '#44aaff'}`;
+                         logEntry.style.paddingLeft = '8px';
+                         logEntry.innerHTML = `<span style="color: #888; font-size: 10px;">${log.timestamp}</span> <span style="color: ${log.type === 'error' ? '#ff6666' : log.type === 'success' ? '#66ff66' : '#66aaff'};">${log.message}</span>`;
+                         debugLogs.appendChild(logEntry);
+                     });
+                     debugLogs.scrollTop = debugLogs.scrollHeight;
+                 }
+             } else {
+                 panel.style.display = 'none';
+             }
+         }
+         
+                   function clearDebug() {
+              window.debugLogs = [];
+              const debugLogs = document.getElementById('debugLogs');
+              if (debugLogs) debugLogs.innerHTML = '';
+              debugLog("Debug logs cleared", 'info');
+          }
+          
+          // Test Firebase connection
+          async function testFirebase() {
+              debugLog("🧪 Starting Firebase connection test...", 'info');
+              
+              try {
+                  // Test 1: Check if Firebase is initialized
+                  if (typeof firebase === 'undefined') {
+                      debugLog("❌ Firebase SDK not loaded", 'error');
+                      return;
+                  }
+                  debugLog("✅ Firebase SDK loaded", 'success');
+                  
+                  // Test 2: Check if app is initialized
+                  if (!window.firebaseReady) {
+                      debugLog("❌ Firebase app not ready", 'error');
+                      return;
+                  }
+                  debugLog("✅ Firebase app initialized", 'success');
+                  
+                  // Test 3: Test auth service
+                  if (auth) {
+                      debugLog("✅ Auth service available", 'success');
+                      
+                      // Test current user
+                      const currentUser = auth.currentUser;
+                      if (currentUser) {
+                          debugLog(`👤 Current user: ${currentUser.email}`, 'success');
+                      } else {
+                          debugLog("👤 No user signed in", 'info');
+                      }
+                  } else {
+                      debugLog("❌ Auth service not available", 'error');
+                  }
+                  
+                  // Test 4: Test database connection
+                  if (database) {
+                      debugLog("✅ Database service available", 'success');
+                      
+                      // Try to read from database
+                      const testRef = database.ref('.info/connected');
+                      testRef.once('value', (snapshot) => {
+                          if (snapshot.val() === true) {
+                              debugLog("✅ Database connection active", 'success');
+                          } else {
+                              debugLog("❌ Database connection inactive", 'error');
+                          }
+                      });
+                  } else {
+                      debugLog("❌ Database service not available", 'error');
+                  }
+                  
+                  // Test 5: Try a simple auth operation (checking if account exists)
+                  debugLog("🔍 Testing auth API endpoint...", 'info');
+                  try {
+                      // This will fail but gives us info about API key validity
+                      await auth.fetchSignInMethodsForEmail('test@example.com');
+                      debugLog("✅ Auth API responding correctly", 'success');
+                  } catch (authError) {
+                      if (authError.code === 'auth/invalid-api-key') {
+                          debugLog("💥 INVALID API KEY DETECTED!", 'error');
+                      } else {
+                          debugLog(`✅ Auth API working (expected error: ${authError.code})`, 'success');
+                      }
+                  }
+                  
+                  debugLog("🧪 Firebase test completed", 'success');
+                  showToast('Firebase test completed - check debug console', 'info');
+                  
+              } catch (error) {
+                  debugLog(`❌ Firebase test failed: ${error.message}`, 'error');
+                  showToast('Firebase test failed - check debug console', 'error');
+              }
+          }
+        
+        // Start debugging
+        debugLog("Starting Firebase initialization...");
+        debugLog(`Config API Key: ${firebaseConfig.apiKey.substring(0, 20)}...`);
+        debugLog(`Auth Domain: ${firebaseConfig.authDomain}`);
+        
         try {
             firebase.initializeApp(firebaseConfig);
+            debugLog("Firebase app initialized successfully");
+            
             auth = firebase.auth();
+            debugLog("Firebase Auth initialized");
+            
             database = firebase.database();
+            debugLog("Firebase Database initialized");
+            
             firestore = firebase.firestore();
-            console.log("✅ Firebase initialized successfully");
+            debugLog("Firebase Firestore initialized");
+            
+            debugLog("✅ ALL Firebase services initialized successfully", 'success');
             window.firebaseReady = true;
+            
+            // Test Firebase connection
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    debugLog(`🔐 User authenticated: ${user.email}`, 'success');
+                } else {
+                    debugLog("👤 No user authenticated");
+                }
+            });
+            
         } catch (error) {
-            console.error("❌ Firebase initialization error:", error);
+            debugLog(`❌ Firebase initialization FAILED: ${error.message}`, 'error');
+            debugLog(`Error code: ${error.code}`, 'error');
+            debugLog(`Error stack: ${error.stack}`, 'error');
+            
             window.firebaseReady = false;
             window.offlineMode = true;
             
             // Create mock auth object for offline mode
             auth = {
-                signInWithEmailAndPassword: () => Promise.reject(new Error("Please check your internet connection and try again.")),
-                createUserWithEmailAndPassword: () => Promise.reject(new Error("Please check your internet connection and try again.")),
-                signInWithPopup: () => Promise.reject(new Error("Please check your internet connection and try again.")),
-                onAuthStateChanged: (callback) => callback(null),
+                signInWithEmailAndPassword: () => Promise.reject(new Error("Firebase not available. Please check your internet connection and refresh the page.")),
+                createUserWithEmailAndPassword: () => Promise.reject(new Error("Firebase not available. Please check your internet connection and refresh the page.")),
+                signInWithPopup: () => Promise.reject(new Error("Firebase not available. Please check your internet connection and refresh the page.")),
+                onAuthStateChanged: (callback) => {
+                    debugLog("⚠️ Using mock auth - calling callback with null");
+                    callback(null);
+                },
                 signOut: () => Promise.resolve()
             };
             database = { ref: () => ({ set: () => Promise.resolve(), once: () => Promise.resolve({ val: () => null }) }) };
@@ -1241,6 +1402,28 @@
     <div id="loadingScreen" class="loading-screen">
         <div class="loading-spinner"></div>
         <p>Loading MaanChatApp Pro...</p>
+        
+                     <!-- Debug Toggle Button -->
+             <button onclick="toggleDebug()" style="margin-top: 20px; padding: 10px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                 🔧 Debug Console
+             </button>
+             
+             <!-- Test Firebase Button -->
+             <button onclick="testFirebase()" style="margin-top: 10px; padding: 10px; background: rgba(76, 175, 80, 0.2); border: 1px solid rgba(76, 175, 80, 0.3); color: white; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                 🧪 Test Firebase
+             </button>
+    </div>
+
+    <!-- Debug Panel -->
+    <div id="debugPanel" style="display: none; position: fixed; top: 10px; right: 10px; width: 400px; height: 300px; background: rgba(0,0,0,0.95); color: #00ff00; padding: 15px; border-radius: 8px; z-index: 10000; font-family: 'Courier New', monospace; font-size: 11px; overflow-y: auto; border: 2px solid #333;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 8px;">
+            <strong>🔧 Firebase Debug Console</strong>
+            <div>
+                <button onclick="clearDebug()" style="background: #ff4444; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 10px; margin-right: 5px;">Clear</button>
+                <button onclick="toggleDebug()" style="background: #666; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 10px;">Close</button>
+            </div>
+        </div>
+        <div id="debugLogs" style="max-height: 250px; overflow-y: auto;"></div>
     </div>
 
     <!-- Auth Screen -->
@@ -1489,16 +1672,22 @@
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
             
+            debugLog(`🔐 Login attempt for email: ${email}`);
+            
             if (!email || !password) {
+                debugLog('❌ Login failed: Missing email or password', 'error');
                 showToast('Please fill in all fields', 'error');
                 return;
             }
 
             // Check if Firebase is ready
             if (!window.firebaseReady) {
+                debugLog('❌ Login failed: Firebase not ready', 'error');
                 showToast('Firebase connection failed. Please check your internet connection and refresh the page.', 'error');
                 return;
             }
+            
+            debugLog('🔄 Starting login process...');
             
             // Show loading state
             const loginBtn = event.target;
@@ -1507,10 +1696,15 @@
             loginBtn.disabled = true;
             
             try {
+                debugLog('📡 Calling Firebase signInWithEmailAndPassword...');
                 await auth.signInWithEmailAndPassword(email, password);
+                debugLog('✅ Login successful!', 'success');
                 showToast('Login successful!', 'success');
             } catch (error) {
-                console.error('Login error:', error);
+                debugLog(`❌ Login error occurred: ${error.message}`, 'error');
+                debugLog(`Error code: ${error.code}`, 'error');
+                debugLog(`Full error: ${JSON.stringify(error)}`, 'error');
+                
                 let errorMessage = 'Login failed. Please try again.';
                 
                 if (error.code === 'auth/user-not-found') {
@@ -1521,15 +1715,20 @@
                     errorMessage = 'Invalid email address format.';
                 } else if (error.code === 'auth/too-many-requests') {
                     errorMessage = 'Too many failed attempts. Please try again later.';
+                } else if (error.code === 'auth/invalid-api-key') {
+                    errorMessage = 'Firebase API key error. Please contact support.';
+                    debugLog('💥 INVALID API KEY ERROR DETECTED!', 'error');
                 } else if (error.message) {
                     errorMessage = error.message;
                 }
                 
+                debugLog(`📢 Showing error message: ${errorMessage}`, 'error');
                 showToast(errorMessage, 'error');
             } finally {
                 // Restore button state
                 loginBtn.innerHTML = originalText;
                 loginBtn.disabled = false;
+                debugLog('🔄 Login process completed');
             }
         }
 
