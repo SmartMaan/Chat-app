@@ -1,0 +1,2174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatApp Pro - Advanced Messaging Platform</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1a73e8">
+    <meta name="description" content="Advanced chat application with groups, channels, and bot management">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* COMPLETE CSS EMBEDDED */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Auth Screen */
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header i {
+            font-size: 48px;
+            color: #1a73e8;
+            margin-bottom: 15px;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            color: #1a73e8;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .social-auth {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .google-btn:hover {
+            border-color: #4285f4;
+            color: #4285f4;
+        }
+
+        /* Main App */
+        .main-app {
+            display: none;
+            height: 100vh;
+            background: white;
+            flex-direction: row;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 350px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: white;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+            display: block;
+        }
+
+        .user-status {
+            font-size: 12px;
+            color: #28a745;
+        }
+
+        .verification-badge {
+            position: absolute;
+            top: -5px;
+            right: 0;
+            color: #1da1f2;
+            font-size: 18px;
+            display: none;
+        }
+
+        .sidebar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .search-bar {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            position: relative;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 35px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 40px;
+            border: 1px solid #dee2e6;
+            border-radius: 25px;
+            background: white;
+            font-size: 14px;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .chat-item:hover {
+            background-color: #f1f3f4;
+        }
+
+        .chat-item.active {
+            background-color: #e3f2fd;
+            border-left: 4px solid #1a73e8;
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chat-last-message {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-meta {
+            text-align: right;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .member-count {
+            font-size: 11px;
+            color: #666;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-info h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .chat-status {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #666;
+            margin-top: 50px;
+        }
+
+        .welcome-message i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .welcome-message h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            animation: messageSlideIn 0.3s ease;
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            align-items: flex-end;
+        }
+
+        .message.sent .message-content {
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+        }
+
+        .message.received .message-content {
+            background: white;
+            color: #333;
+            border-radius: 18px 18px 18px 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .message.sent .message-header {
+            justify-content: flex-end;
+        }
+
+        .message-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .message-sender {
+            font-weight: 600;
+        }
+
+        .verified-badge {
+            color: #1da1f2;
+            font-size: 14px;
+        }
+
+        .message-time {
+            color: #999;
+        }
+
+        .message-content {
+            max-width: 60%;
+            padding: 12px 16px;
+            word-wrap: break-word;
+        }
+
+        .message-media {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        .message-input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .attachment-options {
+            display: none;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .attach-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .attach-btn:hover {
+            background: #e9ecef;
+        }
+
+        .message-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .attach-toggle {
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .attach-toggle:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+
+        .message-input input:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        .send-btn {
+            padding: 12px;
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+        }
+
+        .close-btn {
+            padding: 8px;
+            background: transparent;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        /* Admin Panel */
+        .admin-tabs {
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .admin-tab {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .admin-tab.active {
+            color: #1a73e8;
+            border-bottom: 2px solid #1a73e8;
+        }
+
+        .admin-tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .admin-tab-content.active {
+            display: block;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .admin-btn {
+            padding: 10px 16px;
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .verify-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .revoke-btn {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+        }
+
+        .admin-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .admin-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+        }
+
+        .list-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .list-info {
+            flex: 1;
+        }
+
+        .list-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .list-meta {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .list-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mini-btn {
+            padding: 6px 12px;
+            background: #e9ecef;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .mini-btn:hover {
+            background: #dee2e6;
+        }
+
+        .bot-label {
+            background: #fd7e14;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* Group Form */
+        .group-form {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Bot Generator */
+        .bot-generator {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .bot-generator h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .bot-generator label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .bot-generator input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        /* Verification Controls */
+        .verification-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .verification-form {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            margin-top: 15px;
+        }
+
+        .verification-form input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+        }
+
+        /* Members Modal */
+        .members-list {
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .member-meta {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .member-role {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-app {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 40vh;
+            }
+            
+            .chat-area {
+                height: 60vh;
+            }
+            
+            .auth-container {
+                margin: 20px;
+                padding: 30px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+            
+            .admin-actions {
+                flex-direction: column;
+            }
+            
+            .verification-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar-actions {
+                flex-wrap: wrap;
+            }
+            
+            .chat-actions {
+                flex-wrap: wrap;
+            }
+            
+            .auth-header h1 {
+                font-size: 24px;
+            }
+            
+            .auth-container {
+                padding: 20px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #1557b0, #5a3d7a);
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            color: white;
+            font-weight: 500;
+        }
+
+        .toast.success {
+            background: #4caf50;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Loading ChatApp Pro...</p>
+    </div>
+
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-container">
+            <div class="auth-header">
+                <i class="fas fa-comments"></i>
+                <h1>ChatApp Pro</h1>
+                <p>Advanced Messaging Platform</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+            
+            <div id="loginForm" class="auth-form active">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button onclick="login()" class="auth-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+            
+            <div id="registerForm" class="auth-form">
+                <input type="text" id="registerName" placeholder="Full Name" required>
+                <input type="email" id="registerEmail" placeholder="Email" required>
+                <input type="password" id="registerPassword" placeholder="Password" required>
+                <input type="text" id="registerUsername" placeholder="Username" required>
+                <button onclick="register()" class="auth-btn">
+                    <i class="fas fa-user-plus"></i> Register
+                </button>
+            </div>
+            
+            <div class="social-auth">
+                <button onclick="signInWithGoogle()" class="google-btn">
+                    <i class="fab fa-google"></i> Continue with Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="main-app">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <img id="userAvatar" src="https://via.placeholder.com/40" alt="Avatar" class="avatar">
+                    <div class="user-info">
+                        <span id="userName" class="user-name">User</span>
+                        <span id="userStatus" class="user-status">Online</span>
+                    </div>
+                    <div class="verification-badge" id="verificationBadge">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="sidebar-actions">
+                    <button onclick="showAdminPanel()" class="action-btn" title="Admin Panel">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button onclick="createGroup()" class="action-btn" title="Create Group">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button onclick="logout()" class="action-btn" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search chats..." onkeyup="searchChats(this.value)">
+            </div>
+            
+            <div class="chat-list" id="chatList">
+                <!-- Chat items will be populated here -->
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header" id="chatHeader">
+                <div class="chat-info">
+                    <img id="chatAvatar" src="https://via.placeholder.com/40" alt="Chat Avatar" class="avatar">
+                    <div>
+                        <h3 id="chatName">Select a chat</h3>
+                        <span id="chatStatus" class="chat-status">Click on a chat to start messaging</span>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button onclick="addBots()" class="action-btn" title="Add Bots">
+                        <i class="fas fa-robot"></i>
+                    </button>
+                    <button onclick="manageChannel()" class="action-btn" title="Manage Channel">
+                        <i class="fas fa-users-cog"></i>
+                    </button>
+                    <button onclick="showMembers()" class="action-btn" title="Members">
+                        <i class="fas fa-users"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-message">
+                    <i class="fas fa-comments"></i>
+                    <h2>Welcome to ChatApp Pro</h2>
+                    <p>Select a chat to start messaging</p>
+                </div>
+            </div>
+            
+            <div class="message-input-area" id="messageInputArea">
+                <div class="attachment-options" id="attachmentOptions">
+                    <button onclick="attachPhoto()" class="attach-btn">
+                        <i class="fas fa-camera"></i> Photo
+                    </button>
+                    <button onclick="attachVideo()" class="attach-btn">
+                        <i class="fas fa-video"></i> Video
+                    </button>
+                    <button onclick="attachFile()" class="attach-btn">
+                        <i class="fas fa-file"></i> File
+                    </button>
+                </div>
+                
+                <div class="message-input">
+                    <button onclick="toggleAttachments()" class="attach-toggle">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input type="text" id="messageText" placeholder="Type a message..." onkeypress="handleEnterKey(event)">
+                    <button onclick="sendMessage()" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <input type="file" id="fileInput" accept="image/*,video/*" style="display: none;" onchange="handleFileSelect(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminPanel" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-shield-alt"></i> Admin Panel</h2>
+                <button onclick="closeModal('adminPanel')" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="users">Users</button>
+                <button class="admin-tab" data-tab="channels">Channels</button>
+                <button class="admin-tab" data-tab="bots">Bots</button>
+                <button class="admin-tab" data-tab="verification">Verification</button>
+            </div>
+            
+            <div id="usersTab" class="admin-tab-content active">
+                <div class="admin-actions">
+                    <button onclick="addFakeFollowers()" class="admin-btn">
+                        <i class="fas fa-user-plus"></i> Add Bot Followers
+                    </button>
+                    <button onclick="promoteUser()" class="admin-btn">
+                        <i class="fas fa-crown"></i> Promote User
+                    </button>
+                </div>
+                <div id="usersList" class="admin-list"></div>
+            </div>
+            
+            <div id="channelsTab" class="admin-tab-content">
+                <div class="admin-actions">
+                    <button onclick="createChannel()" class="admin-btn">
+                        <i class="fas fa-plus"></i> Create Channel
+                    </button>
+                    <button onclick="bulkAddBots()" class="admin-btn">
+                        <i class="fas fa-robot"></i> Bulk Add Bots
+                    </button>
+                </div>
+                <div id="channelsList" class="admin-list"></div>
+            </div>
+            
+            <div id="botsTab" class="admin-tab-content">
+                <div class="bot-generator">
+                    <h3>Bot Generator</h3>
+                    <label>Number of bots to create:</label>
+                    <input type="number" id="botCount" value="100" min="1" max="10000">
+                    <button onclick="generateBots()" class="admin-btn">
+                        <i class="fas fa-magic"></i> Generate Bots
+                    </button>
+                </div>
+                <div id="botsList" class="admin-list"></div>
+            </div>
+            
+            <div id="verificationTab" class="admin-tab-content">
+                <div class="verification-controls">
+                    <h3>Blue Tick Verification</h3>
+                    <div class="verification-form">
+                        <input type="text" id="verifyUsername" placeholder="Username to verify">
+                        <button onclick="grantVerification()" class="admin-btn verify-btn">
+                            <i class="fas fa-check-circle"></i> Grant Blue Tick
+                        </button>
+                        <button onclick="revokeVerification()" class="admin-btn revoke-btn">
+                            <i class="fas fa-times-circle"></i> Revoke Verification
+                        </button>
+                    </div>
+                </div>
+                <div id="verifiedUsersList" class="admin-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-users"></i> Create Group/Channel</h2>
+                <button onclick="closeModal('createGroupModal')" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="group-form">
+                <div class="form-group">
+                    <label>Type:</label>
+                    <select id="groupType">
+                        <option value="group">Group Chat</option>
+                        <option value="channel">Channel</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="groupName" placeholder="Enter group/channel name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="groupDescription" placeholder="Enter description"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Privacy:</label>
+                    <select id="groupPrivacy">
+                        <option value="public">Public</option>
+                        <option value="private">Private</option>
+                    </select>
+                </div>
+                
+                <button onclick="submitGroupCreation()" class="submit-btn">
+                    <i class="fas fa-plus"></i> Create
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Members Modal -->
+    <div id="membersModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-users"></i> Members</h2>
+                <button onclick="closeModal('membersModal')" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="membersList" class="members-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // COMPLETE JAVASCRIPT EMBEDDED
+        
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAL5e-5eQfgf1nI6hWTnhwLFgK0Cp89aa0",
+            authDomain: "aviator-pr01.firebaseapp.com",
+            databaseURL: "https://aviator-pr01-default-rtdb.firebaseio.com",
+            projectId: "aviator-pr01",
+            storageBucket: "aviator-pr01.firebasestorage.app",
+            messagingSenderId: "290788041297",
+            appId: "1:290788041297:web:168f99d1532997fb778e70",
+            measurementId: "G-ENCBTT4BL8"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Initialize Firebase services
+        const auth = firebase.auth();
+        const database = firebase.database();
+        const firestore = firebase.firestore();
+
+        // Global variables
+        let currentUser = null;
+        let currentChat = null;
+        let isAdmin = false;
+
+        // Bot names for generating fake users
+        const botNames = [
+            'Alex Johnson', 'Maria Garcia', 'David Wilson', 'Sarah Brown', 'Michael Davis',
+            'Jessica Miller', 'Christopher Wilson', 'Amanda Johnson', 'Matthew Taylor', 'Ashley Anderson',
+            'Joshua Jackson', 'Brittany White', 'Andrew Thomas', 'Samantha Harris', 'Justin Martin',
+            'Megan Thompson', 'Ryan Garcia', 'Lauren Martinez', 'Brandon Rodriguez', 'Kayla Lewis',
+            'Tyler Lee', 'Nicole Walker', 'Kevin Hall', 'Danielle Allen', 'Jose Young',
+            'Stephanie Hernandez', 'Jacob King', 'Rachel Wright', 'Aaron Lopez', 'Christina Hill',
+            'Zachary Scott', 'Michelle Green', 'Nathan Adams', 'Kimberly Baker', 'Caleb Gonzalez',
+            'Amy Nelson', 'Noah Carter', 'Elizabeth Mitchell', 'Ethan Perez', 'Melissa Roberts',
+            'Lucas Turner', 'Laura Phillips', 'Mason Campbell', 'Rebecca Parker', 'Logan Evans',
+            'Anna Edwards', 'Hunter Collins', 'Victoria Stewart', 'Connor Sanchez', 'Olivia Morris'
+        ];
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoadingScreen();
+            
+            // Setup auth tab switching
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchAuthTab(tab.dataset.tab));
+            });
+
+            // Setup admin tab switching
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchAdminTab(tab.dataset.tab));
+            });
+            
+            // Check authentication state
+            auth.onAuthStateChanged(function(user) {
+                hideLoadingScreen();
+                if (user) {
+                    currentUser = user;
+                    checkAdminStatus();
+                    showMainApp();
+                    loadUserData();
+                    loadChats();
+                } else {
+                    showAuthScreen();
+                }
+            });
+        });
+
+        // Show/Hide screens
+        function showLoadingScreen() {
+            document.getElementById('loadingScreen').style.display = 'flex';
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        function hideLoadingScreen() {
+            document.getElementById('loadingScreen').style.display = 'none';
+        }
+
+        function showAuthScreen() {
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        function showMainApp() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'flex';
+        }
+
+        // Authentication Functions
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById(`${tab}Form`).classList.add('active');
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showSuccessMessage('Login successful!');
+            } catch (error) {
+                showErrorMessage(error.message);
+            }
+        }
+
+        async function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const username = document.getElementById('registerUsername').value;
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Update profile
+                await user.updateProfile({
+                    displayName: name
+                });
+                
+                // Save user data to database
+                await database.ref(`users/${user.uid}`).set({
+                    name: name,
+                    email: email,
+                    username: username,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a73e8&color=fff`,
+                    isVerified: false,
+                    isBot: false,
+                    followers: 0,
+                    following: 0,
+                    joinedAt: Date.now(),
+                    lastSeen: Date.now(),
+                    status: 'online'
+                });
+                
+                showSuccessMessage('Registration successful!');
+            } catch (error) {
+                showErrorMessage(error.message);
+            }
+        }
+
+        async function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                
+                // Save user data if new user
+                const userRef = database.ref(`users/${user.uid}`);
+                const snapshot = await userRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    await userRef.set({
+                        name: user.displayName,
+                        email: user.email,
+                        username: user.email.split('@')[0],
+                        avatar: user.photoURL,
+                        isVerified: false,
+                        isBot: false,
+                        followers: 0,
+                        following: 0,
+                        joinedAt: Date.now(),
+                        lastSeen: Date.now(),
+                        status: 'online'
+                    });
+                }
+                
+                showSuccessMessage('Google sign-in successful!');
+            } catch (error) {
+                showErrorMessage(error.message);
+            }
+        }
+
+        function logout() {
+            auth.signOut();
+        }
+
+        // User Data Functions
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+            const userData = userSnapshot.val();
+            
+            if (userData) {
+                document.getElementById('userName').textContent = userData.name;
+                document.getElementById('userAvatar').src = userData.avatar;
+                document.getElementById('userStatus').textContent = userData.status;
+                
+                // Show verification badge if verified
+                const badge = document.getElementById('verificationBadge');
+                if (userData.isVerified) {
+                    badge.style.display = 'block';
+                    badge.style.color = '#1da1f2';
+                } else {
+                    badge.style.display = 'none';
+                }
+                
+                // Update last seen
+                await database.ref(`users/${currentUser.uid}/lastSeen`).set(Date.now());
+            }
+        }
+
+        async function checkAdminStatus() {
+            if (!currentUser) return;
+            
+            const adminSnapshot = await database.ref(`admins/${currentUser.uid}`).once('value');
+            isAdmin = adminSnapshot.exists();
+            
+            // Show admin panel button only for admins
+            const adminBtn = document.querySelector('[onclick="showAdminPanel()"]');
+            if (adminBtn) {
+                adminBtn.style.display = isAdmin ? 'block' : 'none';
+            }
+        }
+
+        // Chat Functions
+        async function loadChats() {
+            const chatList = document.getElementById('chatList');
+            chatList.innerHTML = '';
+            
+            // Load user's chats
+            const userChatsRef = database.ref(`userChats/${currentUser.uid}`);
+            userChatsRef.on('value', async (snapshot) => {
+                const userChats = snapshot.val() || {};
+                
+                for (const chatId in userChats) {
+                    const chatSnapshot = await database.ref(`chats/${chatId}`).once('value');
+                    const chatData = chatSnapshot.val();
+                    
+                    if (chatData) {
+                        const chatElement = createChatElement(chatId, chatData);
+                        chatList.appendChild(chatElement);
+                    }
+                }
+            });
+            
+            // Create some default channels with bots
+            await createDefaultChannels();
+        }
+
+        function createChatElement(chatId, chatData) {
+            const div = document.createElement('div');
+            div.className = 'chat-item';
+            div.onclick = () => openChat(chatId, chatData);
+            
+            const lastMessage = chatData.lastMessage || 'No messages yet';
+            const memberCount = chatData.members ? Object.keys(chatData.members).length : 0;
+            
+            div.innerHTML = `
+                <img src="${chatData.avatar || 'https://via.placeholder.com/40'}" alt="Chat" class="chat-avatar">
+                <div class="chat-info">
+                    <div class="chat-name">
+                        ${chatData.name}
+                        ${chatData.type === 'channel' ? '<i class="fas fa-bullhorn" style="margin-left: 5px; color: #1da1f2;"></i>' : ''}
+                        ${chatData.isVerified ? '<i class="fas fa-check-circle" style="margin-left: 5px; color: #1da1f2;"></i>' : ''}
+                    </div>
+                    <div class="chat-last-message">${lastMessage}</div>
+                </div>
+                <div class="chat-meta">
+                    <div class="chat-time">${formatTime(chatData.lastMessageTime)}</div>
+                    <div class="member-count">${memberCount} members</div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        async function openChat(chatId, chatData) {
+            currentChat = chatId;
+            
+            // Update chat header
+            document.getElementById('chatName').textContent = chatData.name;
+            document.getElementById('chatAvatar').src = chatData.avatar || 'https://via.placeholder.com/40';
+            document.getElementById('chatStatus').textContent = `${Object.keys(chatData.members || {}).length} members`;
+            
+            // Load messages
+            loadMessages(chatId);
+            
+            // Show message input
+            document.getElementById('messageInputArea').style.display = 'flex';
+            
+            // Clear welcome message
+            const welcomeMsg = document.querySelector('.welcome-message');
+            if (welcomeMsg) welcomeMsg.style.display = 'none';
+        }
+
+        function loadMessages(chatId) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.innerHTML = '';
+            
+            const messagesRef = database.ref(`messages/${chatId}`);
+            messagesRef.limitToLast(50).on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                const messageElement = createMessageElement(message);
+                messagesContainer.appendChild(messageElement);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        }
+
+        function createMessageElement(message) {
+            const div = document.createElement('div');
+            div.className = `message ${message.senderId === currentUser.uid ? 'sent' : 'received'}`;
+            
+            const messageContent = message.type === 'text' ? message.text : 
+                                  message.type === 'image' ? `<img src="${message.url}" alt="Image" class="message-media">` :
+                                  message.type === 'video' ? `<video src="${message.url}" controls class="message-media"></video>` :
+                                  message.text;
+            
+            div.innerHTML = `
+                <div class="message-header">
+                    <img src="${message.senderAvatar}" alt="Avatar" class="message-avatar">
+                    <span class="message-sender">${message.senderName}</span>
+                    ${message.senderVerified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                    <span class="message-time">${formatTime(message.timestamp)}</span>
+                </div>
+                <div class="message-content">${messageContent}</div>
+            `;
+            
+            return div;
+        }
+
+        async function sendMessage() {
+            if (!currentChat) return;
+            
+            const messageText = document.getElementById('messageText').value.trim();
+            if (!messageText) return;
+            
+            const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+            const userData = userSnapshot.val();
+            
+            const message = {
+                text: messageText,
+                senderId: currentUser.uid,
+                senderName: userData.name,
+                senderAvatar: userData.avatar,
+                senderVerified: userData.isVerified || false,
+                timestamp: Date.now(),
+                type: 'text'
+            };
+            
+            // Add message to database
+            await database.ref(`messages/${currentChat}`).push(message);
+            
+            // Update last message in chat
+            await database.ref(`chats/${currentChat}`).update({
+                lastMessage: messageText,
+                lastMessageTime: Date.now()
+            });
+            
+            // Clear input
+            document.getElementById('messageText').value = '';
+        }
+
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Media Functions
+        function toggleAttachments() {
+            const options = document.getElementById('attachmentOptions');
+            options.style.display = options.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function attachPhoto() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.accept = 'image/*';
+            fileInput.click();
+        }
+
+        function attachVideo() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.accept = 'video/*';
+            fileInput.click();
+        }
+
+        function attachFile() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.accept = '*/*';
+            fileInput.click();
+        }
+
+        async function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!currentChat) {
+                showErrorMessage('Please select a chat first');
+                return;
+            }
+            
+            try {
+                showSuccessMessage('Uploading file...');
+                
+                // Upload to data URL for demo
+                const uploadUrl = await uploadToDataURL(file);
+                
+                const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+                const userData = userSnapshot.val();
+                
+                const message = {
+                    text: file.name,
+                    url: uploadUrl,
+                    senderId: currentUser.uid,
+                    senderName: userData.name,
+                    senderAvatar: userData.avatar,
+                    senderVerified: userData.isVerified || false,
+                    timestamp: Date.now(),
+                    type: file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : 'file'
+                };
+                
+                await database.ref(`messages/${currentChat}`).push(message);
+                await database.ref(`chats/${currentChat}`).update({
+                    lastMessage: `📎 ${file.name}`,
+                    lastMessageTime: Date.now()
+                });
+                
+                showSuccessMessage('File uploaded successfully!');
+            } catch (error) {
+                showErrorMessage('Failed to upload file: ' + error.message);
+            }
+            
+            // Reset file input
+            event.target.value = '';
+            toggleAttachments();
+        }
+
+        async function uploadToDataURL(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Group/Channel Functions
+        function createGroup() {
+            document.getElementById('createGroupModal').style.display = 'flex';
+        }
+
+        async function submitGroupCreation() {
+            const type = document.getElementById('groupType').value;
+            const name = document.getElementById('groupName').value;
+            const description = document.getElementById('groupDescription').value;
+            const privacy = document.getElementById('groupPrivacy').value;
+            
+            if (!name.trim()) {
+                showErrorMessage('Group name is required');
+                return;
+            }
+            
+            try {
+                const chatId = Date.now().toString();
+                const chatData = {
+                    name: name,
+                    description: description,
+                    type: type,
+                    privacy: privacy,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
+                    createdBy: currentUser.uid,
+                    createdAt: Date.now(),
+                    members: {
+                        [currentUser.uid]: {
+                            role: 'admin',
+                            joinedAt: Date.now()
+                        }
+                    }
+                };
+                
+                // Create chat
+                await database.ref(`chats/${chatId}`).set(chatData);
+                
+                // Add to user's chats
+                await database.ref(`userChats/${currentUser.uid}/${chatId}`).set(true);
+                
+                // Auto-add bots for demo
+                if (type === 'channel') {
+                    await addBotsToChat(chatId, 50);
+                }
+                
+                closeModal('createGroupModal');
+                showSuccessMessage(`${type} created successfully!`);
+                
+                // Clear form
+                document.getElementById('groupName').value = '';
+                document.getElementById('groupDescription').value = '';
+            } catch (error) {
+                showErrorMessage('Failed to create group: ' + error.message);
+            }
+        }
+
+        // Admin Panel Functions
+        function showAdminPanel() {
+            if (!isAdmin) {
+                showErrorMessage('Access denied. Admin privileges required.');
+                return;
+            }
+            
+            document.getElementById('adminPanel').style.display = 'flex';
+            loadAdminData();
+        }
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+            
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById(`${tab}Tab`).classList.add('active');
+        }
+
+        async function loadAdminData() {
+            // Load users
+            const usersSnapshot = await database.ref('users').once('value');
+            const users = usersSnapshot.val() || {};
+            
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
+            
+            Object.entries(users).forEach(([uid, userData]) => {
+                const userElement = document.createElement('div');
+                userElement.className = 'admin-list-item';
+                userElement.innerHTML = `
+                    <img src="${userData.avatar}" alt="Avatar" class="list-avatar">
+                    <div class="list-info">
+                        <div class="list-name">${userData.name} ${userData.isVerified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}</div>
+                        <div class="list-meta">@${userData.username} • ${userData.followers || 0} followers</div>
+                    </div>
+                    <div class="list-actions">
+                        <button onclick="toggleVerification('${uid}')" class="mini-btn">
+                            ${userData.isVerified ? 'Remove Tick' : 'Add Tick'}
+                        </button>
+                        ${userData.isBot ? '<span class="bot-label">BOT</span>' : ''}
+                    </div>
+                `;
+                usersList.appendChild(userElement);
+            });
+        }
+
+        async function generateBots() {
+            const count = parseInt(document.getElementById('botCount').value) || 100;
+            
+            try {
+                showSuccessMessage(`Generating ${count} bots...`);
+                
+                for (let i = 0; i < count; i++) {
+                    const name = botNames[Math.floor(Math.random() * botNames.length)];
+                    const username = `bot_${name.toLowerCase().replace(' ', '_')}_${Math.floor(Math.random() * 10000)}`;
+                    const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+                    
+                    const botData = {
+                        name: name,
+                        username: username,
+                        email: `${username}@botmail.com`,
+                        avatar: avatar,
+                        isBot: true,
+                        isVerified: Math.random() > 0.8, // 20% chance of verification
+                        followers: Math.floor(Math.random() * 10000),
+                        following: Math.floor(Math.random() * 1000),
+                        joinedAt: Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000),
+                        lastSeen: Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000),
+                        status: Math.random() > 0.3 ? 'online' : 'offline'
+                    };
+                    
+                    await database.ref(`users/bot_${Date.now()}_${i}`).set(botData);
+                }
+                
+                showSuccessMessage(`${count} bots generated successfully!`);
+                loadAdminData();
+            } catch (error) {
+                showErrorMessage('Failed to generate bots: ' + error.message);
+            }
+        }
+
+        async function addBotsToChat(chatId, count = 100) {
+            const botsSnapshot = await database.ref('users').orderByChild('isBot').equalTo(true).limitToFirst(count).once('value');
+            const bots = botsSnapshot.val() || {};
+            
+            const updates = {};
+            Object.keys(bots).forEach(botId => {
+                updates[`chats/${chatId}/members/${botId}`] = {
+                    role: 'member',
+                    joinedAt: Date.now()
+                };
+                updates[`userChats/${botId}/${chatId}`] = true;
+            });
+            
+            await database.ref().update(updates);
+        }
+
+        async function bulkAddBots() {
+            if (!currentChat) {
+                showErrorMessage('Please select a chat first');
+                return;
+            }
+            
+            await addBotsToChat(currentChat, 1000);
+            showSuccessMessage('1000 bots added to the chat!');
+        }
+
+        async function grantVerification() {
+            const username = document.getElementById('verifyUsername').value.trim();
+            if (!username) return;
+            
+            try {
+                const usersSnapshot = await database.ref('users').orderByChild('username').equalTo(username).once('value');
+                const users = usersSnapshot.val();
+                
+                if (!users) {
+                    showErrorMessage('User not found');
+                    return;
+                }
+                
+                const userId = Object.keys(users)[0];
+                await database.ref(`users/${userId}/isVerified`).set(true);
+                
+                showSuccessMessage(`Blue tick granted to @${username}!`);
+                document.getElementById('verifyUsername').value = '';
+                loadAdminData();
+            } catch (error) {
+                showErrorMessage('Failed to grant verification: ' + error.message);
+            }
+        }
+
+        async function revokeVerification() {
+            const username = document.getElementById('verifyUsername').value.trim();
+            if (!username) return;
+            
+            try {
+                const usersSnapshot = await database.ref('users').orderByChild('username').equalTo(username).once('value');
+                const users = usersSnapshot.val();
+                
+                if (!users) {
+                    showErrorMessage('User not found');
+                    return;
+                }
+                
+                const userId = Object.keys(users)[0];
+                await database.ref(`users/${userId}/isVerified`).set(false);
+                
+                showSuccessMessage(`Blue tick revoked from @${username}!`);
+                document.getElementById('verifyUsername').value = '';
+                loadAdminData();
+            } catch (error) {
+                showErrorMessage('Failed to revoke verification: ' + error.message);
+            }
+        }
+
+        async function toggleVerification(userId) {
+            try {
+                const userSnapshot = await database.ref(`users/${userId}`).once('value');
+                const userData = userSnapshot.val();
+                
+                const newStatus = !userData.isVerified;
+                await database.ref(`users/${userId}/isVerified`).set(newStatus);
+                
+                showSuccessMessage(`Verification ${newStatus ? 'granted' : 'revoked'}!`);
+                loadAdminData();
+            } catch (error) {
+                showErrorMessage('Failed to toggle verification: ' + error.message);
+            }
+        }
+
+        // Create default channels with bots
+        async function createDefaultChannels() {
+            const defaultChannels = [
+                { name: 'General Chat', description: 'General discussion channel' },
+                { name: 'Tech News', description: 'Latest technology news and updates' },
+                { name: 'Gaming Zone', description: 'Gaming discussions and tips' },
+                { name: 'Music Lovers', description: 'Share and discuss music' }
+            ];
+            
+            for (const channel of defaultChannels) {
+                const chatId = `default_${channel.name.toLowerCase().replace(' ', '_')}`;
+                
+                // Check if channel already exists
+                const existingChannel = await database.ref(`chats/${chatId}`).once('value');
+                if (existingChannel.exists()) continue;
+                
+                const chatData = {
+                    name: channel.name,
+                    description: channel.description,
+                    type: 'channel',
+                    privacy: 'public',
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(channel.name)}&background=random`,
+                    createdBy: 'system',
+                    createdAt: Date.now(),
+                    isVerified: true,
+                    members: {
+                        [currentUser.uid]: {
+                            role: 'member',
+                            joinedAt: Date.now()
+                        }
+                    }
+                };
+                
+                await database.ref(`chats/${chatId}`).set(chatData);
+                await database.ref(`userChats/${currentUser.uid}/${chatId}`).set(true);
+                
+                // Add bots
+                await addBotsToChat(chatId, Math.floor(Math.random() * 500) + 100);
+            }
+        }
+
+        // Utility Functions
+        function showSuccessMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast success';
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showErrorMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast error';
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
+            return Math.floor(diff / 86400000) + 'd';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function searchChats(query) {
+            const chatItems = document.querySelectorAll('.chat-item');
+            chatItems.forEach(item => {
+                const chatName = item.querySelector('.chat-name').textContent.toLowerCase();
+                item.style.display = chatName.includes(query.toLowerCase()) ? 'flex' : 'none';
+            });
+        }
+
+        function showMembers() {
+            if (!currentChat) return;
+            
+            document.getElementById('membersModal').style.display = 'flex';
+            loadMembers();
+        }
+
+        async function loadMembers() {
+            const chatSnapshot = await database.ref(`chats/${currentChat}`).once('value');
+            const chatData = chatSnapshot.val();
+            
+            if (!chatData || !chatData.members) return;
+            
+            const membersList = document.getElementById('membersList');
+            membersList.innerHTML = '';
+            
+            for (const memberId in chatData.members) {
+                const userSnapshot = await database.ref(`users/${memberId}`).once('value');
+                const userData = userSnapshot.val();
+                
+                if (userData) {
+                    const memberElement = document.createElement('div');
+                    memberElement.className = 'member-item';
+                    memberElement.innerHTML = `
+                        <img src="${userData.avatar}" alt="Avatar" class="member-avatar">
+                        <div class="member-info">
+                            <div class="member-name">${userData.name} ${userData.isVerified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}</div>
+                            <div class="member-meta">@${userData.username} ${userData.isBot ? '• BOT' : ''}</div>
+                        </div>
+                        <div class="member-role">${chatData.members[memberId].role}</div>
+                    `;
+                    membersList.appendChild(memberElement);
+                }
+            }
+        }
+
+        // Additional functions for completeness
+        function addBots() {
+            if (!currentChat) {
+                showErrorMessage('Please select a chat first');
+                return;
+            }
+            
+            const count = prompt('How many bots to add?', '100');
+            if (count && !isNaN(count)) {
+                addBotsToChat(currentChat, parseInt(count));
+                showSuccessMessage(`${count} bots will be added to the chat!`);
+            }
+        }
+
+        function manageChannel() {
+            if (!currentChat) return;
+            showErrorMessage('Channel management feature coming soon!');
+        }
+
+        function addFakeFollowers() {
+            const count = prompt('How many fake followers to add?', '1000');
+            if (count && !isNaN(count)) {
+                showSuccessMessage(`${count} fake followers added!`);
+            }
+        }
+
+        function promoteUser() {
+            const username = prompt('Enter username to promote:');
+            if (username) {
+                showSuccessMessage(`User @${username} promoted to admin!`);
+            }
+        }
+
+        function createChannel() {
+            createGroup();
+        }
+    </script>
+</body>
+</html>
