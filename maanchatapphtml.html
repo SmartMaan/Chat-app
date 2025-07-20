@@ -1692,9 +1692,12 @@
             // Check authentication state in background (no loading screen dependency)
             const checkAuth = () => {
                 if (window.firebaseReady && auth) {
+                    console.log("🔍 Setting up auth state listener...");
                     auth.onAuthStateChanged(function(user) {
+                        console.log("🔄 Auth state changed:", !!user);
                         if (user) {
-                            console.log("✅ User already logged in - switching to main app");
+                            console.log("✅ User logged in:", user.email);
+                            console.log("🏠 Auto-redirecting to main app");
                             currentUser = user;
                             showMainApp();
                             loadUserData();
@@ -1704,6 +1707,7 @@
                             // Already showing auth screen, nothing to do
                         }
                     });
+                    console.log("✅ Auth state listener set up successfully");
                 } else if (window.offlineMode) {
                     console.log("⚠️ Firebase offline - staying on auth screen");
                     // Already showing auth screen
@@ -1747,8 +1751,27 @@
         }
 
         function showMainApp() {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'flex';
+            console.log('🏠 showMainApp() called - switching to home screen');
+            console.log('📱 Hiding auth screen and showing main app');
+            
+            const authScreen = document.getElementById('authScreen');
+            const mainApp = document.getElementById('mainApp');
+            
+            if (authScreen) {
+                authScreen.style.display = 'none';
+                console.log('✅ Auth screen hidden');
+            } else {
+                console.error('❌ Auth screen not found!');
+            }
+            
+            if (mainApp) {
+                mainApp.style.display = 'flex';
+                console.log('✅ Main app shown');
+            } else {
+                console.error('❌ Main app not found!');
+            }
+            
+            console.log('🎉 Successfully switched to home screen!');
         }
 
         // Authentication Functions
@@ -1784,10 +1807,15 @@
             console.log("window.firebaseReady:", window.firebaseReady);
             console.log("auth object:", !!auth);
             
-            if (!ensureFirebaseReady()) {
-                console.error("❌ Firebase not ready!");
-                showAuthError('Firebase initialization failed. Please refresh the page and try again.', 'login');
-                return;
+            // Try to initialize Firebase if not ready
+            if (!isFirebaseInitialized || !auth) {
+                console.log("🔄 Firebase not ready, attempting initialization...");
+                const initResult = initializeFirebase();
+                if (!initResult) {
+                    console.error("❌ Firebase initialization failed!");
+                    showAuthError('Firebase connection failed. Please check your internet and refresh the page.', 'login');
+                    return;
+                }
             }
             
             // Double-check auth service is available
@@ -1823,6 +1851,7 @@
                 console.log('📡 Calling Firebase signInWithEmailAndPassword...');
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 console.log('✅ Login successful!');
+                console.log('👤 User logged in:', userCredential.user.email);
                 
                 // Show success message
                 showAuthSuccess('Login successful! Welcome back!', 'login');
@@ -1830,6 +1859,12 @@
                 // Clear form
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
+                
+                // REDIRECT TO HOME SCREEN AFTER SUCCESS
+                console.log('🏠 Redirecting to home screen...');
+                setTimeout(() => {
+                    showMainApp();
+                }, 1000); // Show success message for 1 second then redirect
                 
             } catch (error) {
                 console.log(`❌ Login error occurred: ${error.message}`);
@@ -1905,9 +1940,14 @@
             }
 
             // ENSURE Firebase is ready before register
-            if (!ensureFirebaseReady()) {
-                showAuthError('Firebase initialization failed. Please refresh the page and try again.', 'register');
-                return;
+            if (!isFirebaseInitialized || !auth) {
+                console.log("🔄 Firebase not ready, attempting initialization...");
+                const initResult = initializeFirebase();
+                if (!initResult) {
+                    console.error("❌ Firebase initialization failed!");
+                    showAuthError('Firebase connection failed. Please check your internet and refresh the page.', 'register');
+                    return;
+                }
             }
             
             // Double-check auth service is available
@@ -1953,6 +1993,7 @@
                 });
                 
                 console.log('✅ Registration successful!');
+                console.log('👤 New user created:', user.email);
                 showAuthSuccess('Registration successful! Welcome to MaanChatApp Pro!', 'register');
                 
                 // Clear form
@@ -1960,6 +2001,12 @@
                 document.getElementById('registerEmail').value = '';
                 document.getElementById('registerPassword').value = '';
                 document.getElementById('registerUsername').value = '';
+                
+                // REDIRECT TO HOME SCREEN AFTER SUCCESS
+                console.log('🏠 Redirecting to home screen...');
+                setTimeout(() => {
+                    showMainApp();
+                }, 1000); // Show success message for 1 second then redirect
                 
             } catch (error) {
                 console.log(`❌ Registration error occurred: ${error.message}`);
@@ -2034,6 +2081,12 @@
                 }
                 
                 showToast('Google sign-in successful!', 'success');
+                
+                // REDIRECT TO HOME SCREEN AFTER SUCCESS
+                console.log('🏠 Redirecting to home screen after Google sign-in...');
+                setTimeout(() => {
+                    showMainApp();
+                }, 1000);
             } catch (error) {
                 showToast(error.message, 'error');
             }
