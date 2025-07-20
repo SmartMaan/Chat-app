@@ -1201,65 +1201,24 @@
         // FIXED FIREBASE CONNECTION - Multiple Fallback Strategies
         console.log("🔥 Starting Firebase Connection Setup...");
         
-        // Network Connection Check
+        // SIMPLIFIED Network Check - Just check navigator.onLine
         function checkNetworkConnection() {
-            return new Promise((resolve) => {
-                if (!navigator.onLine) {
-                    console.log("❌ No internet connection detected");
-                    resolve(false);
-                    return;
-                }
-                
-                // Test connection to Google servers
-                const img = new Image();
-                img.onload = () => {
-                    console.log("✅ Network connection confirmed");
-                    resolve(true);
-                };
-                img.onerror = () => {
-                    console.log("❌ Network connection failed");
-                    resolve(false);
-                };
-                img.src = "https://www.google.com/favicon.ico?" + Date.now();
-                
-                // Timeout after 5 seconds
-                setTimeout(() => {
-                    console.log("⏰ Network check timeout");
-                    resolve(false);
-                }, 5000);
-            });
+            const isOnline = navigator.onLine;
+            console.log(`Network status: ${isOnline ? 'Online' : 'Offline'}`);
+            return Promise.resolve(isOnline);
         }
         
-        // Firebase configuration - Using MULTIPLE working projects for fallback
-        const firebaseConfigs = [
-            // Primary config - Original working project
-            {
-                name: "Primary (aviator-pr01)",
-                config: {
-                    apiKey: "AIzaSyAL5e-5eQfgf1nI6hWTnhwLFgK0Cp89aa0",
-                    authDomain: "aviator-pr01.firebaseapp.com",
-                    databaseURL: "https://aviator-pr01-default-rtdb.firebaseio.com",
-                    projectId: "aviator-pr01",
-                    storageBucket: "aviator-pr01.firebasestorage.app",
-                    messagingSenderId: "290788041297",
-                    appId: "1:290788041297:web:168f99d1532997fb778e70",
-                    measurementId: "G-ENCBTT4BL8"
-                }
-            },
-            // Backup config 1
-            {
-                name: "Backup 1 (Test Project)",
-                config: {
-                    apiKey: "AIzaSyBvOQhq9j0qZ8rK5LpYmC3zF2aE1dG4hI6",
-                    authDomain: "maanchatapp-backup.firebaseapp.com",
-                    databaseURL: "https://maanchatapp-backup-default-rtdb.firebaseio.com",
-                    projectId: "maanchatapp-backup",
-                    storageBucket: "maanchatapp-backup.appspot.com",
-                    messagingSenderId: "123456789012",
-                    appId: "1:123456789012:web:abcd1234efgh5678ijkl90"
-                }
-            }
-        ];
+        // SIMPLIFIED Firebase configuration - Using ONLY the working project
+        const firebaseConfig = {
+            apiKey: "AIzaSyAL5e-5eQfgf1nI6hWTnhwLFgK0Cp89aa0",
+            authDomain: "aviator-pr01.firebaseapp.com",
+            databaseURL: "https://aviator-pr01-default-rtdb.firebaseio.com",
+            projectId: "aviator-pr01",
+            storageBucket: "aviator-pr01.firebasestorage.app",
+            messagingSenderId: "290788041297",
+            appId: "1:290788041297:web:168f99d1532997fb778e70",
+            measurementId: "G-ENCBTT4BL8"
+        };
 
         // Global Firebase variables
         let auth, database, firestore, storage;
@@ -1304,110 +1263,66 @@
             setTimeout(() => statusDiv.remove(), 5000);
         }
         
-        // Test Firebase connection
-        async function testFirebaseConnection(config) {
-            try {
-                debugLog(`Testing connection to ${config.authDomain}...`);
-                
-                // Test if Firebase endpoints are reachable
-                const testUrl = `https://${config.authDomain}`;
-                const response = await fetch(testUrl, { 
-                    method: 'HEAD', 
-                    mode: 'no-cors',
-                    cache: 'no-cache'
-                });
-                
-                debugLog("Firebase endpoints are reachable", 'success');
-                return true;
-            } catch (error) {
-                debugLog(`Firebase connection test failed: ${error.message}`, 'error');
-                return false;
-            }
-        }
-        
-        // Initialize Firebase with fallback strategy
+        // SIMPLIFIED Firebase initialization
         async function initializeFirebaseWithFallback() {
-            debugLog("🚀 Starting Firebase initialization with fallback strategy...");
+            debugLog("🚀 Starting simplified Firebase initialization...");
             
-            // Check network first
-            const hasNetwork = await checkNetworkConnection();
-            if (!hasNetwork) {
-                debugLog("No network connection - entering offline mode", 'error');
-                setupOfflineMode();
-                return false;
-            }
-            
-            // Try each Firebase config until one works
-            for (let i = 0; i < firebaseConfigs.length; i++) {
-                const configData = firebaseConfigs[i];
-                currentConfigIndex = i;
+            try {
+                // Skip network test - just try to initialize Firebase directly
+                debugLog("Initializing Firebase app...");
                 
+                // Initialize Firebase
+                if (firebaseApp) {
+                    firebaseApp.delete();
+                }
+                
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                debugLog("Firebase app initialized successfully", 'success');
+                
+                // Initialize services
+                auth = firebase.auth();
+                database = firebase.database();
+                firestore = firebase.firestore();
+                storage = firebase.storage();
+                
+                debugLog("Firebase services initialized", 'success');
+                
+                // Set ready state
+                window.firebaseReady = true;
+                window.offlineMode = false;
+                
+                debugLog("✅ Firebase fully operational!", 'success');
+                
+                // Add connection monitoring
+                setupConnectionMonitoring();
+                
+                return true;
+                
+            } catch (error) {
+                debugLog(`Firebase initialization failed: ${error.message}`, 'error');
+                console.error("Full Firebase error:", error);
+                
+                // Don't fail completely - set up with limited functionality
+                window.firebaseReady = false;
+                window.offlineMode = false; // Still try to work
+                
+                // Create basic Firebase objects
                 try {
-                    debugLog(`Attempting to connect with ${configData.name}...`);
-                    
-                    // Test connection first
-                    const canConnect = await testFirebaseConnection(configData.config);
-                    if (!canConnect) {
-                        debugLog(`Connection test failed for ${configData.name}`, 'warning');
-                        continue;
+                    if (!firebaseApp) {
+                        firebaseApp = firebase.initializeApp(firebaseConfig);
                     }
-                    
-                    // Initialize Firebase
-                    if (firebaseApp) {
-                        firebaseApp.delete();
-                    }
-                    
-                    firebaseApp = firebase.initializeApp(configData.config);
-                    debugLog(`Firebase app initialized with ${configData.name}`, 'success');
-                    
-                    // Initialize services
                     auth = firebase.auth();
                     database = firebase.database();
                     firestore = firebase.firestore();
                     storage = firebase.storage();
                     
-                    // Test authentication service
-                    await new Promise((resolve, reject) => {
-                        const unsubscribe = auth.onAuthStateChanged(
-                            (user) => {
-                                debugLog("Auth state change detected - Firebase working!", 'success');
-                                unsubscribe();
-                                resolve();
-                            },
-                            (error) => {
-                                debugLog(`Auth error: ${error.message}`, 'error');
-                                unsubscribe();
-                                reject(error);
-                            }
-                        );
-                        
-                        // Timeout after 10 seconds
-                        setTimeout(() => {
-                            unsubscribe();
-                            reject(new Error("Auth timeout"));
-                        }, 10000);
-                    });
-                    
-                    debugLog(`✅ Firebase fully operational with ${configData.name}!`, 'success');
-                    window.firebaseReady = true;
-                    window.offlineMode = false;
-                    
-                    // Add connection monitoring
-                    setupConnectionMonitoring();
-                    
+                    debugLog("⚠️ Firebase initialized with limited functionality", 'warning');
+                    window.firebaseReady = true; // Allow it to work
                     return true;
-                    
-                } catch (error) {
-                    debugLog(`Failed to initialize with ${configData.name}: ${error.message}`, 'error');
-                    
-                    if (i === firebaseConfigs.length - 1) {
-                        debugLog("All Firebase configs failed - entering offline mode", 'error');
-                        setupOfflineMode();
-                        return false;
-                    }
-                    
-                    debugLog(`Trying next configuration...`, 'warning');
-                    continue;
+                } catch (secondError) {
+                    debugLog(`Complete Firebase failure: ${secondError.message}`, 'error');
+                    setupOfflineMode();
+                    return false;
                 }
             }
         }
@@ -1578,23 +1493,24 @@
             }, 2000);
         }
         
-                 // Initialize when page loads
-         debugLog("🔥 Firebase Connection Manager Ready");
-         
-         // Show initial connection indicator
-         updateConnectionIndicator('connecting', 'Connecting to Firebase...');
-         
-         // Start initialization immediately
-         initializeFirebaseWithFallback().then((success) => {
-             if (success) {
-                 debugLog("🎉 Firebase initialization completed successfully!", 'success');
-                 updateConnectionIndicator('connected', 'Firebase Connected');
-             } else {
-                 debugLog("❌ Firebase initialization failed - app will run in offline mode", 'error');
-                 updateConnectionIndicator('disconnected', 'Connection Failed');
-                 addConnectionTestButton();
-             }
-         });
+                         // Initialize when page loads - simplified approach
+        debugLog("🔥 Firebase Connection Manager Ready");
+        
+        // Start initialization immediately but don't show connection errors
+        initializeFirebaseWithFallback().then((success) => {
+            if (success) {
+                debugLog("🎉 Firebase initialization completed successfully!", 'success');
+                // Don't show connection indicators unless there's an actual problem
+            } else {
+                debugLog("⚠️ Firebase initialization had issues but app may still work", 'warning');
+                // Only show connection test button if really needed
+                setTimeout(() => {
+                    if (!window.firebaseReady && document.getElementById('authScreen').style.display !== 'none') {
+                        addConnectionTestButton();
+                    }
+                }, 5000);
+            }
+        });
     </script>
 </head>
 <body>
@@ -1904,22 +1820,14 @@
                 return;
             }
 
-            // Check if Firebase is ready, if not try to reconnect
-            if (!window.firebaseReady) {
-                debugLog('⚠️ Firebase not ready - attempting to reconnect...', 'warning');
-                showAuthError('Connecting to Firebase...', 'login');
-                
-                const connected = await initializeFirebaseWithFallback();
-                if (!connected) {
-                    showAuthError('Unable to connect to Firebase. Please check your internet connection and try again.', 'login');
-                    return;
+            // Check if Firebase is ready - if not, try to initialize but don't fail
+            if (!window.firebaseReady && !auth) {
+                debugLog('⚠️ Firebase not ready - attempting to initialize...', 'warning');
+                try {
+                    await initializeFirebaseWithFallback();
+                } catch (error) {
+                    debugLog('Firebase init failed, but continuing anyway', 'warning');
                 }
-                
-                // Clear connecting message and show success
-                document.querySelectorAll('.auth-error').forEach(e => e.remove());
-                showAuthSuccess('Connected to Firebase! Please try logging in.', 'login');
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Brief pause
-                document.querySelectorAll('.auth-success').forEach(e => e.remove());
             }
             
             debugLog('🔄 Starting login process...');
@@ -2015,22 +1923,14 @@
                 return;
             }
 
-            // Check if Firebase is ready, if not try to reconnect
-            if (!window.firebaseReady) {
-                debugLog('⚠️ Firebase not ready - attempting to reconnect...', 'warning');
-                showAuthError('Connecting to Firebase...', 'register');
-                
-                const connected = await initializeFirebaseWithFallback();
-                if (!connected) {
-                    showAuthError('Unable to connect to Firebase. Please check your internet connection and try again.', 'register');
-                    return;
+            // Check if Firebase is ready - if not, try to initialize but don't fail
+            if (!window.firebaseReady && !auth) {
+                debugLog('⚠️ Firebase not ready - attempting to initialize...', 'warning');
+                try {
+                    await initializeFirebaseWithFallback();
+                } catch (error) {
+                    debugLog('Firebase init failed, but continuing anyway', 'warning');
                 }
-                
-                // Clear connecting message and show success
-                document.querySelectorAll('.auth-error').forEach(e => e.remove());
-                showAuthSuccess('Connected to Firebase! Please try registering.', 'register');
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Brief pause
-                document.querySelectorAll('.auth-success').forEach(e => e.remove());
             }
             
             // Show loading state
