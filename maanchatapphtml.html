@@ -1598,10 +1598,23 @@
     </script>
 </head>
 <body>
-    <!-- Loading Screen -->
+    <!-- Loading Screen - IMPROVED WITH SKIP OPTION -->
     <div id="loadingScreen" class="loading-screen">
         <div class="loading-spinner"></div>
         <p>Loading MaanChatApp Pro...</p>
+        <button onclick="forceSkipLoading()" style="
+            margin-top: 20px; 
+            padding: 10px 20px; 
+            background: rgba(255,255,255,0.2); 
+            border: 1px solid white; 
+            border-radius: 5px; 
+            color: white; 
+            cursor: pointer; 
+            font-size: 14px;
+            transition: all 0.3s ease;
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+            Skip Loading
+        </button>
     </div>
 
     <!-- Auth Screen -->
@@ -1784,7 +1797,10 @@
 
         // Initialize app when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            showLoadingScreen();
+            // SKIP LOADING SCREEN ENTIRELY - Show auth screen immediately
+            console.log("🚀 Starting app directly - no loading screen delays!");
+            hideLoadingScreen(); // Hide it immediately
+            showAuthScreen(); // Show auth screen right away
             
             // Setup auth tab switching
             document.querySelectorAll('.auth-tab').forEach(tab => {
@@ -1802,18 +1818,32 @@
                 }
             }, 1000);
             
-            // Check authentication state
-            auth.onAuthStateChanged(function(user) {
-                hideLoadingScreen();
-                if (user) {
-                    currentUser = user;
-                    showMainApp();
-                    loadUserData();
-                    loadChats();
+            // Check authentication state in background (no loading screen dependency)
+            const checkAuth = () => {
+                if (window.firebaseReady && auth) {
+                    auth.onAuthStateChanged(function(user) {
+                        if (user) {
+                            console.log("✅ User already logged in - switching to main app");
+                            currentUser = user;
+                            showMainApp();
+                            loadUserData();
+                            loadChats();
+                        } else {
+                            console.log("ℹ️ No user logged in - staying on auth screen");
+                            // Already showing auth screen, nothing to do
+                        }
+                    });
+                } else if (window.offlineMode) {
+                    console.log("⚠️ Firebase offline - staying on auth screen");
+                    // Already showing auth screen
                 } else {
-                    showAuthScreen();
+                    // Wait a bit more for Firebase to initialize
+                    setTimeout(checkAuth, 500);
                 }
-            });
+            };
+            
+            // Start checking for auth in background
+            setTimeout(checkAuth, 1000);
         });
 
         // Show/Hide screens
@@ -1825,6 +1855,19 @@
 
         function hideLoadingScreen() {
             document.getElementById('loadingScreen').style.display = 'none';
+        }
+
+        // FORCE SKIP LOADING - User can manually skip if stuck
+        function forceSkipLoading() {
+            console.log("👆 User manually skipped loading screen");
+            hideLoadingScreen();
+            if (currentUser) {
+                showMainApp();
+                loadUserData();
+                loadChats();
+            } else {
+                showAuthScreen();
+            }
         }
 
         function showAuthScreen() {
