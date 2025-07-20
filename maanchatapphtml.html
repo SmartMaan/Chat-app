@@ -1201,7 +1201,7 @@
         // COMPLETELY REWRITTEN FIREBASE CONNECTION - GUARANTEED TO WORK
         console.log("🔥 Starting BULLETPROOF Firebase Setup...");
         
-        // Firebase configuration - ORIGINAL WORKING CONFIG
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAL5e-5eQfgf1nI6hWTnhwLFgK0Cp89aa0",
             authDomain: "aviator-pr01.firebaseapp.com",
@@ -1213,67 +1213,41 @@
             measurementId: "G-ENCBTT4BL8"
         };
 
-        // Global Firebase variables
+        // Global variables
         let auth, database, firestore, storage;
-        let firebaseApp = null;
-        let isFirebaseInitialized = false;
-        
+        let currentUser = null;
+        let isFirebaseReady = false;
 
-        
-        // BULLETPROOF Firebase initialization - GUARANTEED TO WORK
+        // Initialize Firebase
         function initializeFirebase() {
-            if (isFirebaseInitialized) {
-                console.log("✅ Firebase already initialized");
-                return true;
-            }
-            
             try {
-                console.log("🔥 Initializing Firebase...");
-                
-                // Initialize Firebase app
-                if (!firebaseApp) {
-                    firebaseApp = firebase.initializeApp(firebaseConfig);
-                    console.log("✅ Firebase app created");
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
                 }
                 
-                // Initialize Firebase services
                 auth = firebase.auth();
                 database = firebase.database();
                 firestore = firebase.firestore();
                 storage = firebase.storage();
                 
-                console.log("✅ Firebase services initialized");
+                isFirebaseReady = true;
+                console.log("Firebase initialized successfully");
                 
-                // Mark as initialized
-                isFirebaseInitialized = true;
-                window.firebaseReady = true;
-                window.offlineMode = false;
-                
-                console.log("🎉 Firebase is ready to use!");
-                return true;
-                
-            } catch (error) {
-                console.error("❌ Firebase initialization error:", error);
-                
-                // Try to set up basic functionality anyway
-                try {
-                    if (typeof firebase !== 'undefined') {
-                        auth = firebase.auth();
-                        database = firebase.database();
-                        firestore = firebase.firestore();
-                        storage = firebase.storage();
-                        
-                        isFirebaseInitialized = true;
-                        window.firebaseReady = true;
-                        console.log("⚠️ Firebase set up with basic functionality");
-                        return true;
+                // Set up auth state listener
+                auth.onAuthStateChanged(function(user) {
+                    if (user) {
+                        currentUser = user;
+                        showMainApp();
+                        loadUserData();
+                    } else {
+                        currentUser = null;
+                        showAuthScreen();
                     }
-                } catch (secondError) {
-                    console.error("❌ Complete Firebase failure:", secondError);
-                }
+                });
                 
-                // Set up offline mode as last resort
-                setupOfflineMode();
+                return true;
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
                 return false;
             }
         }
@@ -1287,51 +1261,7 @@
             return true;
         }
         
-        // Setup offline mode with mock services
-        function setupOfflineMode() {
-            debugLog("Setting up offline mode...", 'warning');
-            window.firebaseReady = false;
-            window.offlineMode = true;
-            
-            // Create mock Firebase services
-            auth = {
-                signInWithEmailAndPassword: () => Promise.reject(new Error("🔥 Firebase connection failed! Please check your internet connection and try again.")),
-                createUserWithEmailAndPassword: () => Promise.reject(new Error("🔥 Firebase connection failed! Please check your internet connection and try again.")),
-                signInWithPopup: () => Promise.reject(new Error("🔥 Firebase connection failed! Please check your internet connection and try again.")),
-                onAuthStateChanged: (callback) => {
-                    debugLog("⚠️ Using mock auth - calling callback with null");
-                    setTimeout(() => callback(null), 1000);
-                    return () => {}; // Unsubscribe function
-                },
-                signOut: () => Promise.resolve()
-            };
-            
-            database = { 
-                ref: () => ({ 
-                    set: () => Promise.resolve(), 
-                    once: () => Promise.resolve({ val: () => null }),
-                    on: () => {},
-                    off: () => {}
-                }) 
-            };
-            
-            firestore = {
-                collection: () => ({
-                    doc: () => ({
-                        set: () => Promise.resolve(),
-                        get: () => Promise.resolve({ exists: false, data: () => null })
-                    })
-                })
-            };
-            
-            storage = {
-                ref: () => ({
-                    put: () => Promise.reject(new Error("Storage unavailable offline"))
-                })
-            };
-            
-            showConnectionStatus("🔥 Firebase connection failed! Using offline mode.", 'error');
-        }
+
         
                  
         
@@ -1423,9 +1353,6 @@
                 <i class="fas fa-comments"></i>
                 <h1>MaanChatApp Pro</h1>
                 <p>Complete Social Messaging Platform</p>
-                <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 12px; color: #1976d2;">
-                    <strong>Test Login:</strong> Use any email/password to create account or test@example.com / test123
-                </div>
             </div>
             
             <div class="auth-tabs">
@@ -1599,80 +1526,47 @@
 
         // Initialize app when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            // SKIP LOADING SCREEN ENTIRELY - Show auth screen immediately
-            console.log("🚀 Starting app directly - no loading screen delays!");
-            hideLoadingScreen(); // Hide it immediately
-            showAuthScreen(); // Show auth screen right away
+            // Initialize Firebase first
+            initializeFirebase();
+            
+            // Show auth screen
+            showAuthScreen();
             
             // Setup auth tab switching
             document.querySelectorAll('.auth-tab').forEach(tab => {
                 tab.addEventListener('click', () => switchAuthTab(tab.dataset.tab));
             });
 
-            // SETUP LOGIN/REGISTER BUTTON EVENT LISTENERS
-            console.log("🔧 Setting up button event listeners...");
+            // Setup button event listeners
+            document.getElementById('loginBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                login();
+            });
             
-            // Login button
-            const loginBtn = document.getElementById('loginBtn');
-            if (loginBtn) {
-                loginBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    console.log("🔥 Login button clicked!");
-                    login();
-                });
-                console.log("✅ Login button listener added");
-            } else {
-                console.error("❌ Login button not found!");
-            }
-            
-            // Register button  
-            const registerBtn = document.getElementById('registerBtn');
-            if (registerBtn) {
-                registerBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    console.log("🔥 Register button clicked!");
-                    register();
-                });
-                console.log("✅ Register button listener added");
-            } else {
-                console.error("❌ Register button not found!");
-            }
+            document.getElementById('registerBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                register();
+            });
 
-            // Google sign-in button
-            const googleBtn = document.getElementById('googleBtn');
-            if (googleBtn) {
-                googleBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    console.log("🔥 Google button clicked!");
-                    signInWithGoogle();
-                });
-                console.log("✅ Google button listener added");
-            } else {
-                console.error("❌ Google button not found!");
-            }
+            document.getElementById('googleBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                signInWithGoogle();
+            });
 
-            // SETUP ENTER KEY SUPPORT FOR LOGIN/REGISTER
-            console.log("⌨️ Setting up Enter key support...");
-            
-            // Login form Enter key
-            const loginInputs = document.querySelectorAll('#loginForm input');
-            loginInputs.forEach(input => {
+            // Setup Enter key support
+            document.querySelectorAll('#loginForm input').forEach(input => {
                 input.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        console.log("⌨️ Enter pressed in login form");
                         login();
                     }
                 });
             });
             
-            // Register form Enter key
-            const registerInputs = document.querySelectorAll('#registerForm input');
-            registerInputs.forEach(input => {
+            document.querySelectorAll('#registerForm input').forEach(input => {
                 input.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        console.log("⌨️ Enter pressed in register form");
                         register();
                     }
                 });
@@ -1688,90 +1582,23 @@
                     });
                 }
             }, 1000);
-            
-            // Check authentication state in background (no loading screen dependency)
-            const checkAuth = () => {
-                if (window.firebaseReady && auth) {
-                    console.log("🔍 Setting up auth state listener...");
-                    auth.onAuthStateChanged(function(user) {
-                        console.log("🔄 Auth state changed:", !!user);
-                        if (user) {
-                            console.log("✅ User logged in:", user.email);
-                            console.log("🏠 Auto-redirecting to main app");
-                            currentUser = user;
-                            showMainApp();
-                            loadUserData();
-                            loadChats();
-                        } else {
-                            console.log("ℹ️ No user logged in - staying on auth screen");
-                            // Already showing auth screen, nothing to do
-                        }
-                    });
-                    console.log("✅ Auth state listener set up successfully");
-                } else if (window.offlineMode) {
-                    console.log("⚠️ Firebase offline - staying on auth screen");
-                    // Already showing auth screen
-                } else {
-                    // Wait a bit more for Firebase to initialize
-                    setTimeout(checkAuth, 500);
-                }
-            };
-            
-            // Start checking for auth in background
-            setTimeout(checkAuth, 1000);
         });
 
-        // Show/Hide screens
-        function showLoadingScreen() {
-            document.getElementById('loadingScreen').style.display = 'flex';
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'none';
-        }
-
-        function hideLoadingScreen() {
-            document.getElementById('loadingScreen').style.display = 'none';
-        }
-
-        // FORCE SKIP LOADING - User can manually skip if stuck
-        function forceSkipLoading() {
-            console.log("👆 User manually skipped loading screen");
-            hideLoadingScreen();
-            if (currentUser) {
-                showMainApp();
-                loadUserData();
-                loadChats();
-            } else {
-                showAuthScreen();
+        // Utility functions
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                auth.signOut();
             }
+        }
+
+        function showMainApp() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'flex';
         }
 
         function showAuthScreen() {
             document.getElementById('authScreen').style.display = 'flex';
             document.getElementById('mainApp').style.display = 'none';
-        }
-
-        function showMainApp() {
-            console.log('🏠 showMainApp() called - switching to home screen');
-            console.log('📱 Hiding auth screen and showing main app');
-            
-            const authScreen = document.getElementById('authScreen');
-            const mainApp = document.getElementById('mainApp');
-            
-            if (authScreen) {
-                authScreen.style.display = 'none';
-                console.log('✅ Auth screen hidden');
-            } else {
-                console.error('❌ Auth screen not found!');
-            }
-            
-            if (mainApp) {
-                mainApp.style.display = 'flex';
-                console.log('✅ Main app shown');
-            } else {
-                console.error('❌ Main app not found!');
-            }
-            
-            console.log('🎉 Successfully switched to home screen!');
         }
 
         // Authentication Functions
@@ -1784,136 +1611,61 @@
         }
 
         async function login() {
-            console.log("🔥 LOGIN FUNCTION CALLED!");
-            
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
             
-            console.log(`🔐 Login attempt for email: ${email}`);
-            console.log(`Password length: ${password.length}`);
-            
-            // Clear any existing error messages
+            // Clear any existing messages
             document.querySelectorAll('.auth-error, .auth-success').forEach(e => e.remove());
             
             if (!email || !password) {
-                console.log('❌ Login failed: Missing email or password');
                 showAuthError('Please fill in all fields', 'login');
                 return;
             }
 
-            // ENSURE Firebase is ready before login
-            console.log("🔍 Checking Firebase readiness...");
-            console.log("isFirebaseInitialized:", isFirebaseInitialized);
-            console.log("window.firebaseReady:", window.firebaseReady);
-            console.log("auth object:", !!auth);
-            
-            // Try to initialize Firebase if not ready
-            if (!isFirebaseInitialized || !auth) {
-                console.log("🔄 Firebase not ready, attempting initialization...");
-                const initResult = initializeFirebase();
-                if (!initResult) {
-                    console.error("❌ Firebase initialization failed!");
-                    showAuthError('Firebase connection failed. Please check your internet and refresh the page.', 'login');
-                    return;
-                }
-            }
-            
-            // Double-check auth service is available
-            if (!auth) {
-                console.error("❌ Auth service not available");
-                console.log("Available Firebase services:", {
-                    auth: !!auth,
-                    database: !!database,
-                    firestore: !!firestore,
-                    storage: !!storage
-                });
-                showAuthError('Authentication service unavailable. Please refresh the page.', 'login');
+            if (!isFirebaseReady || !auth) {
+                showAuthError('Firebase not ready. Please refresh the page.', 'login');
                 return;
             }
-            
-            console.log("✅ Firebase ready, proceeding with login...");
-            
-            console.log('🔄 Starting login process...');
-            
-            // Show loading state - find the login button
+
             const loginBtn = document.getElementById('loginBtn');
-            if (!loginBtn) {
-                console.error('Login button not found!');
-                showAuthError('Login button not found. Please refresh the page.', 'login');
-                return;
-            }
-            
             const originalText = loginBtn.innerHTML;
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
             loginBtn.disabled = true;
-            
+
             try {
-                console.log('📡 Calling Firebase signInWithEmailAndPassword...');
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                console.log('✅ Login successful!');
-                console.log('👤 User logged in:', userCredential.user.email);
-                
-                // Show success message
-                showAuthSuccess('Login successful! Welcome back!', 'login');
+                showAuthSuccess('Login successful!', 'login');
                 
                 // Clear form
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
                 
-                // REDIRECT TO HOME SCREEN AFTER SUCCESS
-                console.log('🏠 Redirecting to home screen...');
-                setTimeout(() => {
-                    showMainApp();
-                }, 1000); // Show success message for 1 second then redirect
-                
             } catch (error) {
-                console.log(`❌ Login error occurred: ${error.message}`);
-                console.log(`Error code: ${error.code}`);
-                
                 let errorMessage = 'Login failed. Please try again.';
                 
-                if (error.code === 'auth/user-not-found') {
-                    errorMessage = 'No account found with this email address. Please check your email or register for a new account.';
-                } else if (error.code === 'auth/wrong-password') {
-                    errorMessage = 'Incorrect password. Please check your password and try again.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'Please enter a valid email address.';
-                } else if (error.code === 'auth/invalid-credential') {
-                    errorMessage = 'Invalid email or password. Please check your credentials and try again.';
-                } else if (error.code === 'auth/too-many-requests') {
-                    errorMessage = 'Too many failed login attempts. Please wait a few minutes and try again.';
-                } else if (error.code === 'auth/network-request-failed') {
-                    errorMessage = 'Network connection failed. Please check your internet connection and try again.';
-                } else if (error.code === 'auth/internal-error') {
-                    errorMessage = 'Internal authentication error. Please try again later.';
-                } else if (error.code === 'auth/invalid-api-key') {
-                    errorMessage = 'Firebase configuration error. Attempting to reconnect...';
-                    console.log('💥 INVALID API KEY ERROR - TRYING FALLBACK!');
-                    
-                    showAuthError('Connection error. Trying to reconnect...', 'login');
-                    
-                    // Try to reinitialize Firebase
-                    const reconnected = initializeFirebase();
-                    if (reconnected) {
-                        showAuthSuccess('Reconnected! Please try logging in again.', 'login');
-                        loginBtn.innerHTML = originalText;
-                        loginBtn.disabled = false;
-                        return;
-                    } else {
-                        errorMessage = 'Unable to establish connection. Please refresh the page and try again.';
-                    }
-                } else if (error.message.includes('Firebase') || error.message.includes('network')) {
-                    errorMessage = 'Connection error. Please check your internet connection and try again.';
-                } else if (error.message.includes('offline')) {
-                    errorMessage = 'You appear to be offline. Please check your internet connection.';
-                } else if (error.message) {
-                    errorMessage = error.message;
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/invalid-credential':
+                        errorMessage = 'Invalid credentials.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many attempts. Try again later.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Check your connection.';
+                        break;
                 }
                 
-                console.log(`📢 Showing error message: ${errorMessage}`);
                 showAuthError(errorMessage, 'login');
             } finally {
-                // Restore button state
                 loginBtn.innerHTML = originalText;
                 loginBtn.disabled = false;
             }
@@ -1925,11 +1677,10 @@
             const password = document.getElementById('registerPassword').value.trim();
             const username = document.getElementById('registerUsername').value.trim();
             
-            // Clear any existing error messages
+            // Clear any existing messages
             document.querySelectorAll('.auth-error, .auth-success').forEach(e => e.remove());
             
             if (!name || !email || !password || !username) {
-                console.log('❌ Registration failed: Missing fields');
                 showAuthError('Please fill in all fields', 'register');
                 return;
             }
@@ -1939,45 +1690,22 @@
                 return;
             }
 
-            // ENSURE Firebase is ready before register
-            if (!isFirebaseInitialized || !auth) {
-                console.log("🔄 Firebase not ready, attempting initialization...");
-                const initResult = initializeFirebase();
-                if (!initResult) {
-                    console.error("❌ Firebase initialization failed!");
-                    showAuthError('Firebase connection failed. Please check your internet and refresh the page.', 'register');
-                    return;
-                }
-            }
-            
-            // Double-check auth service is available
-            if (!auth) {
-                console.error("❌ Auth service not available");
-                showAuthError('Authentication service unavailable. Please refresh the page.', 'register');
+            if (!isFirebaseReady || !auth) {
+                showAuthError('Firebase not ready. Please refresh the page.', 'register');
                 return;
             }
-            
-            // Show loading state - find the register button
+
             const registerBtn = document.getElementById('registerBtn');
-            if (!registerBtn) {
-                console.error('Register button not found!');
-                showAuthError('Register button not found. Please refresh the page.', 'register');
-                return;
-            }
-            
             const originalText = registerBtn.innerHTML;
             registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
             registerBtn.disabled = true;
             
             try {
-                console.log('📝 Starting registration process...');
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                console.log('👤 Updating user profile...');
                 await user.updateProfile({ displayName: name });
                 
-                console.log('💾 Saving user data to database...');
                 await database.ref(`users/${user.uid}`).set({
                     name: name,
                     email: email,
@@ -1992,9 +1720,7 @@
                     status: 'online'
                 });
                 
-                console.log('✅ Registration successful!');
-                console.log('👤 New user created:', user.email);
-                showAuthSuccess('Registration successful! Welcome to MaanChatApp Pro!', 'register');
+                showAuthSuccess('Registration successful!', 'register');
                 
                 // Clear form
                 document.getElementById('registerName').value = '';
@@ -2002,54 +1728,26 @@
                 document.getElementById('registerPassword').value = '';
                 document.getElementById('registerUsername').value = '';
                 
-                // REDIRECT TO HOME SCREEN AFTER SUCCESS
-                console.log('🏠 Redirecting to home screen...');
-                setTimeout(() => {
-                    showMainApp();
-                }, 1000); // Show success message for 1 second then redirect
-                
             } catch (error) {
-                console.log(`❌ Registration error occurred: ${error.message}`);
                 let errorMessage = 'Registration failed. Please try again.';
                 
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = 'An account with this email already exists. Please try logging in instead.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'Please enter a valid email address.';
-                } else if (error.code === 'auth/operation-not-allowed') {
-                    errorMessage = 'Account registration is currently disabled. Please contact support.';
-                } else if (error.code === 'auth/weak-password') {
-                    errorMessage = 'Password is too weak. Please choose a stronger password with at least 6 characters.';
-                } else if (error.code === 'auth/network-request-failed') {
-                    errorMessage = 'Network connection failed. Please check your internet connection and try again.';
-                } else if (error.code === 'auth/internal-error') {
-                    errorMessage = 'Internal authentication error. Please try again later.';
-                } else if (error.code === 'auth/invalid-api-key') {
-                    errorMessage = 'Firebase configuration error. Attempting to reconnect...';
-                    
-                    showAuthError('Connection error. Trying to reconnect...', 'register');
-                    
-                    // Try to reinitialize with fallback
-                    const reconnected = await initializeFirebaseWithFallback();
-                    if (reconnected) {
-                        showAuthSuccess('Reconnected! Please try registering again.', 'register');
-                        registerBtn.innerHTML = originalText;
-                        registerBtn.disabled = false;
-                        return;
-                    } else {
-                        errorMessage = 'Unable to establish connection. Please refresh the page and try again.';
-                    }
-                } else if (error.message.includes('Firebase') || error.message.includes('network')) {
-                    errorMessage = 'Connection error. Please check your internet connection and try again.';
-                } else if (error.message.includes('offline')) {
-                    errorMessage = 'You appear to be offline. Please check your internet connection.';
-                } else if (error.message) {
-                    errorMessage = error.message;
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'Email already exists. Try logging in.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password too weak. Use at least 6 characters.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Check your connection.';
+                        break;
                 }
                 
                 showAuthError(errorMessage, 'register');
             } finally {
-                // Restore button state
                 registerBtn.innerHTML = originalText;
                 registerBtn.disabled = false;
             }
@@ -2081,12 +1779,6 @@
                 }
                 
                 showToast('Google sign-in successful!', 'success');
-                
-                // REDIRECT TO HOME SCREEN AFTER SUCCESS
-                console.log('🏠 Redirecting to home screen after Google sign-in...');
-                setTimeout(() => {
-                    showMainApp();
-                }, 1000);
             } catch (error) {
                 showToast(error.message, 'error');
             }
