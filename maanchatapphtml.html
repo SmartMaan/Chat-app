@@ -33,15 +33,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* COMPLETE CSS EMBEDDED */
+        /* COMPLETE CSS EMBEDDED - ANDROID OPTIMIZED */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
             height: 100vh;
@@ -49,6 +50,80 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             -webkit-tap-highlight-color: transparent;
+            font-size: 16px; /* Prevent zoom on Android */
+            line-height: 1.4;
+        }
+
+        /* Android Screen Optimizations */
+        @media screen and (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
+        }
+
+        @media screen and (max-width: 360px) {
+            body {
+                font-size: 13px;
+            }
+        }
+
+        /* Android Touch Optimizations */
+        button, input, textarea, select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border-radius: 8px;
+            font-size: 16px; /* Prevent zoom */
+            outline: none;
+        }
+
+        /* Disable zoom on input focus for Android */
+        input, textarea, select {
+            font-size: 16px !important;
+        }
+
+        /* Mobile Header */
+        .mobile-header {
+            background: linear-gradient(45deg, #1a73e8, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 100;
+        }
+
+        .mobile-menu-btn, .mobile-search-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-btn:active, .mobile-search-btn:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Show mobile header on small screens */
+        @media screen and (max-width: 768px) {
+            .mobile-header {
+                display: flex !important;
+            }
         }
 
         /* Loading Screen */
@@ -232,12 +307,69 @@
             color: #4285f4;
         }
 
-        /* Main App */
+        /* Main App - Android Optimized */
         .main-app {
             display: none;
             height: 100vh;
             background: white;
             flex-direction: row;
+        }
+
+        /* Android Mobile Layout */
+        @media screen and (max-width: 768px) {
+            .main-app {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: min(320px, 85vw);
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                box-shadow: 5px 0 20px rgba(0, 0, 0, 0.2);
+            }
+            
+            .sidebar.mobile-open {
+                left: 0;
+            }
+            
+            .chat-area {
+                width: 100%;
+                height: 100vh;
+            }
+            
+            .mobile-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+            
+            .mobile-overlay.active {
+                display: block;
+            }
+        }
+
+        /* Small Android Screens */
+        @media screen and (max-width: 360px) {
+            .sidebar {
+                width: 90vw;
+            }
+            
+            .chat-item {
+                padding: 12px 15px;
+            }
+            
+            .message-input-area {
+                padding: 12px 15px;
+            }
         }
 
         /* Sidebar */
@@ -451,6 +583,13 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+        }
+
+        /* Mobile Chat Area Adjustments */
+        @media screen and (max-width: 768px) {
+            .chat-area {
+                height: calc(100vh - 60px); /* Account for mobile header */
+            }
         }
 
         .chat-header {
@@ -1965,10 +2104,24 @@
         </div>
     </div>
 
-    <!-- Main App -->
-    <div id="mainApp" class="main-app">
-        <!-- Sidebar -->
-        <div class="sidebar">
+            <!-- Mobile Overlay -->
+        <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileSidebar()"></div>
+
+        <!-- Main App -->
+        <div id="mainApp" class="main-app">
+            <!-- Mobile Header (Hidden on Desktop) -->
+            <div class="mobile-header" style="display: none;">
+                <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>MaanChatApp Pro</h1>
+                <button class="mobile-search-btn" onclick="showUserSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar" id="mobileSidebar">
             <div class="sidebar-header">
                 <div class="user-profile">
                     <img id="userAvatar" src="https://via.placeholder.com/40" alt="Avatar" class="avatar">
@@ -2669,9 +2822,14 @@
         async function openChat(chatId, chatData) {
             currentChat = chatId;
             
+            // Close mobile sidebar on chat selection
+            closeMobileSidebar();
+            
             // Update active chat
             document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
             
             // Update chat header
             document.getElementById('chatName').textContent = chatData.name;
@@ -2692,16 +2850,37 @@
             if (welcomeMsg) welcomeMsg.style.display = 'none';
         }
 
+        // Global variable to track message listeners
+        let currentMessageListener = null;
+        let loadedMessageIds = new Set();
+
         function loadMessages(chatId) {
             const messagesContainer = document.getElementById('messagesContainer');
             messagesContainer.innerHTML = '';
             
+            // Clear previous listener to prevent duplicates
+            if (currentMessageListener) {
+                currentMessageListener.off();
+            }
+            
+            // Clear loaded message IDs
+            loadedMessageIds.clear();
+            
             const messagesRef = database.ref(`messages/${chatId}`);
-            messagesRef.limitToLast(50).on('child_added', (snapshot) => {
+            currentMessageListener = messagesRef.limitToLast(50);
+            
+            currentMessageListener.on('child_added', (snapshot) => {
+                const messageId = snapshot.key;
                 const message = snapshot.val();
-                const messageElement = createMessageElement(message);
-                messagesContainer.appendChild(messageElement);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Prevent duplicate messages
+                if (!loadedMessageIds.has(messageId)) {
+                    loadedMessageIds.add(messageId);
+                    const messageElement = createMessageElement(message);
+                    messageElement.setAttribute('data-message-id', messageId);
+                    messagesContainer.appendChild(messageElement);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
             });
         }
 
@@ -2727,40 +2906,69 @@
             return div;
         }
 
+        // Global variable to prevent multiple sends
+        let isSendingMessage = false;
+
         async function sendMessage() {
-            if (!currentChat) return;
+            if (!currentChat || isSendingMessage) return;
             
-            const messageText = document.getElementById('messageText').value.trim();
+            const messageTextElement = document.getElementById('messageText');
+            const messageText = messageTextElement.value.trim();
             if (!messageText) return;
             
-            const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
-            const userData = userSnapshot.val();
+            // Prevent multiple sends
+            isSendingMessage = true;
+            const sendBtn = document.querySelector('.send-btn');
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.style.opacity = '0.6';
+            }
             
-            const message = {
-                text: messageText,
-                senderId: currentUser.uid,
-                senderName: userData.name,
-                senderAvatar: userData.avatar,
-                senderVerified: userData.isVerified || false,
-                timestamp: Date.now(),
-                type: 'text'
-            };
-            
-            // Add message to database
-            await database.ref(`messages/${currentChat}`).push(message);
-            
-            // Update last message in chat
-            await database.ref(`chats/${currentChat}`).update({
-                lastMessage: messageText,
-                lastMessageTime: Date.now()
-            });
-            
-            // Clear input
-            document.getElementById('messageText').value = '';
+            try {
+                const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+                const userData = userSnapshot.val();
+                
+                const message = {
+                    text: messageText,
+                    senderId: currentUser.uid,
+                    senderName: userData.name,
+                    senderAvatar: userData.avatar,
+                    senderVerified: userData.isVerified || false,
+                    timestamp: Date.now(),
+                    type: 'text'
+                };
+                
+                // Clear input immediately to prevent double send
+                messageTextElement.value = '';
+                messageTextElement.style.height = 'auto';
+                
+                // Add message to database
+                await database.ref(`messages/${currentChat}`).push(message);
+                
+                // Update last message in chat
+                await database.ref(`chats/${currentChat}`).update({
+                    lastMessage: messageText,
+                    lastMessageTime: Date.now()
+                });
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showErrorMessage('Failed to send message. Please try again.');
+                // Restore message text on error
+                messageTextElement.value = messageText;
+            } finally {
+                // Re-enable send button
+                isSendingMessage = false;
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                }
+            }
         }
 
         function handleEnterKey(event) {
-            if (event.key === 'Enter') {
+            if (event.key === 'Enter' && !event.shiftKey && !isSendingMessage) {
+                event.preventDefault();
                 sendMessage();
             }
         }
@@ -3190,6 +3398,29 @@
                     membersList.appendChild(memberElement);
                 }
             }
+        }
+
+        // Mobile Navigation Functions
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            if (sidebar.classList.contains('mobile-open')) {
+                closeMobileSidebar();
+            } else {
+                sidebar.classList.add('mobile-open');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         // Additional functions for completeness
