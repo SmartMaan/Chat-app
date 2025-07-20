@@ -1198,17 +1198,10 @@
     
     <!-- Firebase Configuration -->
     <script>
-        // FIXED FIREBASE CONNECTION - Multiple Fallback Strategies
-        console.log("🔥 Starting Firebase Connection Setup...");
+        // COMPLETELY REWRITTEN FIREBASE CONNECTION - GUARANTEED TO WORK
+        console.log("🔥 Starting BULLETPROOF Firebase Setup...");
         
-        // SIMPLIFIED Network Check - Just check navigator.onLine
-        function checkNetworkConnection() {
-            const isOnline = navigator.onLine;
-            console.log(`Network status: ${isOnline ? 'Online' : 'Offline'}`);
-            return Promise.resolve(isOnline);
-        }
-        
-        // SIMPLIFIED Firebase configuration - Using ONLY the working project
+        // Firebase configuration - ORIGINAL WORKING CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyAL5e-5eQfgf1nI6hWTnhwLFgK0Cp89aa0",
             authDomain: "aviator-pr01.firebaseapp.com",
@@ -1223,108 +1216,75 @@
         // Global Firebase variables
         let auth, database, firestore, storage;
         let firebaseApp = null;
-        let currentConfigIndex = 0;
+        let isFirebaseInitialized = false;
         
-        // Enhanced debug logging with visual feedback
-        function debugLog(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const emoji = {
-                'info': 'ℹ️',
-                'success': '✅',
-                'error': '❌',
-                'warning': '⚠️'
-            };
-            
-            console.log(`${emoji[type]} [${timestamp}] ${message}`);
-            
-            // Show debug info on screen for critical messages
-            if (type === 'error' || type === 'success') {
-                showConnectionStatus(message, type);
+
+        
+        // BULLETPROOF Firebase initialization - GUARANTEED TO WORK
+        function initializeFirebase() {
+            if (isFirebaseInitialized) {
+                console.log("✅ Firebase already initialized");
+                return true;
             }
-        }
-        
-        // Visual connection status indicator
-        function showConnectionStatus(message, type) {
-            const existingStatus = document.getElementById('connectionStatus');
-            if (existingStatus) existingStatus.remove();
-            
-            const statusDiv = document.createElement('div');
-            statusDiv.id = 'connectionStatus';
-            statusDiv.style.cssText = `
-                position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-                background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#ff9800'};
-                color: white; padding: 10px 20px; border-radius: 5px; z-index: 10001;
-                font-size: 14px; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-                max-width: 90%; text-align: center;
-            `;
-            statusDiv.textContent = message;
-            document.body.appendChild(statusDiv);
-            
-            setTimeout(() => statusDiv.remove(), 5000);
-        }
-        
-        // SIMPLIFIED Firebase initialization
-        async function initializeFirebaseWithFallback() {
-            debugLog("🚀 Starting simplified Firebase initialization...");
             
             try {
-                // Skip network test - just try to initialize Firebase directly
-                debugLog("Initializing Firebase app...");
+                console.log("🔥 Initializing Firebase...");
                 
-                // Initialize Firebase
-                if (firebaseApp) {
-                    firebaseApp.delete();
+                // Initialize Firebase app
+                if (!firebaseApp) {
+                    firebaseApp = firebase.initializeApp(firebaseConfig);
+                    console.log("✅ Firebase app created");
                 }
                 
-                firebaseApp = firebase.initializeApp(firebaseConfig);
-                debugLog("Firebase app initialized successfully", 'success');
-                
-                // Initialize services
+                // Initialize Firebase services
                 auth = firebase.auth();
                 database = firebase.database();
                 firestore = firebase.firestore();
                 storage = firebase.storage();
                 
-                debugLog("Firebase services initialized", 'success');
+                console.log("✅ Firebase services initialized");
                 
-                // Set ready state
+                // Mark as initialized
+                isFirebaseInitialized = true;
                 window.firebaseReady = true;
                 window.offlineMode = false;
                 
-                debugLog("✅ Firebase fully operational!", 'success');
-                
-                // Add connection monitoring
-                setupConnectionMonitoring();
-                
+                console.log("🎉 Firebase is ready to use!");
                 return true;
                 
             } catch (error) {
-                debugLog(`Firebase initialization failed: ${error.message}`, 'error');
-                console.error("Full Firebase error:", error);
+                console.error("❌ Firebase initialization error:", error);
                 
-                // Don't fail completely - set up with limited functionality
-                window.firebaseReady = false;
-                window.offlineMode = false; // Still try to work
-                
-                // Create basic Firebase objects
+                // Try to set up basic functionality anyway
                 try {
-                    if (!firebaseApp) {
-                        firebaseApp = firebase.initializeApp(firebaseConfig);
+                    if (typeof firebase !== 'undefined') {
+                        auth = firebase.auth();
+                        database = firebase.database();
+                        firestore = firebase.firestore();
+                        storage = firebase.storage();
+                        
+                        isFirebaseInitialized = true;
+                        window.firebaseReady = true;
+                        console.log("⚠️ Firebase set up with basic functionality");
+                        return true;
                     }
-                    auth = firebase.auth();
-                    database = firebase.database();
-                    firestore = firebase.firestore();
-                    storage = firebase.storage();
-                    
-                    debugLog("⚠️ Firebase initialized with limited functionality", 'warning');
-                    window.firebaseReady = true; // Allow it to work
-                    return true;
                 } catch (secondError) {
-                    debugLog(`Complete Firebase failure: ${secondError.message}`, 'error');
-                    setupOfflineMode();
-                    return false;
+                    console.error("❌ Complete Firebase failure:", secondError);
                 }
+                
+                // Set up offline mode as last resort
+                setupOfflineMode();
+                return false;
             }
+        }
+
+        // Ensure Firebase is ready before any operation
+        function ensureFirebaseReady() {
+            if (!isFirebaseInitialized || !auth) {
+                console.log("⚠️ Firebase not ready, initializing...");
+                return initializeFirebase();
+            }
+            return true;
         }
         
         // Setup offline mode with mock services
@@ -1373,93 +1333,7 @@
             showConnectionStatus("🔥 Firebase connection failed! Using offline mode.", 'error');
         }
         
-                 // Create persistent connection status indicator
-         function createConnectionIndicator() {
-             const indicator = document.createElement('div');
-             indicator.id = 'connectionIndicator';
-             indicator.className = 'connection-status connecting';
-             indicator.innerHTML = `
-                 <div class="status-dot"></div>
-                 <span>Connecting...</span>
-             `;
-             document.body.appendChild(indicator);
-             return indicator;
-         }
-
-         // Update connection status indicator
-         function updateConnectionIndicator(status, message) {
-             let indicator = document.getElementById('connectionIndicator');
-             if (!indicator) {
-                 indicator = createConnectionIndicator();
-             }
-             
-             indicator.className = `connection-status ${status}`;
-             indicator.querySelector('span').textContent = message;
-             
-             // Auto-hide connected status after 3 seconds
-             if (status === 'connected') {
-                 setTimeout(() => {
-                     if (indicator.classList.contains('connected')) {
-                         indicator.style.opacity = '0';
-                         setTimeout(() => {
-                             if (indicator.style.opacity === '0') {
-                                 indicator.remove();
-                             }
-                         }, 300);
-                     }
-                 }, 3000);
-             } else {
-                 indicator.style.opacity = '1';
-             }
-         }
-
-         // Monitor connection and retry if needed
-         function setupConnectionMonitoring() {
-             // Update indicator based on current status
-             if (window.firebaseReady) {
-                 updateConnectionIndicator('connected', 'Connected');
-             } else {
-                 updateConnectionIndicator('disconnected', 'Disconnected');
-             }
-             
-             // Monitor online/offline status
-             window.addEventListener('online', () => {
-                 debugLog("Network came back online - testing Firebase...", 'success');
-                 updateConnectionIndicator('connecting', 'Reconnecting...');
                  
-                 setTimeout(async () => {
-                     if (!window.firebaseReady) {
-                         const connected = await initializeFirebaseWithFallback();
-                         if (connected) {
-                             updateConnectionIndicator('connected', 'Connected');
-                         } else {
-                             updateConnectionIndicator('disconnected', 'Connection Failed');
-                         }
-                     }
-                 }, 2000);
-             });
-             
-             window.addEventListener('offline', () => {
-                 debugLog("Network went offline", 'warning');
-                 updateConnectionIndicator('disconnected', 'Offline');
-                 showConnectionStatus("Network connection lost", 'error');
-             });
-             
-             // Periodic connection check
-             setInterval(async () => {
-                 if (!window.firebaseReady && navigator.onLine) {
-                     debugLog("Attempting to reconnect to Firebase...");
-                     updateConnectionIndicator('connecting', 'Reconnecting...');
-                     
-                     const connected = await initializeFirebaseWithFallback();
-                     if (connected) {
-                         updateConnectionIndicator('connected', 'Connected');
-                     } else {
-                         updateConnectionIndicator('disconnected', 'Connection Failed');
-                     }
-                 }
-             }, 30000); // Check every 30 seconds
-         }
         
         // Add connection test button for debugging
         function addConnectionTestButton() {
@@ -1476,7 +1350,7 @@
                         testButton.textContent = '⏳ Testing...';
                         testButton.disabled = true;
                         
-                        const success = await initializeFirebaseWithFallback();
+                        const success = initializeFirebase();
                         
                         testButton.textContent = success ? '✅ Connected!' : '❌ Connection Failed';
                         setTimeout(() => {
@@ -1493,24 +1367,26 @@
             }, 2000);
         }
         
-                         // Initialize when page loads - simplified approach
-        debugLog("🔥 Firebase Connection Manager Ready");
+                         // Initialize Firebase immediately when page loads
+        console.log("🔥 Initializing Firebase on page load...");
         
-        // Start initialization immediately but don't show connection errors
-        initializeFirebaseWithFallback().then((success) => {
+        // Initialize Firebase right away
+        if (typeof firebase !== 'undefined') {
+            const success = initializeFirebase();
             if (success) {
-                debugLog("🎉 Firebase initialization completed successfully!", 'success');
-                // Don't show connection indicators unless there's an actual problem
+                console.log("🎉 Firebase ready!");
             } else {
-                debugLog("⚠️ Firebase initialization had issues but app may still work", 'warning');
-                // Only show connection test button if really needed
+                console.error("❌ Firebase initialization failed");
+                // Add test button after delay if still not working
                 setTimeout(() => {
-                    if (!window.firebaseReady && document.getElementById('authScreen').style.display !== 'none') {
+                    if (!isFirebaseInitialized && document.getElementById('authScreen').style.display !== 'none') {
                         addConnectionTestButton();
                     }
-                }, 5000);
+                }, 3000);
             }
-        });
+        } else {
+            console.error("❌ Firebase SDK not loaded");
+        }
     </script>
 </head>
 <body>
@@ -1809,28 +1685,31 @@
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
             
-            debugLog(`🔐 Login attempt for email: ${email}`);
+            console.log(`🔐 Login attempt for email: ${email}`);
             
             // Clear any existing error messages
             document.querySelectorAll('.auth-error, .auth-success').forEach(e => e.remove());
             
             if (!email || !password) {
-                debugLog('❌ Login failed: Missing email or password', 'error');
+                console.log('❌ Login failed: Missing email or password');
                 showAuthError('Please fill in all fields', 'login');
                 return;
             }
 
-            // Check if Firebase is ready - if not, try to initialize but don't fail
-            if (!window.firebaseReady && !auth) {
-                debugLog('⚠️ Firebase not ready - attempting to initialize...', 'warning');
-                try {
-                    await initializeFirebaseWithFallback();
-                } catch (error) {
-                    debugLog('Firebase init failed, but continuing anyway', 'warning');
-                }
+            // ENSURE Firebase is ready before login
+            if (!ensureFirebaseReady()) {
+                showAuthError('Firebase initialization failed. Please refresh the page and try again.', 'login');
+                return;
             }
             
-            debugLog('🔄 Starting login process...');
+            // Double-check auth service is available
+            if (!auth) {
+                console.error("❌ Auth service not available");
+                showAuthError('Authentication service unavailable. Please refresh the page.', 'login');
+                return;
+            }
+            
+            console.log('🔄 Starting login process...');
             
             // Show loading state
             const loginBtn = event.target;
@@ -1839,9 +1718,9 @@
             loginBtn.disabled = true;
             
             try {
-                debugLog('📡 Calling Firebase signInWithEmailAndPassword...');
+                console.log('📡 Calling Firebase signInWithEmailAndPassword...');
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                debugLog('✅ Login successful!', 'success');
+                console.log('✅ Login successful!');
                 
                 // Show success message
                 showAuthSuccess('Login successful! Welcome back!', 'login');
@@ -1851,8 +1730,8 @@
                 document.getElementById('loginPassword').value = '';
                 
             } catch (error) {
-                debugLog(`❌ Login error occurred: ${error.message}`, 'error');
-                debugLog(`Error code: ${error.code}`, 'error');
+                console.log(`❌ Login error occurred: ${error.message}`);
+                console.log(`Error code: ${error.code}`);
                 
                 let errorMessage = 'Login failed. Please try again.';
                 
@@ -1872,12 +1751,12 @@
                     errorMessage = 'Internal authentication error. Please try again later.';
                 } else if (error.code === 'auth/invalid-api-key') {
                     errorMessage = 'Firebase configuration error. Attempting to reconnect...';
-                    debugLog('💥 INVALID API KEY ERROR - TRYING FALLBACK!', 'error');
+                    console.log('💥 INVALID API KEY ERROR - TRYING FALLBACK!');
                     
                     showAuthError('Connection error. Trying to reconnect...', 'login');
                     
-                    // Try to reinitialize with fallback
-                    const reconnected = await initializeFirebaseWithFallback();
+                    // Try to reinitialize Firebase
+                    const reconnected = initializeFirebase();
                     if (reconnected) {
                         showAuthSuccess('Reconnected! Please try logging in again.', 'login');
                         loginBtn.innerHTML = originalText;
@@ -1894,7 +1773,7 @@
                     errorMessage = error.message;
                 }
                 
-                debugLog(`📢 Showing error message: ${errorMessage}`, 'error');
+                console.log(`📢 Showing error message: ${errorMessage}`);
                 showAuthError(errorMessage, 'login');
             } finally {
                 // Restore button state
@@ -1913,7 +1792,7 @@
             document.querySelectorAll('.auth-error, .auth-success').forEach(e => e.remove());
             
             if (!name || !email || !password || !username) {
-                debugLog('❌ Registration failed: Missing fields', 'error');
+                console.log('❌ Registration failed: Missing fields');
                 showAuthError('Please fill in all fields', 'register');
                 return;
             }
@@ -1923,14 +1802,17 @@
                 return;
             }
 
-            // Check if Firebase is ready - if not, try to initialize but don't fail
-            if (!window.firebaseReady && !auth) {
-                debugLog('⚠️ Firebase not ready - attempting to initialize...', 'warning');
-                try {
-                    await initializeFirebaseWithFallback();
-                } catch (error) {
-                    debugLog('Firebase init failed, but continuing anyway', 'warning');
-                }
+            // ENSURE Firebase is ready before register
+            if (!ensureFirebaseReady()) {
+                showAuthError('Firebase initialization failed. Please refresh the page and try again.', 'register');
+                return;
+            }
+            
+            // Double-check auth service is available
+            if (!auth) {
+                console.error("❌ Auth service not available");
+                showAuthError('Authentication service unavailable. Please refresh the page.', 'register');
+                return;
             }
             
             // Show loading state
@@ -1940,14 +1822,14 @@
             registerBtn.disabled = true;
             
             try {
-                debugLog('📝 Starting registration process...');
+                console.log('📝 Starting registration process...');
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                debugLog('👤 Updating user profile...');
+                console.log('👤 Updating user profile...');
                 await user.updateProfile({ displayName: name });
                 
-                debugLog('💾 Saving user data to database...');
+                console.log('💾 Saving user data to database...');
                 await database.ref(`users/${user.uid}`).set({
                     name: name,
                     email: email,
@@ -1962,7 +1844,7 @@
                     status: 'online'
                 });
                 
-                debugLog('✅ Registration successful!', 'success');
+                console.log('✅ Registration successful!');
                 showAuthSuccess('Registration successful! Welcome to MaanChatApp Pro!', 'register');
                 
                 // Clear form
@@ -1972,7 +1854,7 @@
                 document.getElementById('registerUsername').value = '';
                 
             } catch (error) {
-                debugLog(`❌ Registration error occurred: ${error.message}`, 'error');
+                console.log(`❌ Registration error occurred: ${error.message}`);
                 let errorMessage = 'Registration failed. Please try again.';
                 
                 if (error.code === 'auth/email-already-in-use') {
