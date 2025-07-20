@@ -1895,22 +1895,31 @@
             
             debugLog(`🔐 Login attempt for email: ${email}`);
             
+            // Clear any existing error messages
+            document.querySelectorAll('.auth-error, .auth-success').forEach(e => e.remove());
+            
             if (!email || !password) {
                 debugLog('❌ Login failed: Missing email or password', 'error');
-                showToast('Please fill in all fields', 'error');
+                showAuthError('Please fill in all fields', 'login');
                 return;
             }
 
             // Check if Firebase is ready, if not try to reconnect
             if (!window.firebaseReady) {
                 debugLog('⚠️ Firebase not ready - attempting to reconnect...', 'warning');
-                showToast('Connecting to Firebase...', 'info');
+                showAuthError('Connecting to Firebase...', 'login');
                 
                 const connected = await initializeFirebaseWithFallback();
                 if (!connected) {
-                    showToast('🔥 Cannot connect to Firebase. Please check your internet connection and try again.', 'error');
+                    showAuthError('Unable to connect to Firebase. Please check your internet connection and try again.', 'login');
                     return;
                 }
+                
+                // Clear connecting message and show success
+                document.querySelectorAll('.auth-error').forEach(e => e.remove());
+                showAuthSuccess('Connected to Firebase! Please try logging in.', 'login');
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Brief pause
+                document.querySelectorAll('.auth-success').forEach(e => e.remove());
             }
             
             debugLog('🔄 Starting login process...');
@@ -1925,7 +1934,9 @@
                 debugLog('📡 Calling Firebase signInWithEmailAndPassword...');
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 debugLog('✅ Login successful!', 'success');
-                showToast('✅ Login successful! Welcome back!', 'success');
+                
+                // Show success message
+                showAuthSuccess('Login successful! Welcome back!', 'login');
                 
                 // Clear form
                 document.getElementById('loginEmail').value = '';
@@ -1935,38 +1946,48 @@
                 debugLog(`❌ Login error occurred: ${error.message}`, 'error');
                 debugLog(`Error code: ${error.code}`, 'error');
                 
-                let errorMessage = '❌ Login failed. Please try again.';
+                let errorMessage = 'Login failed. Please try again.';
                 
                 if (error.code === 'auth/user-not-found') {
-                    errorMessage = '❌ No account found with this email. Please register first.';
+                    errorMessage = 'No account found with this email address. Please check your email or register for a new account.';
                 } else if (error.code === 'auth/wrong-password') {
-                    errorMessage = '❌ Incorrect password. Please try again.';
+                    errorMessage = 'Incorrect password. Please check your password and try again.';
                 } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = '❌ Invalid email address format.';
+                    errorMessage = 'Please enter a valid email address.';
+                } else if (error.code === 'auth/invalid-credential') {
+                    errorMessage = 'Invalid email or password. Please check your credentials and try again.';
                 } else if (error.code === 'auth/too-many-requests') {
-                    errorMessage = '⏰ Too many failed attempts. Please try again later.';
+                    errorMessage = 'Too many failed login attempts. Please wait a few minutes and try again.';
                 } else if (error.code === 'auth/network-request-failed') {
-                    errorMessage = '🌐 Network error. Please check your connection and try again.';
+                    errorMessage = 'Network connection failed. Please check your internet connection and try again.';
+                } else if (error.code === 'auth/internal-error') {
+                    errorMessage = 'Internal authentication error. Please try again later.';
                 } else if (error.code === 'auth/invalid-api-key') {
-                    errorMessage = '🔥 Firebase configuration error. Attempting to reconnect...';
+                    errorMessage = 'Firebase configuration error. Attempting to reconnect...';
                     debugLog('💥 INVALID API KEY ERROR - TRYING FALLBACK!', 'error');
+                    
+                    showAuthError('Connection error. Trying to reconnect...', 'login');
                     
                     // Try to reinitialize with fallback
                     const reconnected = await initializeFirebaseWithFallback();
                     if (reconnected) {
-                        showToast('🔄 Reconnected! Please try logging in again.', 'success');
+                        showAuthSuccess('Reconnected! Please try logging in again.', 'login');
                         loginBtn.innerHTML = originalText;
                         loginBtn.disabled = false;
                         return;
+                    } else {
+                        errorMessage = 'Unable to establish connection. Please refresh the page and try again.';
                     }
-                } else if (error.message.includes('Firebase')) {
-                    errorMessage = '🔥 Firebase connection error. Please check your internet and try again.';
+                } else if (error.message.includes('Firebase') || error.message.includes('network')) {
+                    errorMessage = 'Connection error. Please check your internet connection and try again.';
+                } else if (error.message.includes('offline')) {
+                    errorMessage = 'You appear to be offline. Please check your internet connection.';
                 } else if (error.message) {
                     errorMessage = error.message;
                 }
                 
                 debugLog(`📢 Showing error message: ${errorMessage}`, 'error');
-                showToast(errorMessage, 'error');
+                showAuthError(errorMessage, 'login');
             } finally {
                 // Restore button state
                 loginBtn.innerHTML = originalText;
@@ -1980,27 +2001,36 @@
             const password = document.getElementById('registerPassword').value.trim();
             const username = document.getElementById('registerUsername').value.trim();
             
+            // Clear any existing error messages
+            document.querySelectorAll('.auth-error, .auth-success').forEach(e => e.remove());
+            
             if (!name || !email || !password || !username) {
                 debugLog('❌ Registration failed: Missing fields', 'error');
-                showToast('Please fill in all fields', 'error');
+                showAuthError('Please fill in all fields', 'register');
                 return;
             }
             
             if (password.length < 6) {
-                showToast('Password must be at least 6 characters', 'error');
+                showAuthError('Password must be at least 6 characters long', 'register');
                 return;
             }
 
             // Check if Firebase is ready, if not try to reconnect
             if (!window.firebaseReady) {
                 debugLog('⚠️ Firebase not ready - attempting to reconnect...', 'warning');
-                showToast('Connecting to Firebase...', 'info');
+                showAuthError('Connecting to Firebase...', 'register');
                 
                 const connected = await initializeFirebaseWithFallback();
                 if (!connected) {
-                    showToast('🔥 Cannot connect to Firebase. Please check your internet connection and try again.', 'error');
+                    showAuthError('Unable to connect to Firebase. Please check your internet connection and try again.', 'register');
                     return;
                 }
+                
+                // Clear connecting message and show success
+                document.querySelectorAll('.auth-error').forEach(e => e.remove());
+                showAuthSuccess('Connected to Firebase! Please try registering.', 'register');
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Brief pause
+                document.querySelectorAll('.auth-success').forEach(e => e.remove());
             }
             
             // Show loading state
@@ -2033,7 +2063,7 @@
                 });
                 
                 debugLog('✅ Registration successful!', 'success');
-                showToast('✅ Registration successful! Welcome to MaanChatApp Pro!', 'success');
+                showAuthSuccess('Registration successful! Welcome to MaanChatApp Pro!', 'register');
                 
                 // Clear form
                 document.getElementById('registerName').value = '';
@@ -2043,36 +2073,44 @@
                 
             } catch (error) {
                 debugLog(`❌ Registration error occurred: ${error.message}`, 'error');
-                let errorMessage = '❌ Registration failed. Please try again.';
+                let errorMessage = 'Registration failed. Please try again.';
                 
                 if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = '❌ An account with this email already exists. Please login instead.';
+                    errorMessage = 'An account with this email already exists. Please try logging in instead.';
                 } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = '❌ Invalid email address format.';
+                    errorMessage = 'Please enter a valid email address.';
                 } else if (error.code === 'auth/operation-not-allowed') {
-                    errorMessage = '❌ Email/password accounts are not enabled. Please contact support.';
+                    errorMessage = 'Account registration is currently disabled. Please contact support.';
                 } else if (error.code === 'auth/weak-password') {
-                    errorMessage = '❌ Password is too weak. Please choose a stronger password.';
+                    errorMessage = 'Password is too weak. Please choose a stronger password with at least 6 characters.';
                 } else if (error.code === 'auth/network-request-failed') {
-                    errorMessage = '🌐 Network error. Please check your connection and try again.';
+                    errorMessage = 'Network connection failed. Please check your internet connection and try again.';
+                } else if (error.code === 'auth/internal-error') {
+                    errorMessage = 'Internal authentication error. Please try again later.';
                 } else if (error.code === 'auth/invalid-api-key') {
-                    errorMessage = '🔥 Firebase configuration error. Attempting to reconnect...';
+                    errorMessage = 'Firebase configuration error. Attempting to reconnect...';
+                    
+                    showAuthError('Connection error. Trying to reconnect...', 'register');
                     
                     // Try to reinitialize with fallback
                     const reconnected = await initializeFirebaseWithFallback();
                     if (reconnected) {
-                        showToast('🔄 Reconnected! Please try registering again.', 'success');
+                        showAuthSuccess('Reconnected! Please try registering again.', 'register');
                         registerBtn.innerHTML = originalText;
                         registerBtn.disabled = false;
                         return;
+                    } else {
+                        errorMessage = 'Unable to establish connection. Please refresh the page and try again.';
                     }
-                } else if (error.message.includes('Firebase')) {
-                    errorMessage = '🔥 Firebase connection error. Please check your internet and try again.';
+                } else if (error.message.includes('Firebase') || error.message.includes('network')) {
+                    errorMessage = 'Connection error. Please check your internet connection and try again.';
+                } else if (error.message.includes('offline')) {
+                    errorMessage = 'You appear to be offline. Please check your internet connection.';
                 } else if (error.message) {
                     errorMessage = error.message;
                 }
                 
-                showToast(errorMessage, 'error');
+                showAuthError(errorMessage, 'register');
             } finally {
                 // Restore button state
                 registerBtn.innerHTML = originalText;
@@ -2604,14 +2642,86 @@
             }
         }
 
-        // Utility functions
+        // IMPROVED UI ERROR FEEDBACK SYSTEM
         function showToast(message, type = 'info') {
+            // Remove existing toasts
+            document.querySelectorAll('.toast').forEach(t => t.remove());
+            
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.textContent = message;
             
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => toast.remove(), 5000); // Show longer for errors
+        }
+
+        // Enhanced error display in auth forms
+        function showAuthError(message, formType = 'login') {
+            // Remove existing error messages
+            document.querySelectorAll('.auth-error').forEach(e => e.remove());
+            
+            // Create error message element
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'auth-error';
+            errorDiv.style.cssText = `
+                background: #ffebee; 
+                color: #c62828; 
+                padding: 12px 16px; 
+                border-radius: 8px; 
+                margin: 10px 0; 
+                font-size: 14px; 
+                border-left: 4px solid #f44336;
+                animation: shake 0.5s ease-in-out;
+            `;
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+            
+            // Add shake animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-5px); }
+                    75% { transform: translateX(5px); }
+                }
+            `;
+            if (!document.querySelector('style[data-shake]')) {
+                style.setAttribute('data-shake', 'true');
+                document.head.appendChild(style);
+            }
+            
+            // Insert error message in the form
+            const form = document.getElementById(`${formType}Form`);
+            const submitBtn = form.querySelector('.auth-btn');
+            form.insertBefore(errorDiv, submitBtn);
+            
+            // Auto-remove after 8 seconds
+            setTimeout(() => errorDiv.remove(), 8000);
+        }
+
+        // Enhanced success message
+        function showAuthSuccess(message, formType = 'login') {
+            // Remove existing messages
+            document.querySelectorAll('.auth-error, .auth-success').forEach(e => e.remove());
+            
+            const successDiv = document.createElement('div');
+            successDiv.className = 'auth-success';
+            successDiv.style.cssText = `
+                background: #e8f5e8; 
+                color: #2e7d32; 
+                padding: 12px 16px; 
+                border-radius: 8px; 
+                margin: 10px 0; 
+                font-size: 14px; 
+                border-left: 4px solid #4caf50;
+                animation: slideIn 0.3s ease-out;
+            `;
+            successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            
+            const form = document.getElementById(`${formType}Form`);
+            const submitBtn = form.querySelector('.auth-btn');
+            form.insertBefore(successDiv, submitBtn);
+            
+            setTimeout(() => successDiv.remove(), 4000);
         }
 
         // Attachment functions
