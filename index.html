@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatApp Pro - Advanced Messaging Platform</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1a73e8">
+    <meta name="description" content="Advanced chat application with groups, channels, and bot management">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Loading ChatApp Pro...</p>
+    </div>
+
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-container">
+            <div class="auth-header">
+                <i class="fas fa-comments"></i>
+                <h1>ChatApp Pro</h1>
+                <p>Advanced Messaging Platform</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+            
+            <div id="loginForm" class="auth-form active">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button onclick="login()" class="auth-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+            
+            <div id="registerForm" class="auth-form">
+                <input type="text" id="registerName" placeholder="Full Name" required>
+                <input type="email" id="registerEmail" placeholder="Email" required>
+                <input type="password" id="registerPassword" placeholder="Password" required>
+                <input type="text" id="registerUsername" placeholder="Username" required>
+                <button onclick="register()" class="auth-btn">
+                    <i class="fas fa-user-plus"></i> Register
+                </button>
+            </div>
+            
+            <div class="social-auth">
+                <button onclick="signInWithGoogle()" class="google-btn">
+                    <i class="fab fa-google"></i> Continue with Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="main-app">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <img id="userAvatar" src="https://via.placeholder.com/40" alt="Avatar" class="avatar">
+                    <div class="user-info">
+                        <span id="userName" class="user-name">User</span>
+                        <span id="userStatus" class="user-status">Online</span>
+                    </div>
+                    <div class="verification-badge" id="verificationBadge">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="sidebar-actions">
+                    <button onclick="showAdminPanel()" class="action-btn" title="Admin Panel">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button onclick="createGroup()" class="action-btn" title="Create Group">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button onclick="logout()" class="action-btn" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search chats..." onkeyup="searchChats(this.value)">
+            </div>
+            
+            <div class="chat-list" id="chatList">
+                <!-- Chat items will be populated here -->
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header" id="chatHeader">
+                <div class="chat-info">
+                    <img id="chatAvatar" src="https://via.placeholder.com/40" alt="Chat Avatar" class="avatar">
+                    <div>
+                        <h3 id="chatName">Select a chat</h3>
+                        <span id="chatStatus" class="chat-status">Click on a chat to start messaging</span>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button onclick="addBots()" class="action-btn" title="Add Bots">
+                        <i class="fas fa-robot"></i>
+                    </button>
+                    <button onclick="manageChannel()" class="action-btn" title="Manage Channel">
+                        <i class="fas fa-users-cog"></i>
+                    </button>
+                    <button onclick="showMembers()" class="action-btn" title="Members">
+                        <i class="fas fa-users"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome-message">
+                    <i class="fas fa-comments"></i>
+                    <h2>Welcome to ChatApp Pro</h2>
+                    <p>Select a chat to start messaging</p>
+                </div>
+            </div>
+            
+            <div class="message-input-area" id="messageInputArea">
+                <div class="attachment-options" id="attachmentOptions">
+                    <button onclick="attachPhoto()" class="attach-btn">
+                        <i class="fas fa-camera"></i> Photo
+                    </button>
+                    <button onclick="attachVideo()" class="attach-btn">
+                        <i class="fas fa-video"></i> Video
+                    </button>
+                    <button onclick="attachFile()" class="attach-btn">
+                        <i class="fas fa-file"></i> File
+                    </button>
+                </div>
+                
+                <div class="message-input">
+                    <button onclick="toggleAttachments()" class="attach-toggle">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input type="text" id="messageText" placeholder="Type a message..." onkeypress="handleEnterKey(event)">
+                    <button onclick="sendMessage()" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <input type="file" id="fileInput" accept="image/*,video/*" style="display: none;" onchange="handleFileSelect(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminPanel" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-shield-alt"></i> Admin Panel</h2>
+                <button onclick="closeModal('adminPanel')" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="users">Users</button>
+                <button class="admin-tab" data-tab="channels">Channels</button>
+                <button class="admin-tab" data-tab="bots">Bots</button>
+                <button class="admin-tab" data-tab="verification">Verification</button>
+            </div>
+            
+            <div id="usersTab" class="admin-tab-content active">
+                <div class="admin-actions">
+                    <button onclick="addFakeFollowers()" class="admin-btn">
+                        <i class="fas fa-user-plus"></i> Add Bot Followers
+                    </button>
+                    <button onclick="promoteUser()" class="admin-btn">
+                        <i class="fas fa-crown"></i> Promote User
+                    </button>
+                </div>
+                <div id="usersList" class="admin-list"></div>
+            </div>
+            
+            <div id="channelsTab" class="admin-tab-content">
+                <div class="admin-actions">
+                    <button onclick="createChannel()" class="admin-btn">
+                        <i class="fas fa-plus"></i> Create Channel
+                    </button>
+                    <button onclick="bulkAddBots()" class="admin-btn">
+                        <i class="fas fa-robot"></i> Bulk Add Bots
+                    </button>
+                </div>
+                <div id="channelsList" class="admin-list"></div>
+            </div>
+            
+            <div id="botsTab" class="admin-tab-content">
+                <div class="bot-generator">
+                    <h3>Bot Generator</h3>
+                    <label>Number of bots to create:</label>
+                    <input type="number" id="botCount" value="100" min="1" max="10000">
+                    <button onclick="generateBots()" class="admin-btn">
+                        <i class="fas fa-magic"></i> Generate Bots
+                    </button>
+                </div>
+                <div id="botsList" class="admin-list"></div>
+            </div>
+            
+            <div id="verificationTab" class="admin-tab-content">
+                <div class="verification-controls">
+                    <h3>Blue Tick Verification</h3>
+                    <div class="verification-form">
+                        <input type="text" id="verifyUsername" placeholder="Username to verify">
+                        <button onclick="grantVerification()" class="admin-btn verify-btn">
+                            <i class="fas fa-check-circle"></i> Grant Blue Tick
+                        </button>
+                        <button onclick="revokeVerification()" class="admin-btn revoke-btn">
+                            <i class="fas fa-times-circle"></i> Revoke Verification
+                        </button>
+                    </div>
+                </div>
+                <div id="verifiedUsersList" class="admin-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-users"></i> Create Group/Channel</h2>
+                <button onclick="closeModal('createGroupModal')" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="group-form">
+                <div class="form-group">
+                    <label>Type:</label>
+                    <select id="groupType">
+                        <option value="group">Group Chat</option>
+                        <option value="channel">Channel</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="groupName" placeholder="Enter group/channel name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="groupDescription" placeholder="Enter description"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Privacy:</label>
+                    <select id="groupPrivacy">
+                        <option value="public">Public</option>
+                        <option value="private">Private</option>
+                    </select>
+                </div>
+                
+                <button onclick="submitGroupCreation()" class="submit-btn">
+                    <i class="fas fa-plus"></i> Create
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Members Modal -->
+    <div id="membersModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-users"></i> Members</h2>
+                <button onclick="closeModal('membersModal')" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="membersList" class="members-list"></div>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
