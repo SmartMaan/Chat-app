@@ -1423,6 +1423,9 @@
                 <i class="fas fa-comments"></i>
                 <h1>MaanChatApp Pro</h1>
                 <p>Complete Social Messaging Platform</p>
+                <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 12px; color: #1976d2;">
+                    <strong>Test Login:</strong> Use any email/password to create account or test@example.com / test123
+                </div>
             </div>
             
             <div class="auth-tabs">
@@ -1433,7 +1436,7 @@
             <div id="loginForm" class="auth-form active">
                 <input type="email" id="loginEmail" placeholder="Email" required>
                 <input type="password" id="loginPassword" placeholder="Password" required>
-                <button onclick="login()" class="auth-btn">
+                <button id="loginBtn" class="auth-btn">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </button>
             </div>
@@ -1443,13 +1446,13 @@
                 <input type="email" id="registerEmail" placeholder="Email" required>
                 <input type="password" id="registerPassword" placeholder="Password" required>
                 <input type="text" id="registerUsername" placeholder="Username" required>
-                <button onclick="register()" class="auth-btn">
+                <button id="registerBtn" class="auth-btn">
                     <i class="fas fa-user-plus"></i> Register
                 </button>
             </div>
             
             <div class="social-auth">
-                <button onclick="signInWithGoogle()" class="google-btn">
+                <button id="googleBtn" class="google-btn">
                     <i class="fab fa-google"></i> Continue with Google
                 </button>
             </div>
@@ -1606,6 +1609,75 @@
                 tab.addEventListener('click', () => switchAuthTab(tab.dataset.tab));
             });
 
+            // SETUP LOGIN/REGISTER BUTTON EVENT LISTENERS
+            console.log("🔧 Setting up button event listeners...");
+            
+            // Login button
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log("🔥 Login button clicked!");
+                    login();
+                });
+                console.log("✅ Login button listener added");
+            } else {
+                console.error("❌ Login button not found!");
+            }
+            
+            // Register button  
+            const registerBtn = document.getElementById('registerBtn');
+            if (registerBtn) {
+                registerBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log("🔥 Register button clicked!");
+                    register();
+                });
+                console.log("✅ Register button listener added");
+            } else {
+                console.error("❌ Register button not found!");
+            }
+
+            // Google sign-in button
+            const googleBtn = document.getElementById('googleBtn');
+            if (googleBtn) {
+                googleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log("🔥 Google button clicked!");
+                    signInWithGoogle();
+                });
+                console.log("✅ Google button listener added");
+            } else {
+                console.error("❌ Google button not found!");
+            }
+
+            // SETUP ENTER KEY SUPPORT FOR LOGIN/REGISTER
+            console.log("⌨️ Setting up Enter key support...");
+            
+            // Login form Enter key
+            const loginInputs = document.querySelectorAll('#loginForm input');
+            loginInputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        console.log("⌨️ Enter pressed in login form");
+                        login();
+                    }
+                });
+            });
+            
+            // Register form Enter key
+            const registerInputs = document.querySelectorAll('#registerForm input');
+            registerInputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        console.log("⌨️ Enter pressed in register form");
+                        register();
+                    }
+                });
+            });
+
             // Setup auto-resize for message textarea
             setTimeout(() => {
                 const messageText = document.getElementById('messageText');
@@ -1736,7 +1808,7 @@
             console.log('🔄 Starting login process...');
             
             // Show loading state - find the login button
-            const loginBtn = document.querySelector('#loginForm .auth-btn');
+            const loginBtn = document.getElementById('loginBtn');
             if (!loginBtn) {
                 console.error('Login button not found!');
                 showAuthError('Login button not found. Please refresh the page.', 'login');
@@ -1846,7 +1918,7 @@
             }
             
             // Show loading state - find the register button
-            const registerBtn = document.querySelector('#registerForm .auth-btn');
+            const registerBtn = document.getElementById('registerBtn');
             if (!registerBtn) {
                 console.error('Register button not found!');
                 showAuthError('Register button not found. Please refresh the page.', 'register');
