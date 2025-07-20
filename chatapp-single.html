@@ -2048,7 +2048,7 @@
                 </div>
             </div>
             
-            <div class="message-input-area" id="messageInputArea">
+            <div class="message-input-area" id="messageInputArea" style="display: none;">
                 <div class="attachment-options" id="attachmentOptions">
                     <button onclick="attachPhoto()" class="attach-btn">
                         <i class="fas fa-camera"></i> Photo
@@ -2065,7 +2065,7 @@
                     <button onclick="toggleAttachments()" class="attach-toggle">
                         <i class="fas fa-paperclip"></i>
                     </button>
-                    <input type="text" id="messageText" placeholder="Type a message..." onkeypress="handleEnterKey(event)">
+                    <textarea id="messageText" placeholder="Type a message..." onkeypress="handleEnterKey(event)" rows="1"></textarea>
                     <button onclick="sendMessage()" class="send-btn">
                         <i class="fas fa-paper-plane"></i>
                     </button>
@@ -2433,6 +2433,17 @@
             document.querySelectorAll('.admin-tab').forEach(tab => {
                 tab.addEventListener('click', () => switchAdminTab(tab.dataset.tab));
             });
+
+            // Setup auto-resize for message textarea
+            setTimeout(() => {
+                const messageText = document.getElementById('messageText');
+                if (messageText) {
+                    messageText.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+                    });
+                }
+            }, 1000);
             
             // Check authentication state
             auth.onAuthStateChanged(function(user) {
@@ -2658,16 +2669,23 @@
         async function openChat(chatId, chatData) {
             currentChat = chatId;
             
+            // Update active chat
+            document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
             // Update chat header
             document.getElementById('chatName').textContent = chatData.name;
             document.getElementById('chatAvatar').src = chatData.avatar || 'https://via.placeholder.com/40';
             document.getElementById('chatStatus').textContent = `${Object.keys(chatData.members || {}).length} members`;
             
+            // Show chat header
+            document.getElementById('chatHeader').style.display = 'flex';
+            
             // Load messages
             loadMessages(chatId);
             
-            // Show message input
-            document.getElementById('messageInputArea').style.display = 'flex';
+            // Show message input area
+            document.getElementById('messageInputArea').style.display = 'block';
             
             // Clear welcome message
             const welcomeMsg = document.querySelector('.welcome-message');
@@ -2750,7 +2768,11 @@
         // Media Functions
         function toggleAttachments() {
             const options = document.getElementById('attachmentOptions');
-            options.style.display = options.style.display === 'flex' ? 'none' : 'flex';
+            if (options.classList.contains('show')) {
+                options.classList.remove('show');
+            } else {
+                options.classList.add('show');
+            }
         }
 
         function attachPhoto() {
