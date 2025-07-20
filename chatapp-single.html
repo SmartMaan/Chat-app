@@ -1509,6 +1509,413 @@
         .toast.error {
             background: #f44336;
         }
+
+        /* Friend System Styles */
+        .friends-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+        }
+
+        .friends-tab {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .friends-tab.active {
+            color: #1a73e8;
+            border-bottom-color: #1a73e8;
+            background: white;
+        }
+
+        .friends-tab:hover {
+            background: rgba(26, 115, 232, 0.1);
+        }
+
+        .friends-content {
+            position: relative;
+        }
+
+        .friends-list {
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .friends-list.active {
+            display: block;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.2s ease;
+        }
+
+        .friend-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .friend-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            position: relative;
+        }
+
+        .friend-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .friend-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .friend-username {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .friend-status {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .friend-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .friend-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .friend-btn.accept {
+            background: #4caf50;
+            color: white;
+        }
+
+        .friend-btn.decline {
+            background: #f44336;
+            color: white;
+        }
+
+        .friend-btn.chat {
+            background: #1a73e8;
+            color: white;
+        }
+
+        .friend-btn.remove {
+            background: #ff9800;
+            color: white;
+        }
+
+        .friend-btn.pending {
+            background: #999;
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .friend-btn:hover:not(.pending) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Discovery Styles */
+        .discovery-search {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+
+        .filter-btn:hover {
+            background: #f0f8ff;
+            border-color: #1a73e8;
+        }
+
+        .search-input-container {
+            position: relative;
+        }
+
+        .search-input-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .search-input-container input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            background: #f8f9fa;
+        }
+
+        .search-input-container input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            background: white;
+        }
+
+        .discovery-results {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .discovery-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.2s ease;
+        }
+
+        .discovery-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .discovery-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .discovery-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .discovery-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .discovery-meta {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .discovery-description {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .discovery-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .discovery-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .discovery-btn.add-friend {
+            background: #4caf50;
+            color: white;
+        }
+
+        .discovery-btn.join {
+            background: #1a73e8;
+            color: white;
+        }
+
+        .discovery-btn.chat {
+            background: #ff9800;
+            color: white;
+        }
+
+        .discovery-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .tab-badge {
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            min-width: 16px;
+            text-align: center;
+            margin-left: 5px;
+        }
+
+        .verified-badge {
+            color: #1da1f2;
+            font-size: 16px;
+        }
+
+        .online-indicator {
+            width: 12px;
+            height: 12px;
+            background: #4caf50;
+            border-radius: 50%;
+            border: 2px solid white;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        .user-search-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding: 0 20px;
+            padding-top: 20px;
+        }
+
+        .user-search-results {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Message Input Area Fix */
+        .message-input-area {
+            background: white;
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .attachment-options {
+            display: none;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .attachment-options.show {
+            display: flex;
+        }
+
+        .message-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 5px 15px;
+        }
+
+        .attach-toggle {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .attach-toggle:hover {
+            color: #1a73e8;
+        }
+
+        .message-text {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 10px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            min-height: 20px;
+            max-height: 100px;
+        }
+
+        .send-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #1557b0;
+            transform: scale(1.1);
+        }
+
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
     </style>
 </head>
 <body>
@@ -1879,6 +2286,95 @@
                 </button>
             </div>
             <div id="membersList" class="members-list"></div>
+        </div>
+    </div>
+
+    <!-- Friends Modal -->
+    <div id="friendsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-friends"></i> Friends</h2>
+                <button onclick="closeModal('friendsModal')" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="friends-tabs">
+                <button class="friends-tab active" onclick="switchFriendsTab('friends')">
+                    <i class="fas fa-user-friends"></i> Friends
+                    <span id="friendsCount" class="tab-badge">0</span>
+                </button>
+                <button class="friends-tab" onclick="switchFriendsTab('requests')">
+                    <i class="fas fa-user-plus"></i> Requests
+                    <span id="requestsCount" class="tab-badge">0</span>
+                </button>
+                <button class="friends-tab" onclick="switchFriendsTab('sent')">
+                    <i class="fas fa-paper-plane"></i> Sent
+                    <span id="sentCount" class="tab-badge">0</span>
+                </button>
+            </div>
+            
+            <div id="friendsContent" class="friends-content">
+                <div id="friendsList" class="friends-list active"></div>
+                <div id="requestsList" class="friends-list"></div>
+                <div id="sentList" class="friends-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discovery Modal -->
+    <div id="discoveryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-compass"></i> Discover</h2>
+                <button onclick="closeModal('discoveryModal')" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="discovery-search">
+                <div class="search-filters">
+                    <button class="filter-btn active" onclick="setDiscoveryFilter('all')">All</button>
+                    <button class="filter-btn" onclick="setDiscoveryFilter('users')">Users</button>
+                    <button class="filter-btn" onclick="setDiscoveryFilter('channels')">Channels</button>
+                    <button class="filter-btn" onclick="setDiscoveryFilter('groups')">Groups</button>
+                    <button class="filter-btn" onclick="setDiscoveryFilter('verified')">Verified</button>
+                </div>
+                
+                <div class="search-input-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="discoverySearch" placeholder="Search users, channels, groups..." 
+                           onkeyup="searchDiscovery(this.value)">
+                </div>
+            </div>
+            
+            <div id="discoveryResults" class="discovery-results"></div>
+        </div>
+    </div>
+
+    <!-- User Search Modal -->
+    <div id="userSearchModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-search"></i> Search Users</h2>
+                <button onclick="closeModal('userSearchModal')" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="user-search-filters">
+                <button class="filter-btn active" onclick="setUserSearchFilter('all')">All Users</button>
+                <button class="filter-btn" onclick="setUserSearchFilter('online')">Online</button>
+                <button class="filter-btn" onclick="setUserSearchFilter('verified')">Verified</button>
+            </div>
+            
+            <div class="search-input-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="userSearchInput" placeholder="Search by name or username..." 
+                       onkeyup="searchUsers(this.value)">
+            </div>
+            
+            <div id="userSearchResults" class="user-search-results"></div>
         </div>
     </div>
 
