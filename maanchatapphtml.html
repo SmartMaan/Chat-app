@@ -1369,23 +1369,30 @@
         
                          // Initialize Firebase immediately when page loads
         console.log("🔥 Initializing Firebase on page load...");
+        console.log("Firebase available:", typeof firebase !== 'undefined');
+        console.log("Firebase config:", firebaseConfig);
         
         // Initialize Firebase right away
         if (typeof firebase !== 'undefined') {
+            console.log("📡 Attempting Firebase initialization...");
             const success = initializeFirebase();
             if (success) {
                 console.log("🎉 Firebase ready!");
+                console.log("Auth service:", !!auth);
+                console.log("Database service:", !!database);
             } else {
                 console.error("❌ Firebase initialization failed");
                 // Add test button after delay if still not working
                 setTimeout(() => {
-                    if (!isFirebaseInitialized && document.getElementById('authScreen').style.display !== 'none') {
+                    if (!isFirebaseInitialized) {
+                        console.log("🔧 Adding connection test button...");
                         addConnectionTestButton();
                     }
                 }, 3000);
             }
         } else {
             console.error("❌ Firebase SDK not loaded");
+            console.log("Available objects:", Object.keys(window).filter(key => key.toLowerCase().includes('firebase')));
         }
     </script>
 </head>
@@ -1682,10 +1689,13 @@
         }
 
         async function login() {
+            console.log("🔥 LOGIN FUNCTION CALLED!");
+            
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
             
             console.log(`🔐 Login attempt for email: ${email}`);
+            console.log(`Password length: ${password.length}`);
             
             // Clear any existing error messages
             document.querySelectorAll('.auth-error, .auth-success').forEach(e => e.remove());
@@ -1697,7 +1707,13 @@
             }
 
             // ENSURE Firebase is ready before login
+            console.log("🔍 Checking Firebase readiness...");
+            console.log("isFirebaseInitialized:", isFirebaseInitialized);
+            console.log("window.firebaseReady:", window.firebaseReady);
+            console.log("auth object:", !!auth);
+            
             if (!ensureFirebaseReady()) {
+                console.error("❌ Firebase not ready!");
                 showAuthError('Firebase initialization failed. Please refresh the page and try again.', 'login');
                 return;
             }
@@ -1705,14 +1721,28 @@
             // Double-check auth service is available
             if (!auth) {
                 console.error("❌ Auth service not available");
+                console.log("Available Firebase services:", {
+                    auth: !!auth,
+                    database: !!database,
+                    firestore: !!firestore,
+                    storage: !!storage
+                });
                 showAuthError('Authentication service unavailable. Please refresh the page.', 'login');
                 return;
             }
             
+            console.log("✅ Firebase ready, proceeding with login...");
+            
             console.log('🔄 Starting login process...');
             
-            // Show loading state
-            const loginBtn = event.target;
+            // Show loading state - find the login button
+            const loginBtn = document.querySelector('#loginForm .auth-btn');
+            if (!loginBtn) {
+                console.error('Login button not found!');
+                showAuthError('Login button not found. Please refresh the page.', 'login');
+                return;
+            }
+            
             const originalText = loginBtn.innerHTML;
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
             loginBtn.disabled = true;
@@ -1815,8 +1845,14 @@
                 return;
             }
             
-            // Show loading state
-            const registerBtn = event.target;
+            // Show loading state - find the register button
+            const registerBtn = document.querySelector('#registerForm .auth-btn');
+            if (!registerBtn) {
+                console.error('Register button not found!');
+                showAuthError('Register button not found. Please refresh the page.', 'register');
+                return;
+            }
+            
             const originalText = registerBtn.innerHTML;
             registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
             registerBtn.disabled = true;
