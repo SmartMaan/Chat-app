@@ -1038,6 +1038,22 @@
             font-size: 14px;
         }
 
+        .category-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .category-input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 14px;
+        }
+
         .modal-content textarea {
             min-height: 80px;
             resize: vertical;
@@ -1480,7 +1496,42 @@
             <form id="faqForm">
                 <div class="form-group">
                     <label>Category</label>
-                    <input type="text" id="faqCategory" required>
+                    <div class="category-input-group">
+                        <select id="faqCategorySelect" onchange="handleFaqCategoryChange()">
+                            <option value="">Select Category</option>
+                            <option value="new">Create New Category</option>
+                        </select>
+                        <input type="text" id="faqCategory" placeholder="Enter category name" style="display: none;" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <div class="icon-selector">
+                        <i class="fas fa-home icon-option" data-icon="fas fa-home"></i>
+                        <i class="fas fa-user icon-option" data-icon="fas fa-user"></i>
+                        <i class="fas fa-cog icon-option" data-icon="fas fa-cog"></i>
+                        <i class="fas fa-heart icon-option" data-icon="fas fa-heart"></i>
+                        <i class="fas fa-star icon-option" data-icon="fas fa-star"></i>
+                        <i class="fas fa-bell icon-option" data-icon="fas fa-bell"></i>
+                        <i class="fas fa-envelope icon-option" data-icon="fas fa-envelope"></i>
+                        <i class="fas fa-phone icon-option" data-icon="fas fa-phone"></i>
+                        <i class="fas fa-money-bill icon-option" data-icon="fas fa-money-bill"></i>
+                        <i class="fas fa-credit-card icon-option" data-icon="fas fa-credit-card"></i>
+                        <i class="fas fa-gamepad icon-option" data-icon="fas fa-gamepad"></i>
+                        <i class="fas fa-exclamation-triangle icon-option" data-icon="fas fa-exclamation-triangle"></i>
+                        <i class="fas fa-clock icon-option" data-icon="fas fa-clock"></i>
+                        <i class="fas fa-check-circle icon-option" data-icon="fas fa-check-circle"></i>
+                        <i class="fas fa-times-circle icon-option" data-icon="fas fa-times-circle"></i>
+                        <i class="fas fa-question-circle icon-option" data-icon="fas fa-question-circle"></i>
+                        <i class="fas fa-info-circle icon-option" data-icon="fas fa-info-circle"></i>
+                        <i class="fas fa-shield-alt icon-option" data-icon="fas fa-shield-alt"></i>
+                        <i class="fas fa-tools icon-option" data-icon="fas fa-tools"></i>
+                        <i class="fas fa-book icon-option" data-icon="fas fa-book"></i>
+                        <i class="fas fa-graduation-cap icon-option" data-icon="fas fa-graduation-cap"></i>
+                        <i class="fas fa-lightbulb icon-option" data-icon="fas fa-lightbulb"></i>
+                        <i class="fas fa-rocket icon-option" data-icon="fas fa-rocket"></i>
+                    </div>
+                    <input type="hidden" id="faqSelectedIcon" value="fas fa-question-circle">
                 </div>
                 <div class="form-group">
                     <label>Question</label>
@@ -1504,7 +1555,13 @@
             <form id="quickForm">
                 <div class="form-group">
                     <label>Category</label>
-                    <input type="text" id="quickCategory" required>
+                    <div class="category-input-group">
+                        <select id="quickCategorySelect" onchange="handleQuickCategoryChange()">
+                            <option value="">Select Category</option>
+                            <option value="new">Create New Category</option>
+                        </select>
+                        <input type="text" id="quickCategory" placeholder="Enter category name" style="display: none;" required>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Question</label>
@@ -1532,6 +1589,14 @@
                         <i class="fas fa-clock icon-option" data-icon="fas fa-clock"></i>
                         <i class="fas fa-check-circle icon-option" data-icon="fas fa-check-circle"></i>
                         <i class="fas fa-times-circle icon-option" data-icon="fas fa-times-circle"></i>
+                        <i class="fas fa-question-circle icon-option" data-icon="fas fa-question-circle"></i>
+                        <i class="fas fa-info-circle icon-option" data-icon="fas fa-info-circle"></i>
+                        <i class="fas fa-shield-alt icon-option" data-icon="fas fa-shield-alt"></i>
+                        <i class="fas fa-tools icon-option" data-icon="fas fa-tools"></i>
+                        <i class="fas fa-book icon-option" data-icon="fas fa-book"></i>
+                        <i class="fas fa-graduation-cap icon-option" data-icon="fas fa-graduation-cap"></i>
+                        <i class="fas fa-lightbulb icon-option" data-icon="fas fa-lightbulb"></i>
+                        <i class="fas fa-rocket icon-option" data-icon="fas fa-rocket"></i>
                     </div>
                     <input type="hidden" id="selectedIcon" value="fas fa-home">
                 </div>
@@ -2073,7 +2138,7 @@
                             faqDiv.className = 'faq-item';
                             faqDiv.innerHTML = `
                                 <div class="faq-question" onclick="toggleFAQ(this)">
-                                    <span>${faq.question}</span>
+                                    <span><i class="${faq.icon || 'fas fa-question-circle'}"></i> ${faq.question}</span>
                                     <i class="fas fa-chevron-down"></i>
                                 </div>
                                 <div class="faq-answer">
@@ -2171,7 +2236,7 @@
             document.getElementById('userSearch').addEventListener('input', filterUsers);
             document.getElementById('userFilter').addEventListener('change', filterUsers);
 
-            // Icon selector
+            // Icon selector for both modals
             document.querySelectorAll('.icon-option').forEach(icon => {
                 icon.addEventListener('click', function() {
                     selectIcon(this);
@@ -2316,10 +2381,10 @@
                             </button>
                         </div>
                     </div>
-                    <div class="item-content">
-                        <h4>${faq.question}</h4>
-                        <p>${faq.answer}</p>
-                    </div>
+                                    <div class="item-content">
+                    <h4><i class="${faq.icon || 'fas fa-question-circle'}"></i> ${faq.question}</h4>
+                    <p>${faq.answer}</p>
+                </div>
                 `;
                 container.appendChild(faqItem);
             });
@@ -2327,13 +2392,63 @@
 
         function openFaqModal(faqId = null) {
             document.getElementById('faqModal').style.display = 'flex';
+            loadFaqCategories();
             if (faqId) {
                 // Load existing FAQ data
                 loadFAQData(faqId);
             } else {
                 // Clear form for new FAQ
                 document.getElementById('faqForm').reset();
+                document.getElementById('faqSelectedIcon').value = 'fas fa-question-circle';
+                updateFaqIconSelection();
             }
+        }
+
+        function handleFaqCategoryChange() {
+            const select = document.getElementById('faqCategorySelect');
+            const input = document.getElementById('faqCategory');
+            
+            if (select.value === 'new') {
+                input.style.display = 'block';
+                input.required = true;
+                input.focus();
+            } else if (select.value) {
+                input.style.display = 'none';
+                input.required = false;
+                input.value = select.value;
+            } else {
+                input.style.display = 'none';
+                input.required = false;
+                input.value = '';
+            }
+        }
+
+        function loadFaqCategories() {
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    const faqs = snapshot.val() || {};
+                    const categories = [...new Set(Object.values(faqs).map(faq => faq.category))];
+                    
+                    const select = document.getElementById('faqCategorySelect');
+                    select.innerHTML = '<option value="">Select Category</option><option value="new">Create New Category</option>';
+                    
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        select.appendChild(option);
+                    });
+                });
+        }
+
+        function updateFaqIconSelection() {
+            const selectedIcon = document.getElementById('faqSelectedIcon').value;
+            document.querySelectorAll('#faqModal .icon-option').forEach(icon => {
+                icon.classList.remove('selected');
+                if (icon.dataset.icon === selectedIcon) {
+                    icon.classList.add('selected');
+                }
+            });
         }
 
         function handleFaqSubmit(e) {
@@ -2342,11 +2457,18 @@
             const category = document.getElementById('faqCategory').value;
             const question = document.getElementById('faqQuestion').value;
             const answer = document.getElementById('faqAnswer').value;
+            const icon = document.getElementById('faqSelectedIcon').value;
+
+            if (!category || !question || !answer) {
+                alert('Please fill in all required fields');
+                return;
+            }
 
             const faqData = {
                 category: category,
                 question: question,
                 answer: answer,
+                icon: icon,
                 timestamp: Date.now()
             };
 
@@ -2414,6 +2536,7 @@
 
         function openQuickModal(category = null, questionId = null) {
             document.getElementById('quickModal').style.display = 'flex';
+            loadQuickCategories();
             if (category && questionId) {
                 // Load existing question data
                 loadQuickQuestionData(category, questionId);
@@ -2423,6 +2546,43 @@
                 document.getElementById('selectedIcon').value = 'fas fa-home';
                 updateIconSelection();
             }
+        }
+
+        function handleQuickCategoryChange() {
+            const select = document.getElementById('quickCategorySelect');
+            const input = document.getElementById('quickCategory');
+            
+            if (select.value === 'new') {
+                input.style.display = 'block';
+                input.required = true;
+                input.focus();
+            } else if (select.value) {
+                input.style.display = 'none';
+                input.required = false;
+                input.value = select.value;
+            } else {
+                input.style.display = 'none';
+                input.required = false;
+                input.value = '';
+            }
+        }
+
+        function loadQuickCategories() {
+            database.ref('quickQuestions').once('value')
+                .then(snapshot => {
+                    const quickQuestions = snapshot.val() || {};
+                    const categories = Object.keys(quickQuestions);
+                    
+                    const select = document.getElementById('quickCategorySelect');
+                    select.innerHTML = '<option value="">Select Category</option><option value="new">Create New Category</option>';
+                    
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        select.appendChild(option);
+                    });
+                });
         }
 
         function handleQuickSubmit(e) {
@@ -2449,9 +2609,17 @@
         }
 
         function selectIcon(iconElement) {
-            document.querySelectorAll('.icon-option').forEach(icon => icon.classList.remove('selected'));
+            // Remove selection from all icons in the same modal
+            const modal = iconElement.closest('.modal');
+            modal.querySelectorAll('.icon-option').forEach(icon => icon.classList.remove('selected'));
             iconElement.classList.add('selected');
-            document.getElementById('selectedIcon').value = iconElement.dataset.icon;
+            
+            // Update the appropriate hidden input
+            if (modal.id === 'faqModal') {
+                document.getElementById('faqSelectedIcon').value = iconElement.dataset.icon;
+            } else if (modal.id === 'quickModal') {
+                document.getElementById('selectedIcon').value = iconElement.dataset.icon;
+            }
         }
 
         function updateIconSelection() {
