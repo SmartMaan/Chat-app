@@ -1025,6 +1025,10 @@
     <div id="loadingScreen" class="loading-screen">
         <div class="loading-spinner"></div>
         <h2>Loading Aviator Support...</h2>
+        <p>Please wait while we initialize the application</p>
+        <button onclick="manualStart()" style="margin-top: 20px; padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 8px; cursor: pointer;">
+            Click here if loading takes too long
+        </button>
     </div>
 
     <!-- User Registration Modal -->
@@ -1173,18 +1177,42 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            showLoadingScreen();
-            setupEventListeners();
+            console.log('DOM Content Loaded - Starting app initialization');
             
-            // Fallback: Always show content after 3 seconds
-            setTimeout(() => {
-                if (document.getElementById('mainApp').style.display === 'none') {
-                    hideLoadingScreen();
-                    showMainApp();
-                }
-            }, 3000);
-            
-            checkUserSession();
+            try {
+                showLoadingScreen();
+                setupEventListeners();
+                
+                // Initialize default data
+                initializeDefaultData();
+                
+                // Check user session immediately
+                checkUserSession();
+                
+                // Fallback: Always show content after 5 seconds if still loading
+                setTimeout(() => {
+                    const mainApp = document.getElementById('mainApp');
+                    const loadingScreen = document.getElementById('loadingScreen');
+                    const userModal = document.getElementById('userRegistrationModal');
+                    
+                    console.log('Fallback check - MainApp:', mainApp?.style.display);
+                    console.log('Fallback check - LoadingScreen:', loadingScreen?.style.display);
+                    console.log('Fallback check - UserModal:', userModal?.style.display);
+                    
+                    if (mainApp && mainApp.style.display === 'none' && 
+                        loadingScreen && loadingScreen.style.display !== 'none' &&
+                        userModal && userModal.style.display !== 'flex') {
+                        console.log('Fallback: Showing user registration');
+                        hideLoadingScreen();
+                        showUserRegistration();
+                    }
+                }, 5000);
+                
+            } catch (error) {
+                console.error('Error during initialization:', error);
+                hideLoadingScreen();
+                showUserRegistration();
+            }
         });
 
         function setupEventListeners() {
@@ -1264,20 +1292,32 @@
                     showUserRegistration();
                 }
             } catch (e) {
+                console.error('Error checking user session:', e);
                 hideLoadingScreen();
+                showUserRegistration();
             }
         }
 
         function showUserRegistration() {
-            document.getElementById('userRegistrationModal').style.display = 'flex';
+            console.log('Showing user registration modal');
+            const modal = document.getElementById('userRegistrationModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                console.log('User registration modal displayed');
+            } else {
+                console.error('User registration modal not found');
+            }
         }
 
         function handleUserRegistration(e) {
             e.preventDefault();
+            console.log('User registration form submitted');
             
             const userName = document.getElementById('userName').value;
             const userPhone = document.getElementById('userPhone').value;
             const userPromo = document.getElementById('userPromo').value;
+
+            console.log('Form data:', { userName, userPhone, userPromo });
 
             if (!userName || !userPhone) {
                 alert('Please fill in all required fields');
@@ -1293,32 +1333,53 @@
                 timestamp: Date.now()
             };
 
-            // Save to localStorage
-            localStorage.setItem('aviatorUser', JSON.stringify(userData));
-            currentUser = userData;
+            console.log('Created user data:', userData);
 
-            // Save to Firebase
-            database.ref('users/' + userData.id).set(userData);
+            try {
+                // Save to localStorage
+                localStorage.setItem('aviatorUser', JSON.stringify(userData));
+                currentUser = userData;
 
-            // Hide registration and show app
-            document.getElementById('userRegistrationModal').style.display = 'none';
-            showMainApp();
-            loadChat();
-            checkAdminStatus();
+                // Save to Firebase
+                database.ref('users/' + userData.id).set(userData)
+                    .then(() => {
+                        console.log('User saved to Firebase successfully');
+                        // Hide registration and show app
+                        document.getElementById('userRegistrationModal').style.display = 'none';
+                        showMainApp();
+                        loadChat();
+                        checkAdminStatus();
+                    })
+                    .catch(error => {
+                        console.error('Error saving to Firebase:', error);
+                        // Still show app even if Firebase fails
+                        document.getElementById('userRegistrationModal').style.display = 'none';
+                        showMainApp();
+                        loadChat();
+                        checkAdminStatus();
+                    });
+            } catch (error) {
+                console.error('Error in user registration:', error);
+                alert('Error during registration. Please try again.');
+            }
         }
 
         function showMainApp() {
             document.getElementById('mainApp').style.display = 'flex';
-            loadQuickQuestions();
-            sendWelcomeMessage();
+            // Ensure initial state shows chat tab
+            document.getElementById('chatTabSection').style.display = 'flex';
+            document.getElementById('faqTabSection').style.display = 'none';
+            
             // Show Quick Questions section by default
             document.getElementById('quickQuestionsSection').style.display = 'block';
             // Hide chat input by default
             document.getElementById('chatInputArea').style.display = 'none';
             
-            // Ensure initial state shows chat tab
-            document.getElementById('chatTabSection').style.display = 'flex';
-            document.getElementById('faqTabSection').style.display = 'none';
+            // Load data after ensuring UI is ready
+            setTimeout(() => {
+                loadQuickQuestions();
+                sendWelcomeMessage();
+            }, 100);
         }
 
         function sendWelcomeMessage() {
@@ -2202,11 +2263,17 @@
         }
 
         function showLoadingScreen() {
-            document.getElementById('loadingScreen').style.display = 'flex';
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'flex';
+            }
         }
 
         function hideLoadingScreen() {
-            document.getElementById('loadingScreen').style.display = 'none';
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
         }
 
         // Always hide loading screen after 5 seconds (fallback)
@@ -2214,8 +2281,16 @@
           hideLoadingScreen();
         }, 5000);
 
+        // Manual start function for fallback
+        function manualStart() {
+            console.log('Manual start triggered');
+            hideLoadingScreen();
+            showUserRegistration();
+        }
+
         // Global error handler: hide loading screen on error
         window.addEventListener('error', function() {
+          console.error('Global error detected');
           hideLoadingScreen();
         });
 
