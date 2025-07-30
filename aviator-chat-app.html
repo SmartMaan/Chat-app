@@ -1096,6 +1096,12 @@
             document.getElementById('quickQuestionsSection').style.display = 'block';
             document.getElementById('chatInputArea').style.display = 'none';
             
+            // Ensure "Chat with Us" button is visible
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'block';
+            }
+            
             setTimeout(() => {
                 loadQuickQuestions();
                 sendWelcomeMessage();
@@ -1259,10 +1265,25 @@
             }, 500);
 
             showCategories();
+            
+            // Ensure "Chat with Us" button is visible after quick question
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'block';
+            }
         }
 
         function showChatInput() {
+            // Show input area
             document.getElementById('chatInputArea').style.display = 'flex';
+            
+            // Hide the "Chat with Us" button
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'none';
+            }
+            
+            // Keep quick questions section visible but collapsed
             document.getElementById('quickQuestionsSection').style.display = 'block';
             
             setTimeout(() => {
@@ -1314,7 +1335,16 @@
             saveMessageToFirebase(message);
             input.value = '';
 
+            // Hide input area
             document.getElementById('chatInputArea').style.display = 'none';
+            
+            // Show the "Chat with Us" button again
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'block';
+            }
+            
+            // Keep quick questions section visible
             document.getElementById('quickQuestionsSection').style.display = 'block';
 
             setTimeout(() => {
