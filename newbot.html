@@ -141,14 +141,14 @@
             flex-direction: column;
         }
 
-        /* Header - Vertical Layout */
+        /* Header - Top Horizontal Layout */
         .header {
             background: #2a2a2a;
-            padding: 15px 20px;
+            padding: 12px 16px;
             border-bottom: 2px solid #444;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             min-height: auto;
         }
 
@@ -158,28 +158,36 @@
             justify-content: space-between;
         }
 
+        .header-top h2 {
+            font-size: 18px;
+            color: #ff4444;
+            margin: 0;
+        }
+
         .header-tabs {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             gap: 8px;
             width: 100%;
+            justify-content: center;
         }
 
         .tab {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
+            gap: 6px;
+            padding: 10px 16px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             color: #ffffff;
             text-decoration: none;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
-            width: 100%;
-            justify-content: flex-start;
-            text-align: left;
+            flex: 1;
+            justify-content: center;
+            text-align: center;
+            min-height: 40px;
         }
 
         .tab.active {
@@ -231,14 +239,14 @@
             height: calc(100vh - 140px); /* Account for header height */
         }
 
-        /* Messages Area - Fixed Height */
+        /* Messages Area - More Space for Mobile */
         .messages-area {
             flex: 1;
-            padding: 20px;
+            padding: 16px;
             overflow-y: auto;
             background: #1a1a1a;
             min-height: 200px;
-            max-height: 50vh; /* Fixed height so quick questions stay visible */
+            max-height: 60vh; /* More space for messages on mobile */
         }
 
         .message {
@@ -294,29 +302,29 @@
             text-align: right;
         }
 
-        /* Quick Questions Section - Always Visible */
+        /* Quick Questions Section - Compact for Mobile */
         .quick-questions-section {
             background: #2a2a2a;
             border-top: 2px solid #444;
-            padding: 20px;
+            padding: 12px 16px;
             display: block;
             transition: all 0.3s ease;
             position: sticky;
             bottom: 0;
             z-index: 50;
-            min-height: 200px; /* Minimum height to ensure visibility */
+            min-height: 120px; /* Smaller height to save space */
         }
 
         .quick-questions-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .quick-questions-header h3 {
-            font-size: 20px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 600;
             color: #ffffff;
         }
 
@@ -552,23 +560,24 @@
 
         .categories-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .category-btn {
             background: #444;
             color: white;
             border: none;
-            padding: 14px 18px;
-            border-radius: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
-            font-size: 15px;
-            font-weight: 600;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            min-height: 36px;
         }
 
         .category-btn:hover {
@@ -584,26 +593,27 @@
 
         .questions-container {
             display: none;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px;
         }
 
         .question-btn {
             background: #333;
             color: white;
             border: none;
-            padding: 16px 20px;
-            border-radius: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: left;
-            border-left: 4px solid #ff4444;
+            border-left: 3px solid #ff4444;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 15px;
-            line-height: 1.4;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            gap: 8px;
+            font-size: 13px;
+            line-height: 1.3;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            min-height: 40px;
         }
 
         .question-btn:hover {
@@ -622,26 +632,27 @@
             background: linear-gradient(135deg, #ff4444, #ff6666);
             color: white;
             border: none;
-            padding: 18px 24px;
-            border-radius: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
-            font-weight: 700;
-            font-size: 17px;
-            box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
-            margin-top: 24px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+            margin-top: 12px;
             width: 100%;
+            min-height: 44px;
         }
 
         .chat-with-us-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 68, 68, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 68, 68, 0.4);
         }
 
         .chat-with-us-btn i {
-            margin-right: 10px;
-            font-size: 18px;
+            margin-right: 8px;
+            font-size: 16px;
         }
 
         .waiting-message {
@@ -670,15 +681,15 @@
             transition: max-height 0.3s ease;
         }
 
-        /* Input Area - Fixed Position */
+        /* Input Area - Compact for Mobile */
         .input-area {
             background: #2a2a2a;
-            padding: 20px;
+            padding: 16px;
             border-top: 2px solid #444;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: flex-end;
-            min-height: 70px;
+            min-height: 60px;
             position: sticky;
             bottom: 0;
             z-index: 60;
@@ -688,14 +699,14 @@
             flex: 1;
             background: #333;
             border: 2px solid #444;
-            border-radius: 10px;
-            padding: 14px 18px;
+            border-radius: 8px;
+            padding: 12px 14px;
             color: white;
-            font-size: 15px;
+            font-size: 14px;
             resize: none;
-            min-height: 50px;
-            max-height: 120px;
-            line-height: 1.5;
+            min-height: 44px;
+            max-height: 100px;
+            line-height: 1.4;
         }
 
         .message-input:focus {
@@ -707,13 +718,15 @@
             background: #ff4444;
             color: white;
             border: none;
-            padding: 14px 22px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(255, 68, 68, 0.3);
+            box-shadow: 0 2px 6px rgba(255, 68, 68, 0.3);
+            min-width: 44px;
+            min-height: 44px;
         }
 
         .send-btn:hover {
@@ -1290,7 +1303,7 @@
         @media (max-width: 768px) {
             /* Header - Mobile Optimized */
             .header {
-                padding: 10px 12px;
+                padding: 8px 12px;
                 min-height: auto;
                 position: sticky;
                 top: 0;
@@ -1298,7 +1311,7 @@
             }
 
             .header-top h2 {
-                font-size: 18px;
+                font-size: 16px;
             }
 
             .header-tabs {
@@ -1329,9 +1342,9 @@
 
             /* Messages Area - Mobile Optimized */
             .messages-area {
-                padding: 16px;
-                min-height: 150px;
-                max-height: 40vh; /* Smaller height on mobile to keep quick questions visible */
+                padding: 12px;
+                min-height: 120px;
+                max-height: 50vh; /* More space for messages on mobile */
                 overflow-y: auto;
             }
 
@@ -1364,13 +1377,13 @@
 
             /* Quick Questions - Mobile Optimized */
             .quick-questions-section {
-                padding: 16px;
+                padding: 12px;
                 position: sticky;
                 bottom: 0;
                 background: #2a2a2a;
                 border-top: 2px solid #444;
                 z-index: 50;
-                min-height: 180px; /* Ensure minimum height on mobile */
+                min-height: 100px; /* Compact height on mobile */
             }
 
             .quick-questions-header {
@@ -1390,15 +1403,15 @@
 
             .categories-container {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-                margin-bottom: 12px;
+                gap: 6px;
+                margin-bottom: 10px;
             }
 
             .category-btn {
-                padding: 10px 12px;
-                font-size: 13px;
-                border-radius: 8px;
-                min-height: 44px;
+                padding: 8px 10px;
+                font-size: 12px;
+                border-radius: 6px;
+                min-height: 36px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -1411,25 +1424,25 @@
             }
 
             .question-btn {
-                padding: 12px 14px;
-                font-size: 13px;
-                border-radius: 8px;
-                min-height: 48px;
+                padding: 10px 12px;
+                font-size: 12px;
+                border-radius: 6px;
+                min-height: 40px;
                 display: flex;
                 align-items: center;
             }
 
             .question-btn i {
-                font-size: 16px;
-                margin-right: 8px;
+                font-size: 14px;
+                margin-right: 6px;
             }
 
             .chat-with-us-btn {
-                padding: 14px 16px;
-                font-size: 15px;
-                border-radius: 10px;
-                margin-top: 16px;
-                min-height: 48px;
+                padding: 12px 14px;
+                font-size: 13px;
+                border-radius: 8px;
+                margin-top: 10px;
+                min-height: 40px;
             }
 
             /* Input Area - Mobile Optimized */
@@ -1750,11 +1763,11 @@
             <div class="header-tabs">
                 <div class="tab active" data-tab="chat">
                     <i class="fas fa-comments"></i>
-                    Chat with Support
+                    Chat
                 </div>
                 <div class="tab" data-tab="faq">
                     <i class="fas fa-question-circle"></i>
-                    Frequently Asked Questions
+                    FAQ
                 </div>
             </div>
         </div>
