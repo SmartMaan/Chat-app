@@ -153,24 +153,32 @@
 
         .header-tabs {
             display: flex;
-            gap: 20px;
+            background: #333;
+            border-radius: 12px;
+            padding: 5px;
+            gap: 5px;
+            position: relative;
         }
 
         .tab {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             color: #ffffff;
             text-decoration: none;
+            position: relative;
+            z-index: 2;
+            font-weight: 500;
         }
 
         .tab.active {
             background: #ff4444;
             color: white;
+            box-shadow: 0 2px 8px rgba(255, 68, 68, 0.3);
         }
 
         .tab:not(.active):hover {
@@ -179,6 +187,16 @@
 
         .tab i {
             font-size: 18px;
+        }
+
+        .tab-slider {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #ff4444;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            z-index: 1;
         }
 
         .admin-panel-btn {
@@ -543,10 +561,69 @@
             transition: background 0.3s;
             text-align: left;
             border-left: 4px solid #ff4444;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .question-btn:hover {
             background: #444;
+        }
+
+        .question-btn i {
+            font-size: 16px;
+            color: #ff4444;
+        }
+
+        .chat-with-us-btn {
+            background: linear-gradient(135deg, #ff4444, #ff6666);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .chat-with-us-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+        }
+
+        .chat-with-us-btn i {
+            margin-right: 8px;
+        }
+
+        .waiting-message {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            border-left: 4px solid #ff4444;
+        }
+
+        .waiting-message i {
+            color: #ff4444;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .quick-questions-collapsed {
+            max-height: 200px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .quick-questions-expanded {
+            max-height: none;
+            transition: max-height 0.3s ease;
         }
 
         /* Input Area */
@@ -884,7 +961,7 @@
                 <div class="quick-questions-header">
                     <h3><i class="fas fa-bolt"></i> Quick Questions</h3>
                     <button id="quickQuestionsToggle" class="quick-questions-toggle">
-                        <i class="fas fa-chevron-up"></i> Hide
+                        <i class="fas fa-chevron-up"></i> Show Less
                     </button>
                 </div>
                 <div id="categoriesContainer" class="categories-container">
@@ -895,8 +972,8 @@
                 </div>
             </div>
 
-            <!-- Input Area -->
-            <div class="input-area">
+            <!-- Chat Input Area (Hidden by default) -->
+            <div id="chatInputArea" class="input-area" style="display: none;">
                 <textarea 
                     id="messageInput" 
                     class="message-input" 
@@ -1201,6 +1278,8 @@
             sendWelcomeMessage();
             // Show Quick Questions section by default
             document.getElementById('quickQuestionsSection').style.display = 'block';
+            // Hide chat input by default
+            document.getElementById('chatInputArea').style.display = 'none';
         }
 
         function sendWelcomeMessage() {
@@ -1222,14 +1301,43 @@
             });
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
 
+            // Update tab slider position
+            updateTabSlider(tabName);
+
             // Show/hide sections
             if (tabName === 'chat') {
                 document.getElementById('chatContainer').style.display = 'flex';
-                document.getElementById('quickQuestionsSection').style.display = 'none';
-            } else if (tabName === 'faq') {
-                document.getElementById('chatContainer').style.display = 'none';
+                document.getElementById('messagesArea').style.display = 'block';
                 document.getElementById('quickQuestionsSection').style.display = 'block';
+                document.getElementById('chatInputArea').style.display = 'none';
+                loadQuickQuestions();
+            } else if (tabName === 'faq') {
+                document.getElementById('chatContainer').style.display = 'flex';
+                document.getElementById('messagesArea').style.display = 'none';
+                document.getElementById('quickQuestionsSection').style.display = 'none';
+                document.getElementById('chatInputArea').style.display = 'none';
                 loadFAQSection();
+            }
+        }
+
+        function updateTabSlider(activeTab) {
+            const tabs = document.querySelectorAll('.tab');
+            const slider = document.querySelector('.tab-slider');
+            
+            if (!slider) {
+                // Create slider if it doesn't exist
+                const newSlider = document.createElement('div');
+                newSlider.className = 'tab-slider';
+                document.querySelector('.header-tabs').appendChild(newSlider);
+            }
+            
+            const activeTabElement = document.querySelector(`[data-tab="${activeTab}"]`);
+            if (activeTabElement) {
+                const rect = activeTabElement.getBoundingClientRect();
+                const containerRect = document.querySelector('.header-tabs').getBoundingClientRect();
+                
+                slider.style.width = rect.width + 'px';
+                slider.style.left = (rect.left - containerRect.left) + 'px';
             }
         }
 
@@ -1268,6 +1376,13 @@
                 btn.onclick = () => selectCategory(category);
                 container.appendChild(btn);
             });
+
+            // Add "Chat with Us" button at the end
+            const chatWithUsBtn = document.createElement('button');
+            chatWithUsBtn.className = 'chat-with-us-btn';
+            chatWithUsBtn.innerHTML = '<i class="fas fa-comments"></i> Chat with Us';
+            chatWithUsBtn.onclick = () => showChatInput();
+            container.appendChild(chatWithUsBtn);
         }
 
         function selectCategory(category) {
@@ -1296,7 +1411,10 @@
                 const question = questions[questionId];
                 const btn = document.createElement('button');
                 btn.className = 'question-btn';
-                btn.innerHTML = `<i class="${question.icon}"></i> ${question.question}`;
+                btn.innerHTML = `
+                    <i class="${question.icon}"></i>
+                    <span>${question.question}</span>
+                `;
                 btn.onclick = () => sendQuickResponse(question.response);
                 container.appendChild(btn);
             });
@@ -1324,6 +1442,48 @@
                 addMessageToUI(adminMessage);
                 saveMessageToFirebase(adminMessage);
             }, 500);
+
+            // Hide quick questions after sending
+            hideQuickQuestions();
+        }
+
+        function showChatInput() {
+            // Hide quick questions
+            hideQuickQuestions();
+            
+            // Show chat input
+            document.getElementById('chatInputArea').style.display = 'flex';
+            
+            // Add waiting message
+            const waitingMessage = {
+                id: Date.now().toString(),
+                text: "Please wait for admin response. Our support team will get back to you soon.",
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+            addMessageToUI(waitingMessage);
+            saveMessageToFirebase(waitingMessage);
+        }
+
+        function hideQuickQuestions() {
+            const section = document.getElementById('quickQuestionsSection');
+            section.style.display = 'none';
+        }
+
+        function toggleQuickQuestions() {
+            const section = document.getElementById('quickQuestionsSection');
+            const toggle = document.getElementById('quickQuestionsToggle');
+            const content = section.querySelector('.categories-container');
+            
+            if (content.classList.contains('quick-questions-collapsed')) {
+                content.classList.remove('quick-questions-collapsed');
+                content.classList.add('quick-questions-expanded');
+                toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
+            } else {
+                content.classList.remove('quick-questions-expanded');
+                content.classList.add('quick-questions-collapsed');
+                toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
+            }
         }
 
         function sendMessage() {
@@ -1375,6 +1535,9 @@
             saveMessageToFirebase(message);
             input.value = '';
             input.style.height = 'auto';
+
+            // Hide chat input after sending
+            document.getElementById('chatInputArea').style.display = 'none';
 
             // Simulate admin response
             setTimeout(() => {
