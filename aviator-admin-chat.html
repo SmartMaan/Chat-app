@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Aviator Admin Chat - Support System</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="description" content="Aviator Game Support Chat with Admin Panel">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid #ff4444;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* User Registration Modal */
+        .user-registration-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .registration-form {
+            background: #2a2a2a;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .registration-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ff4444;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background: #333;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff4444;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #ff6666;
+        }
+
+        /* Main App Container */
+        .app-container {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: #2a2a2a;
+            padding: 15px 20px;
+            border-bottom: 2px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-tabs {
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .tab.active {
+            background: #ff4444;
+            color: white;
+        }
+
+        .tab:not(.active):hover {
+            background: #444;
+        }
+
+        .tab i {
+            font-size: 18px;
+        }
+
+        .admin-panel-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+        }
+
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #1a1a1a;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ff4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+
+        .message-avatar i {
+            color: white;
+            font-size: 18px;
+        }
+
+        .message-content {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #ff4444;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .message.user .message-time {
+            text-align: right;
+        }
+
+        /* Quick Questions Section */
+        .quick-questions-section {
+            background: #2a2a2a;
+            border-top: 2px solid #444;
+            padding: 20px;
+            display: none;
+        }
+
+        .quick-questions-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .quick-questions-toggle {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .quick-questions-toggle:hover {
+            background: #555;
+        }
+
+        .categories-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .category-btn {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+        }
+
+        .category-btn:hover {
+            background: #555;
+        }
+
+        .category-btn.active {
+            background: #ff4444;
+        }
+
+        .questions-container {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .question-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: left;
+            border-left: 4px solid #ff4444;
+        }
+
+        .question-btn:hover {
+            background: #444;
+        }
+
+        /* Input Area */
+        .input-area {
+            background: #2a2a2a;
+            padding: 20px;
+            border-top: 2px solid #444;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            background: #333;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-size: 16px;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #ff4444;
+        }
+
+        .send-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .send-btn:hover {
+            background: #ff6666;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .admin-header {
+            background: #2a2a2a;
+            padding: 20px;
+            border-bottom: 2px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            color: #ff4444;
+        }
+
+        .close-admin-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .admin-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .admin-section {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .admin-section h3 {
+            color: #ff4444;
+            margin-bottom: 15px;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .admin-card {
+            background: #333;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .admin-card h4 {
+            color: #ff4444;
+            margin-bottom: 10px;
+        }
+
+        .admin-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        .admin-btn:hover {
+            background: #ff6666;
+        }
+
+        /* FAQ Management */
+        .faq-form {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .faq-form input,
+        .faq-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #444;
+            border: 1px solid #555;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .faq-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* User History */
+        .user-history-item {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ff4444;
+        }
+
+        .user-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .user-history-name {
+            font-weight: bold;
+            color: #ff4444;
+        }
+
+        .user-history-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Theme Editor */
+        .theme-editor {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+        }
+
+        .color-option.active {
+            border-color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+            }
+
+            .header-tabs {
+                gap: 10px;
+            }
+
+            .tab {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .messages-area {
+                padding: 15px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .input-area {
+                padding: 15px;
+            }
+
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2a2a2a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ff4444;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff6666;
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <h2>Loading Aviator Support...</h2>
+    </div>
+
+    <!-- User Registration Modal -->
+    <div id="userRegistrationModal" class="user-registration-modal">
+        <div class="registration-form">
+            <h2><i class="fas fa-user-plus"></i> Welcome to Aviator Support</h2>
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="userName">Full Name</label>
+                    <input type="text" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPhone">Phone Number</label>
+                    <input type="tel" id="userPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPromo">Promo Code (Optional)</label>
+                    <input type="text" id="userPromo">
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Start Chat
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-tabs">
+                <div class="tab active" data-tab="chat">
+                    <i class="fas fa-comments" style="color: #ff4444;"></i>
+                    Chat
+                </div>
+                <div class="tab" data-tab="faq">
+                    <i class="fas fa-question-circle"></i>
+                    FAQ
+                </div>
+            </div>
+            <button id="adminPanelBtn" class="admin-panel-btn">
+                <i class="fas fa-cog"></i> Admin Panel
+            </button>
+        </div>
+
+        <!-- Chat Container -->
+        <div id="chatContainer" class="chat-container">
+            <!-- Messages Area -->
+            <div id="messagesArea" class="messages-area">
+                <!-- Messages will be loaded here -->
+            </div>
+
+            <!-- Quick Questions Section -->
+            <div id="quickQuestionsSection" class="quick-questions-section">
+                <div class="quick-questions-header">
+                    <h3><i class="fas fa-bolt"></i> Quick Questions</h3>
+                    <button id="quickQuestionsToggle" class="quick-questions-toggle">
+                        <i class="fas fa-chevron-up"></i> Hide
+                    </button>
+                </div>
+                <div id="categoriesContainer" class="categories-container">
+                    <!-- Categories will be loaded here -->
+                </div>
+                <div id="questionsContainer" class="questions-container">
+                    <!-- Questions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <textarea 
+                    id="messageInput" 
+                    class="message-input" 
+                    placeholder="Type your message here..."
+                    rows="1"
+                ></textarea>
+                <button id="sendBtn" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="admin-header">
+            <h1><i class="fas fa-shield-alt"></i> Admin Panel</h1>
+            <button id="closeAdminBtn" class="close-admin-btn">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+        <div class="admin-content">
+            <div class="admin-grid">
+                <!-- FAQ Management -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-question-circle"></i> FAQ Management</h3>
+                    <div class="admin-card">
+                        <h4>Add New FAQ</h4>
+                        <form id="faqForm" class="faq-form">
+                            <input type="text" id="faqCategory" placeholder="Category" required>
+                            <input type="text" id="faqQuestion" placeholder="Question" required>
+                            <textarea id="faqAnswer" placeholder="Answer" required></textarea>
+                            <button type="submit" class="admin-btn">Add FAQ</button>
+                        </form>
+                    </div>
+                    <div id="faqList" class="admin-card">
+                        <h4>Existing FAQs</h4>
+                        <!-- FAQ list will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Quick Messages Management -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-bolt"></i> Quick Messages</h3>
+                    <div class="admin-card">
+                        <h4>Add Quick Message</h4>
+                        <form id="quickMessageForm" class="faq-form">
+                            <input type="text" id="quickCategory" placeholder="Category" required>
+                            <input type="text" id="quickQuestion" placeholder="Question" required>
+                            <textarea id="quickResponse" placeholder="Response" required></textarea>
+                            <input type="text" id="quickIcon" placeholder="Icon (e.g., fas fa-gamepad)" required>
+                            <button type="submit" class="admin-btn">Add Quick Message</button>
+                        </form>
+                    </div>
+                    <div id="quickMessagesList" class="admin-card">
+                        <h4>Existing Quick Messages</h4>
+                        <!-- Quick messages list will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- User History -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-history"></i> User History</h3>
+                    <div id="userHistoryList" class="admin-card">
+                        <!-- User history will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Theme Editor -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-palette"></i> Theme Editor</h3>
+                    <div class="theme-editor">
+                        <h4>Primary Color</h4>
+                        <div class="color-picker">
+                            <div class="color-option active" style="background: #ff4444;" data-color="#ff4444"></div>
+                            <div class="color-option" style="background: #4CAF50;" data-color="#4CAF50"></div>
+                            <div class="color-option" style="background: #2196F3;" data-color="#2196F3"></div>
+                            <div class="color-option" style="background: #FF9800;" data-color="#FF9800"></div>
+                            <div class="color-option" style="background: #9C27B0;" data-color="#9C27B0"></div>
+                        </div>
+                        <button id="saveThemeBtn" class="admin-btn">Save Theme</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAL5e-5eQfgf1nI6hWTnhwLFgK0Cp89aa0",
+            authDomain: "aviator-pr01.firebaseapp.com",
+            databaseURL: "https://aviator-pr01-default-rtdb.firebaseio.com",
+            projectId: "aviator-pr01",
+            storageBucket: "aviator-pr01.firebasestorage.app",
+            messagingSenderId: "290788041297",
+            appId: "1:290788041297:web:168f99f1532997fb778e70",
+            measurementId: "G-ENCBTT4BL8"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Global variables
+        let currentUser = null;
+        let isAdmin = false;
+        let currentChatId = null;
+        let selectedCategory = null;
+        let primaryColor = '#ff4444';
+
+        // Admin credentials
+        const ADMIN_EMAIL = 'admin@aviator.com';
+        const ADMIN_PASSWORD = 'aviator2025adminmaan';
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoadingScreen();
+            setupEventListeners();
+            checkUserSession();
+        });
+
+        function setupEventListeners() {
+            // Registration form
+            document.getElementById('registrationForm').addEventListener('submit', handleUserRegistration);
+            
+            // Message sending
+            document.getElementById('sendBtn').addEventListener('click', sendMessage);
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+
+            // Quick questions
+            document.getElementById('quickQuestionsToggle').addEventListener('click', toggleQuickQuestions);
+            
+            // Admin panel
+            document.getElementById('adminPanelBtn').addEventListener('click', showAdminPanel);
+            document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
+            
+            // Admin forms
+            document.getElementById('faqForm').addEventListener('submit', addFAQ);
+            document.getElementById('quickMessageForm').addEventListener('submit', addQuickMessage);
+            document.getElementById('saveThemeBtn').addEventListener('click', saveTheme);
+            
+            // Color picker
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectColor(this.dataset.color);
+                });
+            });
+
+            // Auto-resize textarea
+            const messageInput = document.getElementById('messageInput');
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        }
+
+        function checkUserSession() {
+            const userData = localStorage.getItem('aviatorUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                hideLoadingScreen();
+                showMainApp();
+                loadChat();
+                checkAdminStatus();
+            } else {
+                hideLoadingScreen();
+                showUserRegistration();
+            }
+        }
+
+        function showUserRegistration() {
+            document.getElementById('userRegistrationModal').style.display = 'flex';
+        }
+
+        function handleUserRegistration(e) {
+            e.preventDefault();
+            
+            const userName = document.getElementById('userName').value;
+            const userPhone = document.getElementById('userPhone').value;
+            const userPromo = document.getElementById('userPromo').value;
+
+            if (!userName || !userPhone) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Create user data
+            const userData = {
+                id: Date.now().toString(),
+                name: userName,
+                phone: userPhone,
+                promo: userPromo,
+                timestamp: Date.now()
+            };
+
+            // Save to localStorage
+            localStorage.setItem('aviatorUser', JSON.stringify(userData));
+            currentUser = userData;
+
+            // Save to Firebase
+            database.ref('users/' + userData.id).set(userData);
+
+            // Hide registration and show app
+            document.getElementById('userRegistrationModal').style.display = 'none';
+            showMainApp();
+            loadChat();
+            checkAdminStatus();
+        }
+
+        function showMainApp() {
+            document.getElementById('appContainer').style.display = 'flex';
+            loadQuickQuestions();
+            sendWelcomeMessage();
+        }
+
+        function sendWelcomeMessage() {
+            const welcomeMessage = {
+                id: Date.now().toString(),
+                text: "Welcome to Aviator Game Support! I'm here to help you with any questions about the game. You can use the quick questions below or type your message directly.",
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+
+            addMessageToUI(welcomeMessage);
+            saveMessageToFirebase(welcomeMessage);
+        }
+
+        function switchTab(tabName) {
+            // Update tab styling
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Show/hide sections
+            if (tabName === 'chat') {
+                document.getElementById('chatContainer').style.display = 'flex';
+                document.getElementById('quickQuestionsSection').style.display = 'none';
+            } else if (tabName === 'faq') {
+                document.getElementById('chatContainer').style.display = 'none';
+                document.getElementById('quickQuestionsSection').style.display = 'block';
+                loadFAQSection();
+            }
+        }
+
+        function toggleQuickQuestions() {
+            const section = document.getElementById('quickQuestionsSection');
+            const toggle = document.getElementById('quickQuestionsToggle');
+            
+            if (section.style.display === 'none' || !section.style.display) {
+                section.style.display = 'block';
+                toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Hide';
+            } else {
+                section.style.display = 'none';
+                toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show';
+            }
+        }
+
+        function loadQuickQuestions() {
+            database.ref('quickMessages').once('value')
+                .then(snapshot => {
+                    const data = snapshot.val() || {};
+                    displayCategories(Object.keys(data));
+                })
+                .catch(error => {
+                    console.error('Error loading quick questions:', error);
+                });
+        }
+
+        function displayCategories(categories) {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = category;
+                btn.onclick = () => selectCategory(category);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectCategory(category) {
+            selectedCategory = category;
+            
+            // Update active category
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Load questions for this category
+            database.ref(`quickMessages/${category}`).once('value')
+                .then(snapshot => {
+                    const questions = snapshot.val() || {};
+                    displayQuestions(questions);
+                });
+        }
+
+        function displayQuestions(questions) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            container.style.display = 'grid';
+
+            Object.keys(questions).forEach(questionId => {
+                const question = questions[questionId];
+                const btn = document.createElement('button');
+                btn.className = 'question-btn';
+                btn.innerHTML = `<i class="${question.icon}"></i> ${question.question}`;
+                btn.onclick = () => sendQuickResponse(question.response);
+                container.appendChild(btn);
+            });
+        }
+
+        function sendQuickResponse(response) {
+            // Add user message
+            const userMessage = {
+                id: Date.now().toString(),
+                text: 'Quick Question Selected',
+                sender: 'user',
+                timestamp: Date.now()
+            };
+            addMessageToUI(userMessage);
+            saveMessageToFirebase(userMessage);
+
+            // Add admin response
+            setTimeout(() => {
+                const adminMessage = {
+                    id: (Date.now() + 1).toString(),
+                    text: response,
+                    sender: 'admin',
+                    timestamp: Date.now()
+                };
+                addMessageToUI(adminMessage);
+                saveMessageToFirebase(adminMessage);
+            }, 500);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            const message = {
+                id: Date.now().toString(),
+                text: text,
+                sender: 'user',
+                timestamp: Date.now()
+            };
+
+            addMessageToUI(message);
+            saveMessageToFirebase(message);
+            input.value = '';
+            input.style.height = 'auto';
+
+            // Simulate admin response
+            setTimeout(() => {
+                const adminResponse = {
+                    id: (Date.now() + 1).toString(),
+                    text: "Thank you for your message. Our support team will get back to you soon.",
+                    sender: 'admin',
+                    timestamp: Date.now()
+                };
+                addMessageToUI(adminResponse);
+                saveMessageToFirebase(adminResponse);
+            }, 1000);
+        }
+
+        function addMessageToUI(message) {
+            const messagesArea = document.getElementById('messagesArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.sender === 'user' ? 'user' : ''} fade-in`;
+
+            const avatar = message.sender === 'user' ? 'fas fa-user' : 'fas fa-headset';
+            const time = new Date(message.timestamp).toLocaleTimeString();
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="${avatar}"></i>
+                </div>
+                <div class="message-content">
+                    <div>${message.text}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function saveMessageToFirebase(message) {
+            if (!currentUser) return;
+
+            const chatRef = database.ref(`chats/${currentUser.id}/messages/${message.id}`);
+            chatRef.set(message);
+        }
+
+        function loadChat() {
+            if (!currentUser) return;
+
+            database.ref(`chats/${currentUser.id}/messages`).once('value')
+                .then(snapshot => {
+                    const messages = snapshot.val() || {};
+                    const messagesArea = document.getElementById('messagesArea');
+                    messagesArea.innerHTML = '';
+
+                    Object.keys(messages).forEach(messageId => {
+                        addMessageToUI(messages[messageId]);
+                    });
+                });
+        }
+
+        function checkAdminStatus() {
+            // Check if user is admin (you can implement your own logic)
+            if (currentUser && currentUser.name.toLowerCase().includes('admin')) {
+                isAdmin = true;
+                document.getElementById('adminPanelBtn').style.display = 'block';
+            }
+        }
+
+        function showAdminPanel() {
+            if (!isAdmin) {
+                // Try to authenticate as admin
+                auth.signInWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD)
+                    .then(() => {
+                        isAdmin = true;
+                        document.getElementById('adminPanelBtn').style.display = 'block';
+                        document.getElementById('adminPanel').style.display = 'flex';
+                        loadAdminData();
+                    })
+                    .catch(error => {
+                        alert('Admin access denied');
+                    });
+            } else {
+                document.getElementById('adminPanel').style.display = 'flex';
+                loadAdminData();
+            }
+        }
+
+        function hideAdminPanel() {
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        function loadAdminData() {
+            loadFAQList();
+            loadQuickMessagesList();
+            loadUserHistory();
+        }
+
+        function addFAQ(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('faqCategory').value;
+            const question = document.getElementById('faqQuestion').value;
+            const answer = document.getElementById('faqAnswer').value;
+
+            const faqData = {
+                id: Date.now().toString(),
+                category: category,
+                question: question,
+                answer: answer,
+                timestamp: Date.now()
+            };
+
+            database.ref(`faqs/${faqData.id}`).set(faqData)
+                .then(() => {
+                    alert('FAQ added successfully!');
+                    document.getElementById('faqForm').reset();
+                    loadFAQList();
+                })
+                .catch(error => {
+                    alert('Error adding FAQ: ' + error.message);
+                });
+        }
+
+        function loadFAQList() {
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    const faqs = snapshot.val() || {};
+                    const container = document.getElementById('faqList');
+                    
+                    container.innerHTML = '<h4>Existing FAQs</h4>';
+                    
+                    Object.keys(faqs).forEach(faqId => {
+                        const faq = faqs[faqId];
+                        const faqDiv = document.createElement('div');
+                        faqDiv.className = 'admin-card';
+                        faqDiv.innerHTML = `
+                            <h5>${faq.question}</h5>
+                            <p><strong>Category:</strong> ${faq.category}</p>
+                            <p><strong>Answer:</strong> ${faq.answer}</p>
+                            <button class="admin-btn" onclick="deleteFAQ('${faqId}')">Delete</button>
+                        `;
+                        container.appendChild(faqDiv);
+                    });
+                });
+        }
+
+        function deleteFAQ(faqId) {
+            if (confirm('Are you sure you want to delete this FAQ?')) {
+                database.ref(`faqs/${faqId}`).remove()
+                    .then(() => {
+                        loadFAQList();
+                    });
+            }
+        }
+
+        function addQuickMessage(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('quickCategory').value;
+            const question = document.getElementById('quickQuestion').value;
+            const response = document.getElementById('quickResponse').value;
+            const icon = document.getElementById('quickIcon').value;
+
+            const quickMessageData = {
+                id: Date.now().toString(),
+                category: category,
+                question: question,
+                response: response,
+                icon: icon,
+                timestamp: Date.now()
+            };
+
+            database.ref(`quickMessages/${category}/${quickMessageData.id}`).set(quickMessageData)
+                .then(() => {
+                    alert('Quick message added successfully!');
+                    document.getElementById('quickMessageForm').reset();
+                    loadQuickMessagesList();
+                })
+                .catch(error => {
+                    alert('Error adding quick message: ' + error.message);
+                });
+        }
+
+        function loadQuickMessagesList() {
+            database.ref('quickMessages').once('value')
+                .then(snapshot => {
+                    const quickMessages = snapshot.val() || {};
+                    const container = document.getElementById('quickMessagesList');
+                    
+                    container.innerHTML = '<h4>Existing Quick Messages</h4>';
+                    
+                    Object.keys(quickMessages).forEach(category => {
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'admin-card';
+                        categoryDiv.innerHTML = `<h5>Category: ${category}</h5>`;
+                        
+                        Object.keys(quickMessages[category]).forEach(messageId => {
+                            const message = quickMessages[category][messageId];
+                            const messageDiv = document.createElement('div');
+                            messageDiv.innerHTML = `
+                                <p><i class="${message.icon}"></i> ${message.question}</p>
+                                <p><strong>Response:</strong> ${message.response}</p>
+                                <button class="admin-btn" onclick="deleteQuickMessage('${category}', '${messageId}')">Delete</button>
+                            `;
+                            categoryDiv.appendChild(messageDiv);
+                        });
+                        
+                        container.appendChild(categoryDiv);
+                    });
+                });
+        }
+
+        function deleteQuickMessage(category, messageId) {
+            if (confirm('Are you sure you want to delete this quick message?')) {
+                database.ref(`quickMessages/${category}/${messageId}`).remove()
+                    .then(() => {
+                        loadQuickMessagesList();
+                    });
+            }
+        }
+
+        function loadUserHistory() {
+            database.ref('users').once('value')
+                .then(snapshot => {
+                    const users = snapshot.val() || {};
+                    const container = document.getElementById('userHistoryList');
+                    
+                    container.innerHTML = '<h4>User History</h4>';
+                    
+                    Object.keys(users).forEach(userId => {
+                        const user = users[userId];
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'user-history-item';
+                        userDiv.innerHTML = `
+                            <div class="user-history-header">
+                                <span class="user-history-name">${user.name}</span>
+                                <span class="user-history-time">${new Date(user.timestamp).toLocaleString()}</span>
+                            </div>
+                            <p><strong>Phone:</strong> ${user.phone}</p>
+                            <p><strong>Promo:</strong> ${user.promo || 'None'}</p>
+                            <button class="admin-btn" onclick="deleteUser('${userId}')">Delete</button>
+                        `;
+                        container.appendChild(userDiv);
+                    });
+                });
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                database.ref(`users/${userId}`).remove()
+                    .then(() => {
+                        loadUserHistory();
+                    });
+            }
+        }
+
+        function selectColor(color) {
+            primaryColor = color;
+            
+            // Update active color
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function saveTheme() {
+            // Update CSS variables
+            document.documentElement.style.setProperty('--primary-color', primaryColor);
+            
+            // Save to Firebase
+            database.ref('theme/primaryColor').set(primaryColor)
+                .then(() => {
+                    alert('Theme saved successfully!');
+                })
+                .catch(error => {
+                    alert('Error saving theme: ' + error.message);
+                });
+        }
+
+        function loadFAQSection() {
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    const faqs = snapshot.val() || {};
+                    const container = document.getElementById('messagesArea');
+                    
+                    container.innerHTML = '<h2 style="text-align: center; margin-bottom: 20px; color: #ff4444;">Frequently Asked Questions</h2>';
+                    
+                    Object.keys(faqs).forEach(faqId => {
+                        const faq = faqs[faqId];
+                        const faqDiv = document.createElement('div');
+                        faqDiv.className = 'admin-card';
+                        faqDiv.innerHTML = `
+                            <h4>${faq.question}</h4>
+                            <p><strong>Category:</strong> ${faq.category}</p>
+                            <p>${faq.answer}</p>
+                        `;
+                        container.appendChild(faqDiv);
+                    });
+                });
+        }
+
+        function showLoadingScreen() {
+            document.getElementById('loadingScreen').style.display = 'flex';
+        }
+
+        function hideLoadingScreen() {
+            document.getElementById('loadingScreen').style.display = 'none';
+        }
+
+        // Load theme on startup
+        database.ref('theme/primaryColor').once('value')
+            .then(snapshot => {
+                const savedColor = snapshot.val();
+                if (savedColor) {
+                    primaryColor = savedColor;
+                    selectColor(savedColor);
+                }
+            });
+    </script>
+</body>
+</html>
