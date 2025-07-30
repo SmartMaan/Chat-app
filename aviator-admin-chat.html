@@ -24,7 +24,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
             background: #1a1a1a;
             color: #ffffff;
             height: 100vh;
@@ -158,13 +158,15 @@
             padding: 5px;
             gap: 5px;
             position: relative;
+            font-size: 20px;
+            min-height: 56px;
         }
 
         .tab {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 12px 20px;
+            padding: 16px 32px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -173,6 +175,8 @@
             position: relative;
             z-index: 2;
             font-weight: 500;
+            font-size: 20px;
+            min-width: 120px;
         }
 
         .tab.active {
@@ -186,7 +190,7 @@
         }
 
         .tab i {
-            font-size: 18px;
+            font-size: 22px;
         }
 
         .tab-slider {
@@ -203,10 +207,10 @@
             background: #ff4444;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 18px;
             display: none;
         }
 
@@ -255,10 +259,11 @@
 
         .message-content {
             background: #2a2a2a;
-            padding: 15px;
+            padding: 16px;
             border-radius: 15px;
             max-width: 70%;
             word-wrap: break-word;
+            font-size: 17px;
         }
 
         .message.user .message-content {
@@ -319,7 +324,7 @@
 
         .faq-dropdown-header {
             background: #444;
-            padding: 15px;
+            padding: 18px 20px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
@@ -342,9 +347,10 @@
         }
 
         .faq-item {
-            padding: 15px;
+            padding: 16px 18px;
             border-bottom: 1px solid #444;
             background: #2a2a2a;
+            font-size: 17px;
         }
 
         .faq-item:last-child {
@@ -579,13 +585,13 @@
             background: linear-gradient(135deg, #ff4444, #ff6666);
             color: white;
             border: none;
-            padding: 15px 20px;
-            border-radius: 10px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
             box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
             margin-top: 20px;
             width: 100%;
@@ -743,11 +749,11 @@
             background: #ff4444;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
             margin: 5px;
-            font-size: 14px;
+            font-size: 18px;
         }
 
         .admin-btn:hover {
@@ -830,35 +836,10 @@
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
-            .header {
-                padding: 10px 15px;
-            }
-
-            .header-tabs {
-                gap: 10px;
-            }
-
-            .tab {
-                padding: 8px 12px;
-                font-size: 14px;
-            }
-
-            .messages-area {
-                padding: 15px;
-            }
-
-            .message-content {
-                max-width: 85%;
-            }
-
-            .input-area {
-                padding: 15px;
-            }
-
-            .admin-grid {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 600px) {
+            .tab, .header-tabs { font-size: 16px; padding: 10px 8px; }
+            .admin-panel-btn, .admin-btn, .submit-btn, .chat-with-us-btn { font-size: 15px; padding: 10px 10px; }
+            .faq-item, .question-btn, .message-content { font-size: 15px; padding: 10px; }
         }
 
         /* Scrollbar Styling */
@@ -1214,23 +1195,17 @@
                 tab.classList.remove('active');
             });
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-
-            // Update tab slider position
             updateTabSlider(tabName);
 
-            // Show/hide sections
+            // Show/hide sections robustly
+            const chatSection = document.getElementById('chatTabSection');
+            const faqSection = document.getElementById('faqTabSection');
             if (tabName === 'chat') {
-                document.getElementById('chatTabSection').style.display = 'flex';
-                document.getElementById('messagesArea').style.display = 'block';
-                document.getElementById('quickQuestionsSection').style.display = 'block';
-                document.getElementById('chatInputArea').style.display = 'none';
-                loadQuickQuestions();
+                chatSection.style.display = 'flex';
+                faqSection.style.display = 'none';
             } else if (tabName === 'faq') {
-                document.getElementById('faqTabSection').style.display = 'flex';
-                document.getElementById('messagesArea').style.display = 'none';
-                document.getElementById('quickQuestionsSection').style.display = 'none';
-                document.getElementById('chatInputArea').style.display = 'none';
-                loadFAQSection();
+                chatSection.style.display = 'none';
+                faqSection.style.display = 'flex';
             }
         }
 
