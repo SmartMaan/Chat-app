@@ -1353,46 +1353,45 @@
                 saveMessageToFirebase(adminMessage);
             }, 500);
 
-            // Hide quick questions after sending
-            hideQuickQuestions();
+            // Collapse quick questions to Show Less, but keep menu/toggle visible
+            collapseQuickQuestions();
         }
 
         function showChatInput() {
-            // Hide quick questions
-            hideQuickQuestions();
-            
-            // Show chat input
+            // Hide chat input initially
             document.getElementById('chatInputArea').style.display = 'flex';
-            
-            // Add waiting message
-            const waitingMessage = {
-                id: Date.now().toString(),
-                text: "Please wait for admin response. Our support team will get back to you soon.",
-                sender: 'admin',
-                timestamp: Date.now()
-            };
-            addMessageToUI(waitingMessage);
-            saveMessageToFirebase(waitingMessage);
+            // Collapse quick questions (but keep menu/toggle visible)
+            collapseQuickQuestions();
         }
 
-        function hideQuickQuestions() {
+        function collapseQuickQuestions() {
             const section = document.getElementById('quickQuestionsSection');
-            section.style.display = 'none';
+            const toggle = document.getElementById('quickQuestionsToggle');
+            const content = section.querySelector('.categories-container');
+            content.classList.remove('quick-questions-expanded');
+            content.classList.add('quick-questions-collapsed');
+            toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
+            section.style.display = 'block';
+        }
+
+        function expandQuickQuestions() {
+            const section = document.getElementById('quickQuestionsSection');
+            const toggle = document.getElementById('quickQuestionsToggle');
+            const content = section.querySelector('.categories-container');
+            content.classList.remove('quick-questions-collapsed');
+            content.classList.add('quick-questions-expanded');
+            toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
+            section.style.display = 'block';
         }
 
         function toggleQuickQuestions() {
             const section = document.getElementById('quickQuestionsSection');
             const toggle = document.getElementById('quickQuestionsToggle');
             const content = section.querySelector('.categories-container');
-            
             if (content.classList.contains('quick-questions-collapsed')) {
-                content.classList.remove('quick-questions-collapsed');
-                content.classList.add('quick-questions-expanded');
-                toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
+                expandQuickQuestions();
             } else {
-                content.classList.remove('quick-questions-expanded');
-                content.classList.add('quick-questions-collapsed');
-                toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
+                collapseQuickQuestions();
             }
         }
 
@@ -1448,6 +1447,9 @@
 
             // Hide chat input after sending
             document.getElementById('chatInputArea').style.display = 'none';
+
+            // Show quick questions menu (collapsed)
+            collapseQuickQuestions();
 
             // Simulate admin response
             setTimeout(() => {
