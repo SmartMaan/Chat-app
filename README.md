@@ -2,6 +2,19 @@
 
 A cutting-edge, real-time chat application built with Firebase, featuring advanced bot management, blue tick verification, and cross-platform support.
 
+## 🎮 NEW: Aviator Support Chat App
+
+**`aviator-chat-app.html`** - Complete support chat system for Aviator Game with:
+- ✅ **User Registration & Chat History**
+- ✅ **Quick Questions with Icons**
+- ✅ **FAQ Management System**
+- ✅ **Advanced Admin Panel**
+- ✅ **Theme Editor (Dark/Light/Material)**
+- ✅ **User Analytics & Management**
+- ✅ **Mobile Optimized (1080×720)**
+
+**Admin Access**: Type `aviator2025adminmaan` in chat
+
 ## ✨ Live Demos
 
 - **🌐 Main App**: https://smartmaan.github.io/Chat-app/
