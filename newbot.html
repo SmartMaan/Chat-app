@@ -2831,21 +2831,35 @@
                     <i class="${question.icon}"></i>
                     <span>${question.question}</span>
                 `;
-                btn.onclick = () => sendQuickResponse(question.response);
+                btn.onclick = () => sendQuickResponse(question.question, question.response);
                 container.appendChild(btn);
             });
         }
 
-        function sendQuickResponse(response) {
-            // Add user message
+        function sendQuickResponse(question, response) {
+            // Add user message with the actual question text
             const userMessage = {
                 id: Date.now().toString(),
-                text: 'Quick Question Selected',
+                text: question,
                 sender: 'user',
                 timestamp: Date.now()
             };
             addMessageToUI(userMessage);
             saveMessageToFirebase(userMessage);
+
+            // Save to chatHistory for user history tracking
+            if (currentUser) {
+                const historyData = {
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userPhone: currentUser.phone,
+                    message: question,
+                    response: response,
+                    timestamp: new Date().toISOString(),
+                    type: 'quick_question'
+                };
+                database.ref('chatHistory').push(historyData);
+            }
 
             // Add admin response
             setTimeout(() => {
@@ -3006,11 +3020,25 @@
 
             const chatRef = database.ref(`chats/${currentUser.id}/messages/${message.id}`);
             chatRef.set(message);
+
+            // Also save to chatHistory for user history tracking
+            if (message.sender === 'user') {
+                const historyData = {
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userPhone: currentUser.phone,
+                    message: message.text,
+                    timestamp: new Date(message.timestamp).toISOString(),
+                    type: 'chat_message'
+                };
+                database.ref('chatHistory').push(historyData);
+            }
         }
 
         function loadChat() {
             if (!currentUser) return;
 
+            // Load chat messages
             database.ref(`chats/${currentUser.id}/messages`).once('value')
                 .then(snapshot => {
                     const messages = snapshot.val() || {};
@@ -3020,6 +3048,34 @@
                     Object.keys(messages).forEach(messageId => {
                         addMessageToUI(messages[messageId]);
                     });
+                });
+
+            // Load user history from chatHistory
+            database.ref('chatHistory').orderByChild('userId').equalTo(currentUser.id).once('value')
+                .then(snapshot => {
+                    const history = snapshot.val() || {};
+                    const messagesArea = document.getElementById('messagesArea');
+                    
+                    // If no existing messages, load history
+                    if (messagesArea.children.length === 0) {
+                        Object.keys(history).forEach(historyId => {
+                            const historyItem = history[historyId];
+                            const userMessage = {
+                                id: historyId + '_user',
+                                text: historyItem.message,
+                                sender: 'user',
+                                timestamp: new Date(historyItem.timestamp).getTime()
+                            };
+                            const botMessage = {
+                                id: historyId + '_bot',
+                                text: historyItem.response,
+                                sender: 'admin',
+                                timestamp: new Date(historyItem.timestamp).getTime() + 1000
+                            };
+                            addMessageToUI(userMessage);
+                            addMessageToUI(botMessage);
+                        });
+                    }
                 });
         }
 
