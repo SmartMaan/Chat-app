@@ -2588,13 +2588,10 @@
                 showLoadingScreen();
                 setupEventListeners();
                 
-                // Initialize default data
-                initializeDefaultData();
-                
                 // Check user session immediately
                 checkUserSession();
                 
-                // Fallback: Always show content after 5 seconds if still loading
+                // Fallback: Always show content after 3 seconds if still loading
                 setTimeout(() => {
                     const mainApp = document.getElementById('mainApp');
                     const loadingScreen = document.getElementById('loadingScreen');
@@ -2611,7 +2608,7 @@
                         hideLoadingScreen();
                         showUserRegistration();
                     }
-                }, 5000);
+                }, 3000);
                 
             } catch (error) {
                 console.error('Error during initialization:', error);
@@ -2621,62 +2618,95 @@
         });
 
         function setupEventListeners() {
-            // Registration form
-            document.getElementById('registrationForm').addEventListener('submit', handleUserRegistration);
-            
-            // Message sending
-            document.getElementById('sendBtn').addEventListener('click', sendMessage);
-            document.getElementById('messageInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
+            try {
+                // Registration form
+                const registrationForm = document.getElementById('registrationForm');
+                if (registrationForm) {
+                    registrationForm.addEventListener('submit', handleUserRegistration);
                 }
-            });
-
-            // Tab switching
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    switchTab(this.dataset.tab);
-                });
-            });
-
-            // Quick questions
-            document.getElementById('quickQuestionsToggle').addEventListener('click', toggleQuickQuestions);
-            
-            // Admin panel
-            document.getElementById('adminPanelBtn').addEventListener('click', showAdminPanel);
-            document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
-            
-            // Admin forms
-            document.getElementById('faqForm').addEventListener('submit', addFAQ);
-            document.getElementById('quickMessageForm').addEventListener('submit', addQuickMessage);
-            document.getElementById('saveThemeBtn').addEventListener('click', saveAdvancedTheme);
-            document.getElementById('resetThemeBtn').addEventListener('click', resetTheme);
-            
-            // Color picker
-            document.querySelectorAll('.color-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    selectColor(this.dataset.color);
-                });
-            });
-
-            // Icon selector
-            document.getElementById('iconSelectorBtn').addEventListener('click', toggleIconDropdown);
-            
-            // Color inputs
-            document.getElementById('primaryColor').addEventListener('input', updateColorPreview);
-            document.getElementById('secondaryColor').addEventListener('input', updateColorPreview);
-            document.getElementById('backgroundColor').addEventListener('input', updateColorPreview);
-
+                
+                // Message sending
+                const sendBtn = document.getElementById('sendBtn');
+                const messageInput = document.getElementById('messageInput');
+                
+                if (sendBtn) {
+                    sendBtn.addEventListener('click', sendMessage);
+                }
+                
+                if (messageInput) {
+                    messageInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                        }
+                    });
+                    
                     // Auto-resize textarea
-        const messageInput = document.getElementById('messageInput');
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
+                    messageInput.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                    });
+                }
 
-        // Mobile-specific improvements
-        if (window.innerWidth <= 768) {
+                // Tab switching
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        switchTab(this.dataset.tab);
+                    });
+                });
+
+                // Quick questions
+                const quickQuestionsToggle = document.getElementById('quickQuestionsToggle');
+                if (quickQuestionsToggle) {
+                    quickQuestionsToggle.addEventListener('click', toggleQuickQuestions);
+                }
+                
+                // Admin panel
+                const adminPanelBtn = document.getElementById('adminPanelBtn');
+                const closeAdminBtn = document.getElementById('closeAdminBtn');
+                
+                if (adminPanelBtn) {
+                    adminPanelBtn.addEventListener('click', showAdminPanel);
+                }
+                
+                if (closeAdminBtn) {
+                    closeAdminBtn.addEventListener('click', hideAdminPanel);
+                }
+
+                // Mobile-specific improvements
+                if (window.innerWidth <= 768) {
+                    // Prevent zoom on input focus
+                    if (messageInput) {
+                        messageInput.addEventListener('focus', function() {
+                            this.style.fontSize = '16px';
+                        });
+                        
+                        messageInput.addEventListener('blur', function() {
+                            this.style.fontSize = '';
+                        });
+                    }
+                    
+                    // Touch feedback for buttons
+                    document.querySelectorAll('button').forEach(btn => {
+                        btn.addEventListener('touchstart', function() {
+                            this.style.transform = 'scale(0.95)';
+                        });
+                        
+                        btn.addEventListener('touchend', function() {
+                            this.style.transform = 'scale(1)';
+                        });
+                    });
+                    
+                    // Smooth scrolling
+                    document.querySelectorAll('.messages-area, .user-chat-messages').forEach(el => {
+                        el.style.webkitOverflowScrolling = 'touch';
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error setting up event listeners:', error);
+            }
+        }
             // Prevent zoom on input focus
             messageInput.addEventListener('focus', function() {
                 this.style.fontSize = '16px';
@@ -2713,14 +2743,17 @@
 
         function checkUserSession() {
             try {
+                console.log('Checking user session...');
                 const userData = localStorage.getItem('aviatorUser');
                 if (userData) {
                     currentUser = JSON.parse(userData);
+                    console.log('User found:', currentUser);
                     hideLoadingScreen();
                     showMainApp();
                     loadChat();
                     checkAdminStatus();
                 } else {
+                    console.log('No user found, showing registration');
                     hideLoadingScreen();
                     showUserRegistration();
                 }
@@ -2883,13 +2916,15 @@
         }
 
         function loadQuickQuestions() {
-            database.ref('quickMessages').once('value')
+            database.ref('quickQuestions').once('value')
                 .then(snapshot => {
                     const data = snapshot.val() || {};
                     displayCategories(Object.keys(data));
                 })
                 .catch(error => {
                     console.error('Error loading quick questions:', error);
+                    // Fallback: show default categories if Firebase fails
+                    displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
                 });
         }
 
@@ -4269,6 +4304,12 @@
         function backToUsers() {
             document.getElementById('userChatContainer').style.display = 'none';
             document.getElementById('userListContainer').style.display = 'block';
+        }
+
+        function manualStart() {
+            console.log('Manual start triggered');
+            hideLoadingScreen();
+            showUserRegistration();
         }
             database.ref('quickMessages').once('value')
                 .then(snapshot => {
