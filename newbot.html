@@ -1159,6 +1159,108 @@
             font-size: 12px;
         }
 
+        /* Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .analytics-card {
+            background: #2a2a2a;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #ff4444;
+        }
+
+        .analytics-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff4444;
+            margin-bottom: 8px;
+        }
+
+        .analytics-label {
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        /* Chat History */
+        .chat-history {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .user-history-item {
+            background: #333;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #ff4444;
+        }
+
+        .user-history-item h5 {
+            color: #ff4444;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .history-messages {
+            font-size: 12px;
+        }
+
+        .history-message {
+            background: #444;
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+        }
+
+        /* Chat Messages */
+        .chat-message {
+            background: #333;
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
+
+        .chat-message.admin-message {
+            background: #ff4444;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            color: #ff4444;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .message-text {
+            color: #ccc;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .message-time {
+            color: #666;
+            font-size: 10px;
+        }
+
+        /* Back to Users Button */
+        .back-to-users {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
         .admin-sidebar {
             background: #222;
             padding: 20px 0;
@@ -2252,6 +2354,7 @@
                     <div id="userListContainer"></div>
                 </div>
                 <div id="userChatContainer" class="user-chat" style="display:none;">
+                    <button class="back-to-users" onclick="backToUsers()">← Back to Users</button>
                     <h3>Chat with <span id="selectedUserName"></span></h3>
                     <div id="userChatMessages" class="user-chat-messages"></div>
                     <div class="user-chat-input">
@@ -3115,6 +3218,8 @@
             loadQuickMessagesList();
             loadUserHistory();
             loadUserChatList();
+            loadAnalytics();
+            setupAdminEventListeners();
         }
 
         function addFAQ(e) {
@@ -3570,6 +3675,532 @@
 
         // Enhanced Quick Questions management
         function loadQuickMessagesList() {
+            database.ref('quickQuestions').once('value')
+                .then(snapshot => {
+                    const quickQuestions = snapshot.val() || {};
+                    const container = document.getElementById('categoryList');
+                    container.innerHTML = '';
+                    
+                    Object.keys(quickQuestions).forEach(category => {
+                        const questions = quickQuestions[category];
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'category-item';
+                        categoryDiv.innerHTML = `
+                            <h4>${category}</h4>
+                            <div class="question-list">
+                                ${Object.keys(questions).map(questionId => {
+                                    const question = questions[questionId];
+                                    return `
+                                        <div class="question-item">
+                                            <div class="question-text">${question.question}</div>
+                                            <div class="question-actions">
+                                                <button class="btn btn-secondary" onclick="editQuickQuestion('${category}', '${questionId}')">Edit</button>
+                                                <button class="btn btn-danger" onclick="deleteQuickQuestion('${category}', '${questionId}')">Delete</button>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `;
+                        container.appendChild(categoryDiv);
+                    });
+                });
+        }
+
+        function editQuickQuestion(category, questionId) {
+            database.ref(`quickQuestions/${category}/${questionId}`).once('value')
+                .then(snapshot => {
+                    const question = snapshot.val();
+                    if (question) {
+                        document.getElementById('quickCategory').value = category;
+                        document.getElementById('quickQuestion').value = question.question;
+                        document.getElementById('quickResponse').value = question.response;
+                        document.getElementById('quickIcon').value = question.icon;
+                        
+                        // Change form to edit mode
+                        const form = document.getElementById('quickQuestionForm');
+                        form.dataset.editMode = 'true';
+                        form.dataset.editCategory = category;
+                        form.dataset.editId = questionId;
+                        
+                        document.querySelector('#quickQuestionForm .btn-primary').textContent = 'Update Question';
+                    }
+                });
+        }
+
+        function deleteQuickQuestion(category, questionId) {
+            if (confirm('Are you sure you want to delete this question?')) {
+                database.ref(`quickQuestions/${category}/${questionId}`).remove()
+                    .then(() => {
+                        alert('Question deleted successfully!');
+                        loadQuickMessagesList();
+                    })
+                    .catch(error => {
+                        alert('Error deleting question: ' + error.message);
+                    });
+            }
+        }
+
+        // Enhanced FAQ management
+        function loadFAQList() {
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    const faqs = snapshot.val() || {};
+                    const container = document.getElementById('faqList');
+                    
+                    container.innerHTML = '<h4>Existing FAQs</h4>';
+                    
+                    // Group FAQs by category
+                    const categories = {};
+                    Object.keys(faqs).forEach(faqId => {
+                        const faq = faqs[faqId];
+                        if (!categories[faq.category]) {
+                            categories[faq.category] = [];
+                        }
+                        categories[faq.category].push({ id: faqId, ...faq });
+                    });
+                    
+                    Object.keys(categories).forEach(category => {
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'category-item';
+                        categoryDiv.innerHTML = `
+                            <h4>${category}</h4>
+                            <div class="question-list">
+                                ${categories[category].map(faq => `
+                                    <div class="question-item">
+                                        <div class="question-text">
+                                            <strong>Q:</strong> ${faq.question}<br>
+                                            <strong>A:</strong> ${faq.answer}
+                                        </div>
+                                        <div class="question-actions">
+                                            <button class="btn btn-secondary" onclick="editFAQ('${faq.id}')">Edit</button>
+                                            <button class="btn btn-danger" onclick="deleteFAQ('${faq.id}')">Delete</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        container.appendChild(categoryDiv);
+                    });
+                });
+        }
+
+        function editFAQ(faqId) {
+            database.ref(`faqs/${faqId}`).once('value')
+                .then(snapshot => {
+                    const faq = snapshot.val();
+                    if (faq) {
+                        document.getElementById('faqCategory').value = faq.category;
+                        document.getElementById('faqQuestion').value = faq.question;
+                        document.getElementById('faqAnswer').value = faq.answer;
+                        
+                        // Change form to edit mode
+                        const form = document.getElementById('faqForm');
+                        form.dataset.editMode = 'true';
+                        form.dataset.editId = faqId;
+                        
+                        document.querySelector('#faqForm .btn-primary').textContent = 'Update FAQ';
+                    }
+                });
+        }
+
+        function deleteFAQ(faqId) {
+            if (confirm('Are you sure you want to delete this FAQ?')) {
+                database.ref(`faqs/${faqId}`).remove()
+                    .then(() => {
+                        alert('FAQ deleted successfully!');
+                        loadFAQList();
+                    })
+                    .catch(error => {
+                        alert('Error deleting FAQ: ' + error.message);
+                    });
+            }
+        }
+
+        // Enhanced user management
+        function loadUserHistory() {
+            database.ref('chatHistory').once('value')
+                .then(snapshot => {
+                    const history = snapshot.val() || {};
+                    const container = document.getElementById('chatHistoryContainer');
+                    
+                    container.innerHTML = '<h4>Recent Chat History</h4>';
+                    
+                    // Group by user
+                    const userHistory = {};
+                    Object.keys(history).forEach(historyId => {
+                        const item = history[historyId];
+                        if (!userHistory[item.userId]) {
+                            userHistory[item.userId] = [];
+                        }
+                        userHistory[item.userId].push(item);
+                    });
+                    
+                    Object.keys(userHistory).forEach(userId => {
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'user-history-item';
+                        userDiv.innerHTML = `
+                            <h5>${userHistory[userId][0].userName} (${userHistory[userId][0].userPhone})</h5>
+                            <div class="history-messages">
+                                ${userHistory[userId].slice(-5).map(item => `
+                                    <div class="history-message">
+                                        <strong>${item.userName}:</strong> ${item.message}
+                                        <br><small>${new Date(item.timestamp).toLocaleString()}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        container.appendChild(userDiv);
+                    });
+                });
+        }
+
+        // Theme management
+        function applyThemePreset(theme) {
+            const themes = {
+                dark: {
+                    primary: '#ff4444',
+                    secondary: '#444444',
+                    background: '#1a1a1a'
+                },
+                light: {
+                    primary: '#007bff',
+                    secondary: '#6c757d',
+                    background: '#ffffff'
+                },
+                blue: {
+                    primary: '#007bff',
+                    secondary: '#0056b3',
+                    background: '#f8f9fa'
+                },
+                green: {
+                    primary: '#28a745',
+                    secondary: '#1e7e34',
+                    background: '#f8f9fa'
+                },
+                purple: {
+                    primary: '#6f42c1',
+                    secondary: '#5a2d91',
+                    background: '#f8f9fa'
+                }
+            };
+            
+            const selectedTheme = themes[theme];
+            if (selectedTheme) {
+                document.documentElement.style.setProperty('--primary-color', selectedTheme.primary);
+                document.documentElement.style.setProperty('--secondary-color', selectedTheme.secondary);
+                document.documentElement.style.setProperty('--background-color', selectedTheme.background);
+                
+                // Update color inputs
+                document.getElementById('primaryColor').value = selectedTheme.primary;
+                document.getElementById('secondaryColor').value = selectedTheme.secondary;
+                document.getElementById('backgroundColor').value = selectedTheme.background;
+            }
+        }
+
+        function saveTheme() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const backgroundColor = document.getElementById('backgroundColor').value;
+            
+            document.documentElement.style.setProperty('--primary-color', primaryColor);
+            document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+            document.documentElement.style.setProperty('--background-color', backgroundColor);
+            
+            // Save to Firebase
+            const themeData = {
+                primary: primaryColor,
+                secondary: secondaryColor,
+                background: backgroundColor,
+                timestamp: Date.now()
+            };
+            
+            database.ref('theme').set(themeData)
+                .then(() => {
+                    alert('Theme saved successfully!');
+                })
+                .catch(error => {
+                    alert('Error saving theme: ' + error.message);
+                });
+        }
+
+        function resetTheme() {
+            applyThemePreset('dark');
+        }
+
+        // Analytics
+        function loadAnalytics() {
+            // Load user statistics
+            database.ref('users').once('value')
+                .then(snapshot => {
+                    const users = snapshot.val() || {};
+                    document.getElementById('totalUsers').textContent = Object.keys(users).length;
+                    document.getElementById('activeUsers').textContent = Object.keys(users).length; // Placeholder
+                });
+            
+            // Load message statistics
+            database.ref('chatHistory').once('value')
+                .then(snapshot => {
+                    const history = snapshot.val() || {};
+                    document.getElementById('totalMessages').textContent = Object.keys(history).length;
+                });
+            
+            // Load FAQ statistics
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    const faqs = snapshot.val() || {};
+                    document.getElementById('totalFAQs').textContent = Object.keys(faqs).length;
+                });
+        }
+
+        // Form helpers
+        function clearFaqForm() {
+            document.getElementById('faqForm').reset();
+            const form = document.getElementById('faqForm');
+            delete form.dataset.editMode;
+            delete form.dataset.editId;
+            document.querySelector('#faqForm .btn-primary').textContent = 'Add FAQ';
+        }
+
+        function clearQuickForm() {
+            document.getElementById('quickQuestionForm').reset();
+            const form = document.getElementById('quickQuestionForm');
+            delete form.dataset.editMode;
+            delete form.dataset.editCategory;
+            delete form.dataset.editId;
+            document.querySelector('#quickQuestionForm .btn-primary').textContent = 'Add Question';
+        }
+
+        // Setup admin event listeners
+        function setupAdminEventListeners() {
+            // Admin sidebar navigation
+            document.querySelectorAll('.admin-sidebar-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    if (section === 'close') {
+                        hideAdminPanel();
+                        return;
+                    }
+                    
+                    // Update active button
+                    document.querySelectorAll('.admin-sidebar-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show active section
+                    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(`adminSection${section.charAt(0).toUpperCase() + section.slice(1)}`).classList.add('active');
+                });
+            });
+
+            // FAQ form
+            document.getElementById('faqForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+                const isEditMode = form.dataset.editMode === 'true';
+                
+                const category = document.getElementById('faqCategory').value;
+                const question = document.getElementById('faqQuestion').value;
+                const answer = document.getElementById('faqAnswer').value;
+
+                const faqData = {
+                    category: category,
+                    question: question,
+                    answer: answer,
+                    timestamp: Date.now()
+                };
+
+                if (isEditMode) {
+                    // Update existing FAQ
+                    database.ref(`faqs/${form.dataset.editId}`).update(faqData)
+                        .then(() => {
+                            alert('FAQ updated successfully!');
+                            clearFaqForm();
+                            loadFAQList();
+                        })
+                        .catch(error => {
+                            alert('Error updating FAQ: ' + error.message);
+                        });
+                } else {
+                    // Add new FAQ
+                    faqData.id = Date.now().toString();
+                    database.ref(`faqs/${faqData.id}`).set(faqData)
+                        .then(() => {
+                            alert('FAQ added successfully!');
+                            clearFaqForm();
+                            loadFAQList();
+                        })
+                        .catch(error => {
+                            alert('Error adding FAQ: ' + error.message);
+                        });
+                }
+            });
+            
+            // Quick question form
+            document.getElementById('quickQuestionForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+                const isEditMode = form.dataset.editMode === 'true';
+                
+                const category = document.getElementById('quickCategory').value;
+                const question = document.getElementById('quickQuestion').value;
+                const response = document.getElementById('quickResponse').value;
+                const icon = document.getElementById('quickIcon').value;
+
+                const quickData = {
+                    category: category,
+                    question: question,
+                    response: response,
+                    icon: icon,
+                    timestamp: Date.now()
+                };
+
+                if (isEditMode) {
+                    // Update existing question
+                    database.ref(`quickQuestions/${form.dataset.editCategory}/${form.dataset.editId}`).update(quickData)
+                        .then(() => {
+                            alert('Question updated successfully!');
+                            clearQuickForm();
+                            loadQuickMessagesList();
+                        })
+                        .catch(error => {
+                            alert('Error updating question: ' + error.message);
+                        });
+                } else {
+                    // Add new question
+                    quickData.id = Date.now().toString();
+                    database.ref(`quickQuestions/${category}/${quickData.id}`).set(quickData)
+                        .then(() => {
+                            alert('Question added successfully!');
+                            clearQuickForm();
+                            loadQuickMessagesList();
+                        })
+                        .catch(error => {
+                            alert('Error adding question: ' + error.message);
+                        });
+                }
+            });
+            
+            // User search
+            document.getElementById('userSearchInput').addEventListener('input', filterUsers);
+            
+            // User filters
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterUsers();
+                });
+            });
+
+            // Theme presets
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    applyThemePreset(this.getAttribute('data-theme'));
+                });
+            });
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
+            const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+            
+            database.ref('users').once('value')
+                .then(snapshot => {
+                    const users = snapshot.val() || {};
+                    const container = document.getElementById('userListContainer');
+                    container.innerHTML = '';
+                    
+                    Object.keys(users).forEach(userId => {
+                        const user = users[userId];
+                        
+                        // Apply search filter
+                        if (searchTerm && !user.name.toLowerCase().includes(searchTerm) && 
+                            !user.phone.includes(searchTerm)) {
+                            return;
+                        }
+                        
+                        // Apply status filter
+                        if (activeFilter !== 'all') {
+                            // You can implement actual online/offline logic here
+                            const isOnline = true; // Placeholder
+                            if (activeFilter === 'online' && !isOnline) return;
+                            if (activeFilter === 'offline' && isOnline) return;
+                        }
+                        
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'user-item';
+                        userDiv.innerHTML = `
+                            <div class="user-info">
+                                <div>
+                                    <div class="user-name">${user.name}</div>
+                                    <div class="user-phone">${user.phone}</div>
+                                </div>
+                                <div class="user-status online">Online</div>
+                            </div>
+                        `;
+                        userDiv.onclick = () => openUserChat(user);
+                        container.appendChild(userDiv);
+                    });
+                });
+        }
+
+        function openUserChat(user) {
+            document.getElementById('selectedUserName').textContent = user.name;
+            document.getElementById('userChatContainer').style.display = 'block';
+            document.getElementById('userListContainer').style.display = 'none';
+            
+            // Load user's chat history
+            loadUserChatHistory(user.id);
+        }
+
+        function loadUserChatHistory(userId) {
+            const messagesContainer = document.getElementById('userChatMessages');
+            messagesContainer.innerHTML = '';
+            
+            // Load from chatHistory
+            database.ref('chatHistory').orderByChild('userId').equalTo(userId).once('value')
+                .then(snapshot => {
+                    const history = snapshot.val() || {};
+                    Object.keys(history).forEach(historyId => {
+                        const historyItem = history[historyId];
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'chat-message';
+                        messageDiv.innerHTML = `
+                            <div class="message-sender">${historyItem.userName}</div>
+                            <div class="message-text">${historyItem.message}</div>
+                            <div class="message-time">${new Date(historyItem.timestamp).toLocaleString()}</div>
+                        `;
+                        messagesContainer.appendChild(messageDiv);
+                    });
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                });
+        }
+
+        function sendUserMessage() {
+            const input = document.getElementById('userChatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const selectedUser = document.getElementById('selectedUserName').textContent;
+            // Here you would implement sending message to specific user
+            // For now, just add to chat
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message admin-message';
+            messageDiv.innerHTML = `
+                <div class="message-sender">Admin</div>
+                <div class="message-text">${message}</div>
+                <div class="message-time">${new Date().toLocaleString()}</div>
+            `;
+            document.getElementById('userChatMessages').appendChild(messageDiv);
+            input.value = '';
+        }
+
+        function backToUsers() {
+            document.getElementById('userChatContainer').style.display = 'none';
+            document.getElementById('userListContainer').style.display = 'block';
+        }
             database.ref('quickMessages').once('value')
                 .then(snapshot => {
                     const quickMessages = snapshot.val() || {};
