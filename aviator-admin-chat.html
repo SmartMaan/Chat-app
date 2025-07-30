@@ -1130,16 +1130,20 @@
         }
 
         function checkUserSession() {
-            const userData = localStorage.getItem('aviatorUser');
-            if (userData) {
-                currentUser = JSON.parse(userData);
+            try {
+                const userData = localStorage.getItem('aviatorUser');
+                if (userData) {
+                    currentUser = JSON.parse(userData);
+                    hideLoadingScreen();
+                    showMainApp();
+                    loadChat();
+                    checkAdminStatus();
+                } else {
+                    hideLoadingScreen();
+                    showUserRegistration();
+                }
+            } catch (e) {
                 hideLoadingScreen();
-                showMainApp();
-                loadChat();
-                checkAdminStatus();
-            } else {
-                hideLoadingScreen();
-                showUserRegistration();
             }
         }
 
@@ -2099,6 +2103,16 @@
         function hideLoadingScreen() {
             document.getElementById('loadingScreen').style.display = 'none';
         }
+
+        // Always hide loading screen after 5 seconds (fallback)
+        setTimeout(() => {
+          hideLoadingScreen();
+        }, 5000);
+
+        // Global error handler: hide loading screen on error
+        window.addEventListener('error', function() {
+          hideLoadingScreen();
+        });
 
         // Load theme on startup
         database.ref('theme/primaryColor').once('value')
