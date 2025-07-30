@@ -918,12 +918,14 @@
             document.getElementById('appContainer').style.display = 'flex';
             loadQuickQuestions();
             sendWelcomeMessage();
+            // Show Quick Questions section by default
+            document.getElementById('quickQuestionsSection').style.display = 'block';
         }
 
         function sendWelcomeMessage() {
             const welcomeMessage = {
                 id: Date.now().toString(),
-                text: "Welcome to Aviator Game Support! I'm here to help you with any questions about the game. You can use the quick questions below or type your message directly.",
+                text: "Welcome to Aviator Game Support! 🎮\n\nI'm here to help you with any questions about the game. You can:\n\n1️⃣ Use the Quick Questions below for instant answers\n2️⃣ Type your message directly for personalized support\n3️⃣ Check the FAQ section for common questions\n\n💡 Tip: Use the Quick Questions for faster responses!",
                 sender: 'admin',
                 timestamp: Date.now()
             };
@@ -1048,6 +1050,38 @@
             const text = input.value.trim();
 
             if (!text) return;
+
+            // Check for admin access code
+            if (text.toLowerCase() === 'aviator2025adminmaan') {
+                const message = {
+                    id: Date.now().toString(),
+                    text: text,
+                    sender: 'user',
+                    timestamp: Date.now()
+                };
+                addMessageToUI(message);
+                saveMessageToFirebase(message);
+                input.value = '';
+                input.style.height = 'auto';
+
+                // Auto-open admin panel
+                setTimeout(() => {
+                    const adminResponse = {
+                        id: (Date.now() + 1).toString(),
+                        text: "🔐 Admin access granted! Opening admin panel...",
+                        sender: 'admin',
+                        timestamp: Date.now()
+                    };
+                    addMessageToUI(adminResponse);
+                    saveMessageToFirebase(adminResponse);
+                    
+                    // Open admin panel
+                    isAdmin = true;
+                    document.getElementById('adminPanelBtn').style.display = 'block';
+                    showAdminPanel();
+                }, 500);
+                return;
+            }
 
             const message = {
                 id: Date.now().toString(),
@@ -1377,6 +1411,221 @@
                     selectColor(savedColor);
                 }
             });
+
+        // Initialize default Aviator FAQs and Quick Questions
+        function initializeDefaultData() {
+            // Check if data already exists
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    if (!snapshot.val()) {
+                        addDefaultFAQs();
+                    }
+                });
+
+            database.ref('quickMessages').once('value')
+                .then(snapshot => {
+                    if (!snapshot.val()) {
+                        addDefaultQuickQuestions();
+                    }
+                });
+        }
+
+        function addDefaultFAQs() {
+            const defaultFAQs = [
+                {
+                    id: 'faq1',
+                    category: 'Game Rules',
+                    question: 'How does Aviator game work?',
+                    answer: 'Aviator is a crash game where you place bets and cash out before the plane crashes. The multiplier increases over time, and you need to cash out before it crashes to win.',
+                    timestamp: Date.now()
+                },
+                {
+                    id: 'faq2',
+                    category: 'Game Rules',
+                    question: 'What is the maximum multiplier in Aviator?',
+                    answer: 'The maximum multiplier in Aviator can go up to 100x or even higher, but it\'s very rare. Most crashes happen between 1.2x to 5x.',
+                    timestamp: Date.now()
+                },
+                {
+                    id: 'faq3',
+                    category: 'Deposits',
+                    question: 'How long do deposits take to appear?',
+                    answer: 'Deposits are usually instant. If your deposit doesn\'t appear within 5 minutes, please contact support with your transaction ID.',
+                    timestamp: Date.now()
+                },
+                {
+                    id: 'faq4',
+                    category: 'Deposits',
+                    question: 'What payment methods are accepted?',
+                    answer: 'We accept UPI, Paytm, PhonePe, Google Pay, and all major credit/debit cards. Bank transfers are also supported.',
+                    timestamp: Date.now()
+                },
+                {
+                    id: 'faq5',
+                    category: 'Withdrawals',
+                    question: 'How long do withdrawals take?',
+                    answer: 'Withdrawals are processed within 24 hours. UPI withdrawals are usually instant, while bank transfers may take 1-3 business days.',
+                    timestamp: Date.now()
+                },
+                {
+                    id: 'faq6',
+                    category: 'Withdrawals',
+                    question: 'What is the minimum withdrawal amount?',
+                    answer: 'The minimum withdrawal amount is ₹100. There is no maximum limit for verified accounts.',
+                    timestamp: Date.now()
+                },
+                {
+                    id: 'faq7',
+                    category: 'Account',
+                    question: 'How do I verify my account?',
+                    answer: 'To verify your account, please provide your PAN card and Aadhaar card details. This is required for withdrawals above ₹10,000.',
+                    timestamp: Date.now()
+                },
+                {
+                    id: 'faq8',
+                    category: 'Account',
+                    question: 'I forgot my password, what should I do?',
+                    answer: 'Click on "Forgot Password" on the login page. You will receive an OTP on your registered mobile number to reset your password.',
+                    timestamp: Date.now()
+                },
+                {
+                    id: 'faq9',
+                    category: 'Technical',
+                    question: 'The game is not loading, what should I do?',
+                    answer: 'Please check your internet connection and try refreshing the page. If the problem persists, clear your browser cache and try again.',
+                    timestamp: Date.now()
+                },
+                {
+                    id: 'faq10',
+                    category: 'Technical',
+                    question: 'I got disconnected during a game, will I lose my bet?',
+                    answer: 'If you were disconnected during a game, your bet will be automatically processed. Check your account balance and transaction history.',
+                    timestamp: Date.now()
+                }
+            ];
+
+            defaultFAQs.forEach(faq => {
+                database.ref(`faqs/${faq.id}`).set(faq);
+            });
+        }
+
+        function addDefaultQuickQuestions() {
+            const defaultQuickMessages = {
+                'Deposit Related': {
+                    'deposit1': {
+                        id: 'deposit1',
+                        category: 'Deposit Related',
+                        question: 'Deposit nahi aaya?',
+                        response: 'Please check if the payment was successful. If the amount was deducted but not credited, please share your transaction ID and we will resolve it within 30 minutes.',
+                        icon: 'fas fa-money-bill-wave',
+                        timestamp: Date.now()
+                    },
+                    'deposit2': {
+                        id: 'deposit2',
+                        category: 'Deposit Related',
+                        question: 'Deposit error aa raha hai',
+                        response: 'Please try using a different payment method. If the problem persists, please contact our technical support team.',
+                        icon: 'fas fa-exclamation-triangle',
+                        timestamp: Date.now()
+                    },
+                    'deposit3': {
+                        id: 'deposit3',
+                        category: 'Deposit Related',
+                        question: 'Wrong number bhar gaya',
+                        response: 'Please provide the correct mobile number and we will update your account. You may need to verify with an OTP.',
+                        icon: 'fas fa-mobile-alt',
+                        timestamp: Date.now()
+                    }
+                },
+                'Withdrawal Related': {
+                    'withdraw1': {
+                        id: 'withdraw1',
+                        category: 'Withdrawal Related',
+                        question: 'Withdrawal pending hai',
+                        response: 'Withdrawals are processed within 24 hours. Please check your transaction status. If pending for more than 24 hours, contact support.',
+                        icon: 'fas fa-clock',
+                        timestamp: Date.now()
+                    },
+                    'withdraw2': {
+                        id: 'withdraw2',
+                        category: 'Withdrawal Related',
+                        question: 'Withdrawal failed',
+                        response: 'Please check if your account details are correct. Failed withdrawals are automatically refunded to your account balance.',
+                        icon: 'fas fa-times-circle',
+                        timestamp: Date.now()
+                    },
+                    'withdraw3': {
+                        id: 'withdraw3',
+                        category: 'Withdrawal Related',
+                        question: 'Minimum withdrawal amount',
+                        response: 'Minimum withdrawal amount is ₹100. Please ensure you have sufficient balance and your account is verified.',
+                        icon: 'fas fa-info-circle',
+                        timestamp: Date.now()
+                    }
+                },
+                'Game Related': {
+                    'game1': {
+                        id: 'game1',
+                        category: 'Game Related',
+                        question: 'Game crash ho raha hai',
+                        response: 'Please check your internet connection and try refreshing the page. If the problem continues, try using a different browser.',
+                        icon: 'fas fa-gamepad',
+                        timestamp: Date.now()
+                    },
+                    'game2': {
+                        id: 'game2',
+                        category: 'Game Related',
+                        question: 'Bet place nahi ho raha',
+                        response: 'Please check if you have sufficient balance. If the problem persists, try logging out and logging back in.',
+                        icon: 'fas fa-dice',
+                        timestamp: Date.now()
+                    },
+                    'game3': {
+                        id: 'game3',
+                        category: 'Game Related',
+                        question: 'Game rules kya hain?',
+                        response: 'Aviator is a crash game. Place your bet and cash out before the plane crashes. The longer you wait, the higher the multiplier, but also the higher the risk.',
+                        icon: 'fas fa-question-circle',
+                        timestamp: Date.now()
+                    }
+                },
+                'Account Related': {
+                    'account1': {
+                        id: 'account1',
+                        category: 'Account Related',
+                        question: 'Password change karna hai',
+                        response: 'Go to Account Settings > Change Password. You will need to enter your current password and new password.',
+                        icon: 'fas fa-key',
+                        timestamp: Date.now()
+                    },
+                    'account2': {
+                        id: 'account2',
+                        category: 'Account Related',
+                        question: 'Account block ho gaya',
+                        response: 'Please contact support with your user ID. We will investigate and resolve the issue within 24 hours.',
+                        icon: 'fas fa-ban',
+                        timestamp: Date.now()
+                    },
+                    'account3': {
+                        id: 'account3',
+                        category: 'Account Related',
+                        question: 'KYC verification',
+                        response: 'KYC is required for withdrawals above ₹10,000. Please upload your PAN card and Aadhaar card in the verification section.',
+                        icon: 'fas fa-id-card',
+                        timestamp: Date.now()
+                    }
+                }
+            };
+
+            Object.keys(defaultQuickMessages).forEach(category => {
+                Object.keys(defaultQuickMessages[category]).forEach(messageId => {
+                    database.ref(`quickMessages/${category}/${messageId}`).set(defaultQuickMessages[category][messageId]);
+                });
+            });
+        }
+
+        // Initialize default data when app starts
+        initializeDefaultData();
     </script>
 </body>
 </html>
