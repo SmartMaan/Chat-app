@@ -886,7 +886,7 @@
         <div class="header">
             <div class="header-top">
                 <h2>Aviator Support</h2>
-                <button id="adminPanelBtn" class="admin-panel-btn">
+                <button id="adminPanelBtn" class="admin-panel-btn" style="display: none;">
                     <i class="fas fa-cog"></i> Admin
                 </button>
             </div>
@@ -1290,7 +1290,7 @@
                 setTimeout(() => {
                     const adminResponse = {
                         id: (Date.now() + 1).toString(),
-                        text: "🔐 Admin access granted! Opening admin panel...",
+                        text: "🔐 Admin access granted! Admin panel is now available.",
                         sender: 'admin',
                         timestamp: Date.now()
                     };
@@ -1299,7 +1299,6 @@
                     
                     isAdmin = true;
                     document.getElementById('adminPanelBtn').style.display = 'block';
-                    showAdminPanel();
                 }, 500);
                 return;
             }
@@ -1525,6 +1524,12 @@
         function clearUserData() {
             localStorage.removeItem('aviatorUser');
             location.reload();
+        }
+
+        // Function to hide admin button
+        function hideAdminButton() {
+            document.getElementById('adminPanelBtn').style.display = 'none';
+            isAdmin = false;
         }
 
         function addDefaultFAQs() {
