@@ -144,30 +144,34 @@
         /* Header */
         .header {
             background: #2a2a2a;
-            padding: 15px 20px;
+            padding: 18px 24px;
             border-bottom: 2px solid #444;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            min-height: 70px;
         }
 
         .header-tabs {
             display: flex;
-            gap: 20px;
+            gap: 16px;
+            align-items: center;
         }
 
         .tab {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border-radius: 8px;
+            gap: 10px;
+            padding: 14px 24px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             color: #ffffff;
             text-decoration: none;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
+            min-width: 120px;
+            justify-content: center;
         }
 
         .tab.active {
@@ -187,11 +191,18 @@
             background: #ff4444;
             color: white;
             border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
+            padding: 12px 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
             display: none;
+            transition: all 0.3s ease;
+        }
+
+        .admin-panel-btn:hover {
+            background: #ff6666;
+            transform: translateY(-1px);
         }
 
         /* Chat Container */
@@ -202,18 +213,28 @@
             background: #1a1a1a;
         }
 
+        /* FAQ Container */
+        .faq-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+        }
+
         /* Messages Area */
         .messages-area {
             flex: 1;
-            padding: 20px;
+            padding: 24px;
             overflow-y: auto;
             background: #1a1a1a;
+            min-height: 300px;
         }
 
         .message {
             display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             align-items: flex-start;
+            gap: 12px;
         }
 
         .message.user {
@@ -221,15 +242,15 @@
         }
 
         .message-avatar {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background: #ff4444;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 10px;
             flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(255, 68, 68, 0.3);
         }
 
         .message-avatar i {
@@ -239,12 +260,13 @@
 
         .message-content {
             background: #2a2a2a;
-            padding: 15px;
-            border-radius: 15px;
-            max-width: 70%;
+            padding: 16px 20px;
+            border-radius: 18px;
+            max-width: 75%;
             word-wrap: break-word;
             font-size: 15px;
-            line-height: 1.4;
+            line-height: 1.5;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .message.user .message-content {
@@ -265,7 +287,7 @@
         .quick-questions-section {
             background: #2a2a2a;
             border-top: 2px solid #444;
-            padding: 20px;
+            padding: 24px;
             display: block;
             transition: all 0.3s ease;
         }
@@ -274,12 +296,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .quick-questions-header h3 {
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 20px;
+            font-weight: 700;
             color: #ffffff;
         }
 
@@ -515,87 +537,96 @@
 
         .categories-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            margin-bottom: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
         }
 
         .category-btn {
             background: #444;
             color: white;
             border: none;
-            padding: 12px 16px;
-            border-radius: 8px;
+            padding: 14px 18px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
             text-align: center;
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .category-btn:hover {
             background: #555;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .category-btn.active {
             background: #ff4444;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
         }
 
         .questions-container {
             display: none;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
         }
 
         .question-btn {
             background: #333;
             color: white;
             border: none;
-            padding: 12px 16px;
-            border-radius: 8px;
+            padding: 16px 20px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
             text-align: left;
             border-left: 4px solid #ff4444;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            line-height: 1.3;
+            gap: 12px;
+            font-size: 15px;
+            line-height: 1.4;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .question-btn:hover {
             background: #444;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .question-btn i {
-            font-size: 16px;
+            font-size: 18px;
             color: #ff4444;
+            flex-shrink: 0;
         }
 
         .chat-with-us-btn {
             background: linear-gradient(135deg, #ff4444, #ff6666);
             color: white;
             border: none;
-            padding: 15px 20px;
-            border-radius: 10px;
+            padding: 18px 24px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             text-align: center;
-            font-weight: bold;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
-            margin-top: 20px;
+            font-weight: 700;
+            font-size: 17px;
+            box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+            margin-top: 24px;
             width: 100%;
         }
 
         .chat-with-us-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 68, 68, 0.5);
         }
 
         .chat-with-us-btn i {
-            margin-right: 8px;
+            margin-right: 10px;
+            font-size: 18px;
         }
 
         .waiting-message {
@@ -627,25 +658,26 @@
         /* Input Area */
         .input-area {
             background: #2a2a2a;
-            padding: 20px;
+            padding: 24px;
             border-top: 2px solid #444;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: flex-end;
+            min-height: 80px;
         }
 
         .message-input {
             flex: 1;
             background: #333;
             border: 2px solid #444;
-            border-radius: 8px;
-            padding: 12px 16px;
+            border-radius: 10px;
+            padding: 14px 18px;
             color: white;
             font-size: 15px;
             resize: none;
             min-height: 50px;
             max-height: 120px;
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         .message-input:focus {
@@ -657,15 +689,19 @@
             background: #ff4444;
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 14px 22px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
-            transition: background 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(255, 68, 68, 0.3);
         }
 
         .send-btn:hover {
             background: #ff6666;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.4);
         }
 
         /* Admin Panel */
@@ -831,7 +867,8 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             .header {
-                padding: 12px 16px;
+                padding: 16px 20px;
+                min-height: 60px;
             }
 
             .header-tabs {
@@ -839,8 +876,9 @@
             }
 
             .tab {
-                padding: 10px 16px;
+                padding: 12px 18px;
                 font-size: 15px;
+                min-width: 100px;
             }
 
             .tab i {
@@ -848,21 +886,84 @@
             }
 
             .messages-area {
-                padding: 16px;
+                padding: 20px;
+                min-height: 250px;
+            }
+
+            .message {
+                margin-bottom: 20px;
+                gap: 10px;
+            }
+
+            .message-avatar {
+                width: 40px;
+                height: 40px;
             }
 
             .message-content {
                 max-width: 85%;
                 font-size: 14px;
-                padding: 12px;
+                padding: 14px 16px;
             }
 
             .quick-questions-section {
-                padding: 16px;
+                padding: 20px;
             }
 
             .quick-questions-header h3 {
+                font-size: 18px;
+            }
+
+            .categories-container {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 12px;
+            }
+
+            .category-btn {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+
+            .questions-container {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 12px;
+            }
+
+            .question-btn {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+            .chat-with-us-btn {
+                padding: 16px 20px;
                 font-size: 16px;
+            }
+
+            .input-area {
+                padding: 20px;
+                min-height: 70px;
+            }
+
+            .message-input {
+                font-size: 14px;
+                padding: 12px 14px;
+            }
+
+            .send-btn {
+                padding: 12px 18px;
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .tab {
+                padding: 10px 14px;
+                font-size: 14px;
+                min-width: 80px;
             }
 
             .categories-container {
@@ -876,22 +977,8 @@
             }
 
             .question-btn {
-                padding: 10px 12px;
+                padding: 12px 14px;
                 font-size: 13px;
-            }
-
-            .input-area {
-                padding: 16px;
-            }
-
-            .message-input {
-                font-size: 14px;
-                padding: 10px 12px;
-            }
-
-            .send-btn {
-                padding: 10px 16px;
-                font-size: 15px;
             }
         }
 
@@ -965,12 +1052,12 @@
     </div>
 
     <!-- Main App Container -->
-    <div id="appContainer" class="app-container">
+    <div id="mainApp" class="main-app" style="display: none;">
         <!-- Header -->
         <div class="header">
             <div class="header-tabs">
                 <div class="tab active" data-tab="chat">
-                    <i class="fas fa-comments" style="color: #ff4444;"></i>
+                    <i class="fas fa-comments"></i>
                     Chat
                 </div>
                 <div class="tab" data-tab="faq">
@@ -983,19 +1070,19 @@
             </button>
         </div>
 
-        <!-- Chat Container -->
-        <div id="chatContainer" class="chat-container">
+        <!-- Chat Tab Section -->
+        <div id="chatTabSection" class="chat-container">
             <!-- Messages Area -->
             <div id="messagesArea" class="messages-area">
-                <!-- Messages will be loaded here -->
+                <!-- Messages will be added here -->
             </div>
 
             <!-- Quick Questions Section -->
             <div id="quickQuestionsSection" class="quick-questions-section">
                 <div class="quick-questions-header">
-                    <h3><i class="fas fa-bolt"></i> Quick Questions</h3>
-                    <button id="quickQuestionsToggle" class="quick-questions-toggle">
-                        <i class="fas fa-chevron-up"></i> Show Less
+                    <h3>Quick Questions</h3>
+                    <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="toggleQuickQuestions()">
+                        <i class="fas fa-chevron-up"></i> Hide
                     </button>
                 </div>
                 <div id="categoriesContainer" class="categories-container">
@@ -1007,16 +1094,20 @@
             </div>
 
             <!-- Input Area -->
-            <div class="input-area">
-                <textarea 
-                    id="messageInput" 
-                    class="message-input" 
-                    placeholder="Type your message here..."
-                    rows="1"
-                ></textarea>
-                <button id="sendBtn" class="send-btn">
+            <div id="chatInputArea" class="input-area" style="display: none;">
+                <textarea id="messageInput" class="message-input" placeholder="Type your message..." rows="1"></textarea>
+                <button id="sendBtn" class="send-btn" onclick="sendMessage()">
                     <i class="fas fa-paper-plane"></i>
                 </button>
+            </div>
+        </div>
+
+        <!-- FAQ Tab Section -->
+        <div id="faqTabSection" class="faq-container" style="display: none;">
+            <div class="messages-area">
+                <div id="faqContainer" class="faq-container">
+                    <!-- FAQ content will be loaded here -->
+                </div>
             </div>
         </div>
     </div>
@@ -1087,7 +1178,7 @@
             
             // Fallback: Always show content after 3 seconds
             setTimeout(() => {
-                if (document.getElementById('appContainer').style.display === 'none') {
+                if (document.getElementById('mainApp').style.display === 'none') {
                     hideLoadingScreen();
                     showMainApp();
                 }
@@ -1217,7 +1308,7 @@
         }
 
         function showMainApp() {
-            document.getElementById('appContainer').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'flex';
             loadQuickQuestions();
             sendWelcomeMessage();
             // Show Quick Questions section by default
@@ -1248,9 +1339,8 @@
                 tab.classList.remove('active');
             });
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            updateTabSlider(tabName);
 
-            // Show/hide sections robustly
+            // Show/hide sections properly
             const chatSection = document.getElementById('chatTabSection');
             const faqSection = document.getElementById('faqTabSection');
             
@@ -1268,26 +1358,7 @@
             }
         }
 
-        function updateTabSlider(activeTab) {
-            const tabs = document.querySelectorAll('.tab');
-            const slider = document.querySelector('.tab-slider');
-            
-            if (!slider) {
-                // Create slider if it doesn't exist
-                const newSlider = document.createElement('div');
-                newSlider.className = 'tab-slider';
-                document.querySelector('.header-tabs').appendChild(newSlider);
-            }
-            
-            const activeTabElement = document.querySelector(`[data-tab="${activeTab}"]`);
-            if (activeTabElement) {
-                const rect = activeTabElement.getBoundingClientRect();
-                const containerRect = document.querySelector('.header-tabs').getBoundingClientRect();
-                
-                slider.style.width = rect.width + 'px';
-                slider.style.left = (rect.left - containerRect.left) + 'px';
-            }
-        }
+
 
         function toggleQuickQuestions() {
             const section = document.getElementById('quickQuestionsSection');
@@ -1771,7 +1842,7 @@
             database.ref('faqs').once('value')
                 .then(snapshot => {
                     const faqs = snapshot.val() || {};
-                    const container = document.getElementById('messagesArea');
+                    const container = document.getElementById('faqContainer');
                     
                     container.innerHTML = '<h2 style="text-align: center; margin-bottom: 20px; color: #ff4444;">Frequently Asked Questions</h2>';
                     
