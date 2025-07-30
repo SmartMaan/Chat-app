@@ -263,6 +263,7 @@
             border-top: 2px solid #444;
             padding: 20px;
             display: none;
+            transition: all 0.3s ease;
         }
 
         .quick-questions-header {
@@ -287,6 +288,217 @@
 
         .quick-questions-toggle:hover {
             background: #555;
+        }
+
+        /* FAQ Dropdown Styles */
+        .faq-dropdown {
+            background: #333;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-dropdown-header {
+            background: #444;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .faq-dropdown-header:hover {
+            background: #555;
+        }
+
+        .faq-dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-dropdown-content.active {
+            max-height: 500px;
+        }
+
+        .faq-item {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+            background: #2a2a2a;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: bold;
+            color: #ff4444;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .faq-answer {
+            color: #ccc;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .faq-answer.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Icon Selector */
+        .icon-selector {
+            position: relative;
+            display: inline-block;
+        }
+
+        .icon-selector-btn {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 5px;
+            padding: 10px;
+            min-width: 300px;
+        }
+
+        .icon-dropdown.active {
+            display: grid;
+        }
+
+        .icon-option {
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .icon-option:hover {
+            background: #555;
+        }
+
+        .icon-option.selected {
+            background: #ff4444;
+        }
+
+        /* Advanced Theme Editor */
+        .advanced-theme-editor {
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .theme-section {
+            margin-bottom: 20px;
+        }
+
+        .theme-section h5 {
+            color: #ff4444;
+            margin-bottom: 10px;
+        }
+
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .color-input-group label {
+            min-width: 120px;
+        }
+
+        .color-input {
+            width: 50px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 2px solid #555;
+        }
+
+        /* User Chat Management */
+        .user-chat-list {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .user-chat-item {
+            background: #444;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .user-chat-item:hover {
+            background: #555;
+        }
+
+        .user-chat-item.active {
+            background: #ff4444;
+        }
+
+        /* Quick Question Management */
+        .quick-question-manager {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .category-manager {
+            background: #444;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .question-list {
+            margin-left: 20px;
+        }
+
+        .question-item {
+            background: #333;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #ff4444;
         }
 
         .categories-container {
@@ -728,20 +940,51 @@
 
                 <!-- Quick Messages Management -->
                 <div class="admin-section">
-                    <h3><i class="fas fa-bolt"></i> Quick Messages</h3>
+                    <h3><i class="fas fa-bolt"></i> Quick Messages Management</h3>
                     <div class="admin-card">
                         <h4>Add Quick Message</h4>
                         <form id="quickMessageForm" class="faq-form">
                             <input type="text" id="quickCategory" placeholder="Category" required>
                             <input type="text" id="quickQuestion" placeholder="Question" required>
                             <textarea id="quickResponse" placeholder="Response" required></textarea>
-                            <input type="text" id="quickIcon" placeholder="Icon (e.g., fas fa-gamepad)" required>
+                            <div class="icon-selector">
+                                <button type="button" class="icon-selector-btn" id="iconSelectorBtn">
+                                    <i id="selectedIcon" class="fas fa-gamepad"></i>
+                                    <span>Select Icon</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="icon-dropdown" id="iconDropdown">
+                                    <!-- Icons will be loaded here -->
+                                </div>
+                            </div>
+                            <input type="hidden" id="quickIcon" value="fas fa-gamepad">
                             <button type="submit" class="admin-btn">Add Quick Message</button>
                         </form>
                     </div>
                     <div id="quickMessagesList" class="admin-card">
-                        <h4>Existing Quick Messages</h4>
+                        <h4>Manage Quick Messages</h4>
                         <!-- Quick messages list will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- User Chat Management -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-users"></i> User Chat Management</h3>
+                    <div class="admin-card">
+                        <h4>Select User to Chat</h4>
+                        <div id="userChatList" class="user-chat-list">
+                            <!-- User list will be loaded here -->
+                        </div>
+                        <div id="selectedUserChat" style="display: none;">
+                            <h5>Chat with: <span id="selectedUserName"></span></h5>
+                            <div id="userChatMessages" style="max-height: 300px; overflow-y: auto; background: #2a2a2a; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                                <!-- Chat messages will be loaded here -->
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="adminMessageInput" placeholder="Type message..." style="flex: 1; padding: 8px; background: #444; border: 1px solid #555; border-radius: 4px; color: white;">
+                                <button onclick="sendAdminMessage()" class="admin-btn">Send</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -753,19 +996,41 @@
                     </div>
                 </div>
 
-                <!-- Theme Editor -->
+                <!-- Advanced Theme Editor -->
                 <div class="admin-section">
-                    <h3><i class="fas fa-palette"></i> Theme Editor</h3>
-                    <div class="theme-editor">
-                        <h4>Primary Color</h4>
-                        <div class="color-picker">
-                            <div class="color-option active" style="background: #ff4444;" data-color="#ff4444"></div>
-                            <div class="color-option" style="background: #4CAF50;" data-color="#4CAF50"></div>
-                            <div class="color-option" style="background: #2196F3;" data-color="#2196F3"></div>
-                            <div class="color-option" style="background: #FF9800;" data-color="#FF9800"></div>
-                            <div class="color-option" style="background: #9C27B0;" data-color="#9C27B0"></div>
+                    <h3><i class="fas fa-palette"></i> Advanced Theme Editor</h3>
+                    <div class="advanced-theme-editor">
+                        <div class="theme-section">
+                            <h5>Primary Colors</h5>
+                            <div class="color-input-group">
+                                <label>Primary Color:</label>
+                                <input type="color" id="primaryColor" class="color-input" value="#ff4444">
+                                <div class="color-preview" id="primaryPreview" style="background: #ff4444;"></div>
+                            </div>
+                            <div class="color-input-group">
+                                <label>Secondary Color:</label>
+                                <input type="color" id="secondaryColor" class="color-input" value="#2a2a2a">
+                                <div class="color-preview" id="secondaryPreview" style="background: #2a2a2a;"></div>
+                            </div>
+                            <div class="color-input-group">
+                                <label>Background Color:</label>
+                                <input type="color" id="backgroundColor" class="color-input" value="#1a1a1a">
+                                <div class="color-preview" id="backgroundPreview" style="background: #1a1a1a;"></div>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <h5>Quick Color Presets</h5>
+                            <div class="color-picker">
+                                <div class="color-option active" style="background: #ff4444;" data-color="#ff4444" data-name="Red"></div>
+                                <div class="color-option" style="background: #4CAF50;" data-color="#4CAF50" data-name="Green"></div>
+                                <div class="color-option" style="background: #2196F3;" data-color="#2196F3" data-name="Blue"></div>
+                                <div class="color-option" style="background: #FF9800;" data-color="#FF9800" data-name="Orange"></div>
+                                <div class="color-option" style="background: #9C27B0;" data-color="#9C27B0" data-name="Purple"></div>
+                                <div class="color-option" style="background: #00BCD4;" data-color="#00BCD4" data-name="Cyan"></div>
+                            </div>
                         </div>
                         <button id="saveThemeBtn" class="admin-btn">Save Theme</button>
+                        <button id="resetThemeBtn" class="admin-btn">Reset to Default</button>
                     </div>
                 </div>
             </div>
@@ -844,7 +1109,8 @@
             // Admin forms
             document.getElementById('faqForm').addEventListener('submit', addFAQ);
             document.getElementById('quickMessageForm').addEventListener('submit', addQuickMessage);
-            document.getElementById('saveThemeBtn').addEventListener('click', saveTheme);
+            document.getElementById('saveThemeBtn').addEventListener('click', saveAdvancedTheme);
+            document.getElementById('resetThemeBtn').addEventListener('click', resetTheme);
             
             // Color picker
             document.querySelectorAll('.color-option').forEach(option => {
@@ -853,11 +1119,26 @@
                 });
             });
 
+            // Icon selector
+            document.getElementById('iconSelectorBtn').addEventListener('click', toggleIconDropdown);
+            
+            // Color inputs
+            document.getElementById('primaryColor').addEventListener('input', updateColorPreview);
+            document.getElementById('secondaryColor').addEventListener('input', updateColorPreview);
+            document.getElementById('backgroundColor').addEventListener('input', updateColorPreview);
+
             // Auto-resize textarea
             const messageInput = document.getElementById('messageInput');
             messageInput.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+
+            // Close icon dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.icon-selector')) {
+                    document.getElementById('iconDropdown').classList.remove('active');
+                }
             });
         }
 
@@ -1187,6 +1468,7 @@
             loadFAQList();
             loadQuickMessagesList();
             loadUserHistory();
+            loadUserChatList();
         }
 
         function addFAQ(e) {
@@ -1380,17 +1662,358 @@
                     
                     container.innerHTML = '<h2 style="text-align: center; margin-bottom: 20px; color: #ff4444;">Frequently Asked Questions</h2>';
                     
+                    // Group FAQs by category
+                    const categories = {};
                     Object.keys(faqs).forEach(faqId => {
                         const faq = faqs[faqId];
-                        const faqDiv = document.createElement('div');
-                        faqDiv.className = 'admin-card';
-                        faqDiv.innerHTML = `
-                            <h4>${faq.question}</h4>
-                            <p><strong>Category:</strong> ${faq.category}</p>
-                            <p>${faq.answer}</p>
-                        `;
-                        container.appendChild(faqDiv);
+                        if (!categories[faq.category]) {
+                            categories[faq.category] = [];
+                        }
+                        categories[faq.category].push(faq);
                     });
+                    
+                    // Create dropdown for each category
+                    Object.keys(categories).forEach(category => {
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'faq-dropdown';
+                        
+                        const header = document.createElement('div');
+                        header.className = 'faq-dropdown-header';
+                        header.innerHTML = `
+                            <span><i class="fas fa-folder"></i> ${category}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        `;
+                        
+                        const content = document.createElement('div');
+                        content.className = 'faq-dropdown-content';
+                        
+                        categories[category].forEach(faq => {
+                            const faqItem = document.createElement('div');
+                            faqItem.className = 'faq-item';
+                            faqItem.innerHTML = `
+                                <div class="faq-question" onclick="toggleFAQAnswer(this)">
+                                    <i class="fas fa-question-circle"></i> ${faq.question}
+                                </div>
+                                <div class="faq-answer">
+                                    ${faq.answer}
+                                </div>
+                            `;
+                            content.appendChild(faqItem);
+                        });
+                        
+                        header.addEventListener('click', function() {
+                            content.classList.toggle('active');
+                            const icon = this.querySelector('.fa-chevron-down');
+                            icon.style.transform = content.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
+                        });
+                        
+                        categoryDiv.appendChild(header);
+                        categoryDiv.appendChild(content);
+                        container.appendChild(categoryDiv);
+                    });
+                });
+        }
+
+        function toggleFAQAnswer(element) {
+            const answer = element.nextElementSibling;
+            answer.classList.toggle('active');
+        }
+
+        // Icon selector functions
+        function toggleIconDropdown() {
+            const dropdown = document.getElementById('iconDropdown');
+            dropdown.classList.toggle('active');
+            
+            if (dropdown.classList.contains('active')) {
+                loadIcons();
+            }
+        }
+
+        function loadIcons() {
+            const dropdown = document.getElementById('iconDropdown');
+            const icons = [
+                'fas fa-gamepad', 'fas fa-dice', 'fas fa-coins', 'fas fa-money-bill-wave',
+                'fas fa-credit-card', 'fas fa-university', 'fas fa-mobile-alt', 'fas fa-laptop',
+                'fas fa-wifi', 'fas fa-signal', 'fas fa-exclamation-triangle', 'fas fa-check-circle',
+                'fas fa-times-circle', 'fas fa-clock', 'fas fa-calendar', 'fas fa-user',
+                'fas fa-users', 'fas fa-cog', 'fas fa-wrench', 'fas fa-tools',
+                'fas fa-question-circle', 'fas fa-info-circle', 'fas fa-lightbulb', 'fas fa-star',
+                'fas fa-heart', 'fas fa-thumbs-up', 'fas fa-thumbs-down', 'fas fa-flag',
+                'fas fa-bell', 'fas fa-envelope', 'fas fa-phone', 'fas fa-comments',
+                'fas fa-chat', 'fas fa-headset', 'fas fa-life-ring', 'fas fa-shield-alt'
+            ];
+            
+            dropdown.innerHTML = '';
+            icons.forEach(icon => {
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'icon-option';
+                iconDiv.innerHTML = `<i class="${icon}"></i>`;
+                iconDiv.onclick = () => selectIcon(icon);
+                dropdown.appendChild(iconDiv);
+            });
+        }
+
+        function selectIcon(iconClass) {
+            document.getElementById('selectedIcon').className = iconClass;
+            document.getElementById('quickIcon').value = iconClass;
+            document.getElementById('iconDropdown').classList.remove('active');
+        }
+
+        // Advanced theme functions
+        function updateColorPreview() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const backgroundColor = document.getElementById('backgroundColor').value;
+            
+            document.getElementById('primaryPreview').style.background = primaryColor;
+            document.getElementById('secondaryPreview').style.background = secondaryColor;
+            document.getElementById('backgroundPreview').style.background = backgroundColor;
+        }
+
+        function saveAdvancedTheme() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const backgroundColor = document.getElementById('backgroundColor').value;
+            
+            const themeData = {
+                primary: primaryColor,
+                secondary: secondaryColor,
+                background: backgroundColor,
+                timestamp: Date.now()
+            };
+            
+            database.ref('theme').set(themeData)
+                .then(() => {
+                    applyTheme(themeData);
+                    alert('Theme saved successfully!');
+                })
+                .catch(error => {
+                    alert('Error saving theme: ' + error.message);
+                });
+        }
+
+        function applyTheme(themeData) {
+            document.documentElement.style.setProperty('--primary-color', themeData.primary);
+            document.documentElement.style.setProperty('--secondary-color', themeData.secondary);
+            document.documentElement.style.setProperty('--background-color', themeData.background);
+            
+            // Update all elements with primary color
+            const primaryElements = document.querySelectorAll('.tab.active, .send-btn, .admin-btn, .message-avatar, .faq-question');
+            primaryElements.forEach(el => {
+                el.style.background = themeData.primary;
+            });
+        }
+
+        function resetTheme() {
+            const defaultTheme = {
+                primary: '#ff4444',
+                secondary: '#2a2a2a',
+                background: '#1a1a1a'
+            };
+            
+            document.getElementById('primaryColor').value = defaultTheme.primary;
+            document.getElementById('secondaryColor').value = defaultTheme.secondary;
+            document.getElementById('backgroundColor').value = defaultTheme.background;
+            
+            updateColorPreview();
+            applyTheme(defaultTheme);
+            
+            database.ref('theme').set(defaultTheme)
+                .then(() => {
+                    alert('Theme reset to default!');
+                });
+        }
+
+        // User chat management
+        function loadUserChatList() {
+            database.ref('users').once('value')
+                .then(snapshot => {
+                    const users = snapshot.val() || {};
+                    const container = document.getElementById('userChatList');
+                    
+                    container.innerHTML = '<h5>Select a user to chat:</h5>';
+                    
+                    Object.keys(users).forEach(userId => {
+                        const user = users[userId];
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'user-chat-item';
+                        userDiv.innerHTML = `
+                            <strong>${user.name}</strong> - ${user.phone}
+                            <br><small>Last active: ${new Date(user.timestamp).toLocaleString()}</small>
+                        `;
+                        userDiv.onclick = () => selectUserForChat(userId, user);
+                        container.appendChild(userDiv);
+                    });
+                });
+        }
+
+        function selectUserForChat(userId, user) {
+            // Update active user
+            document.querySelectorAll('.user-chat-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.user-chat-item').classList.add('active');
+            event.target.closest('.user-chat-item').dataset.userId = userId;
+            
+            document.getElementById('selectedUserName').textContent = user.name;
+            document.getElementById('selectedUserChat').style.display = 'block';
+            
+            // Load chat messages
+            loadUserChatMessages(userId);
+        }
+
+        function loadUserChatMessages(userId) {
+            database.ref(`chats/${userId}/messages`).once('value')
+                .then(snapshot => {
+                    const messages = snapshot.val() || {};
+                    const container = document.getElementById('userChatMessages');
+                    
+                    container.innerHTML = '';
+                    
+                    Object.keys(messages).forEach(messageId => {
+                        const message = messages[messageId];
+                        const messageDiv = document.createElement('div');
+                        messageDiv.style.marginBottom = '10px';
+                        messageDiv.style.padding = '8px';
+                        messageDiv.style.borderRadius = '6px';
+                        messageDiv.style.background = message.sender === 'user' ? '#444' : '#ff4444';
+                        messageDiv.style.color = 'white';
+                        messageDiv.style.maxWidth = '80%';
+                        messageDiv.style.marginLeft = message.sender === 'user' ? '0' : 'auto';
+                        
+                        messageDiv.innerHTML = `
+                            <div><strong>${message.sender === 'user' ? 'User' : 'Admin'}:</strong></div>
+                            <div>${message.text}</div>
+                            <small>${new Date(message.timestamp).toLocaleTimeString()}</small>
+                        `;
+                        
+                        container.appendChild(messageDiv);
+                    });
+                    
+                    container.scrollTop = container.scrollHeight;
+                });
+        }
+
+        function sendAdminMessage() {
+            const messageText = document.getElementById('adminMessageInput').value.trim();
+            if (!messageText) return;
+            
+            const activeUser = document.querySelector('.user-chat-item.active');
+            if (!activeUser) {
+                alert('Please select a user first');
+                return;
+            }
+            
+            // Get user ID from the active user item
+            const userId = activeUser.dataset.userId;
+            
+            const message = {
+                id: Date.now().toString(),
+                text: messageText,
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+            
+            // Save to Firebase
+            database.ref(`chats/${userId}/messages/${message.id}`).set(message)
+                .then(() => {
+                    document.getElementById('adminMessageInput').value = '';
+                    loadUserChatMessages(userId);
+                });
+        }
+
+        // Enhanced Quick Questions management
+        function loadQuickMessagesList() {
+            database.ref('quickMessages').once('value')
+                .then(snapshot => {
+                    const quickMessages = snapshot.val() || {};
+                    const container = document.getElementById('quickMessagesList');
+                    
+                    container.innerHTML = '<h4>Manage Quick Messages</h4>';
+                    
+                    Object.keys(quickMessages).forEach(category => {
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'category-manager';
+                        categoryDiv.innerHTML = `
+                            <h5><i class="fas fa-folder"></i> ${category}</h5>
+                            <button class="admin-btn" onclick="addQuestionToCategory('${category}')">Add Question</button>
+                        `;
+                        
+                        const questionList = document.createElement('div');
+                        questionList.className = 'question-list';
+                        
+                        Object.keys(quickMessages[category]).forEach(messageId => {
+                            const message = quickMessages[category][messageId];
+                            const questionDiv = document.createElement('div');
+                            questionDiv.className = 'question-item';
+                            questionDiv.innerHTML = `
+                                <div><i class="${message.icon}"></i> <strong>${message.question}</strong></div>
+                                <div style="margin: 5px 0; color: #ccc;">${message.response}</div>
+                                <div>
+                                    <button class="admin-btn" onclick="editQuickMessage('${category}', '${messageId}')">Edit</button>
+                                    <button class="admin-btn" onclick="deleteQuickMessage('${category}', '${messageId}')">Delete</button>
+                                </div>
+                            `;
+                            questionList.appendChild(questionDiv);
+                        });
+                        
+                        categoryDiv.appendChild(questionList);
+                        container.appendChild(categoryDiv);
+                    });
+                });
+        }
+
+        function addQuestionToCategory(category) {
+            const question = prompt('Enter question:');
+            if (!question) return;
+            
+            const response = prompt('Enter response:');
+            if (!response) return;
+            
+            const icon = prompt('Enter icon class (e.g., fas fa-gamepad):');
+            if (!icon) return;
+            
+            const messageData = {
+                id: Date.now().toString(),
+                category: category,
+                question: question,
+                response: response,
+                icon: icon,
+                timestamp: Date.now()
+            };
+            
+            database.ref(`quickMessages/${category}/${messageData.id}`).set(messageData)
+                .then(() => {
+                    loadQuickMessagesList();
+                });
+        }
+
+        function editQuickMessage(category, messageId) {
+            database.ref(`quickMessages/${category}/${messageId}`).once('value')
+                .then(snapshot => {
+                    const message = snapshot.val();
+                    if (!message) return;
+                    
+                    const question = prompt('Enter new question:', message.question);
+                    if (!question) return;
+                    
+                    const response = prompt('Enter new response:', message.response);
+                    if (!response) return;
+                    
+                    const icon = prompt('Enter new icon class:', message.icon);
+                    if (!icon) return;
+                    
+                    const updatedMessage = {
+                        ...message,
+                        question: question,
+                        response: response,
+                        icon: icon
+                    };
+                    
+                    database.ref(`quickMessages/${category}/${messageId}`).set(updatedMessage)
+                        .then(() => {
+                            loadQuickMessagesList();
+                        });
                 });
         }
 
