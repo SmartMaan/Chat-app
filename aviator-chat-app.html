@@ -1024,11 +1024,13 @@
                 const userData = localStorage.getItem('aviatorUser');
                 if (userData) {
                     currentUser = JSON.parse(userData);
-                    console.log('User found:', currentUser);
+                    console.log('Existing user found:', currentUser);
+                    // Hide registration modal and show main app directly
+                    document.getElementById('userRegistrationModal').style.display = 'none';
                     showMainApp();
                     loadChat();
                 } else {
-                    console.log('No user found, showing registration');
+                    console.log('New user detected, showing registration');
                     showUserRegistration();
                 }
             } catch (e) {
@@ -1084,6 +1086,9 @@
         }
 
         function showMainApp() {
+            // Hide registration modal first
+            document.getElementById('userRegistrationModal').style.display = 'none';
+            
             document.getElementById('mainApp').style.display = 'flex';
             document.getElementById('chatTabSection').style.display = 'flex';
             document.getElementById('faqTabSection').style.display = 'none';
@@ -1514,6 +1519,12 @@
                         addDefaultQuickQuestions();
                     }
                 });
+        }
+
+        // Function to clear user data (for testing)
+        function clearUserData() {
+            localStorage.removeItem('aviatorUser');
+            location.reload();
         }
 
         function addDefaultFAQs() {
