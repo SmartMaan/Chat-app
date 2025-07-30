@@ -2249,14 +2249,11 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loadingScreen" class="loading-screen">
+    <!-- Loading Screen (Hidden by default) -->
+    <div id="loadingScreen" class="loading-screen" style="display: none;">
         <div class="loading-spinner"></div>
         <h2>Loading Aviator Support...</h2>
         <p>Please wait while we initialize the application</p>
-        <button onclick="manualStart()" style="margin-top: 20px; padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 8px; cursor: pointer;">
-            Click here if loading takes too long
-        </button>
     </div>
 
     <!-- User Registration Modal -->
@@ -2585,30 +2582,17 @@
             console.log('DOM Content Loaded - Starting app initialization');
             
             try {
-                showLoadingScreen();
+                // Hide loading screen immediately
+                hideLoadingScreen();
+                
+                // Setup event listeners
                 setupEventListeners();
                 
-                // Check user session immediately
-                checkUserSession();
+                // Initialize default data if missing
+                initializeDefaultData();
                 
-                // Fallback: Always show content after 3 seconds if still loading
-                setTimeout(() => {
-                    const mainApp = document.getElementById('mainApp');
-                    const loadingScreen = document.getElementById('loadingScreen');
-                    const userModal = document.getElementById('userRegistrationModal');
-                    
-                    console.log('Fallback check - MainApp:', mainApp?.style.display);
-                    console.log('Fallback check - LoadingScreen:', loadingScreen?.style.display);
-                    console.log('Fallback check - UserModal:', userModal?.style.display);
-                    
-                    if (mainApp && mainApp.style.display === 'none' && 
-                        loadingScreen && loadingScreen.style.display !== 'none' &&
-                        userModal && userModal.style.display !== 'flex') {
-                        console.log('Fallback: Showing user registration');
-                        hideLoadingScreen();
-                        showUserRegistration();
-                    }
-                }, 3000);
+                // Check user session and start app
+                checkUserSession();
                 
             } catch (error) {
                 console.error('Error during initialization:', error);
@@ -4659,7 +4643,192 @@
         }
 
         // Initialize default data when app starts
-        initializeDefaultData();
+        function initializeDefaultData() {
+            console.log('Initializing default data...');
+            
+            // Initialize default FAQs if they don't exist
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        console.log('Creating default FAQs...');
+                        addDefaultFAQs();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking FAQs:', error);
+                });
+
+            // Initialize default Quick Questions if they don't exist
+            database.ref('quickQuestions').once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        console.log('Creating default Quick Questions...');
+                        addDefaultQuickQuestions();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking Quick Questions:', error);
+                });
+        }
+
+        function addDefaultFAQs() {
+            const defaultFAQs = {
+                'faq1': {
+                    id: 'faq1',
+                    category: 'Game Rules',
+                    question: 'How does Aviator game work?',
+                    answer: 'Aviator is a crash game where you bet on when to cash out before the multiplier crashes. The longer you wait, the higher the potential payout, but also the higher the risk of losing your bet.',
+                    timestamp: Date.now()
+                },
+                'faq2': {
+                    id: 'faq2',
+                    category: 'Deposits',
+                    question: 'How long do deposits take?',
+                    answer: 'Most deposits are processed instantly. Bank transfers may take 1-3 business days. If your deposit is delayed, please contact support.',
+                    timestamp: Date.now()
+                },
+                'faq3': {
+                    id: 'faq3',
+                    category: 'Withdrawals',
+                    question: 'When will I receive my withdrawal?',
+                    answer: 'Withdrawals are typically processed within 24 hours. Bank transfers may take 3-5 business days to appear in your account.',
+                    timestamp: Date.now()
+                },
+                'faq4': {
+                    id: 'faq4',
+                    category: 'Account',
+                    question: 'How do I reset my password?',
+                    answer: 'Click on "Forgot Password" on the login page. You will receive a reset link via email or SMS.',
+                    timestamp: Date.now()
+                },
+                'faq5': {
+                    id: 'faq5',
+                    category: 'Technical',
+                    question: 'The game is not loading, what should I do?',
+                    answer: 'Try refreshing the page, clearing your browser cache, or using a different browser. If the problem persists, contact support.',
+                    timestamp: Date.now()
+                }
+            };
+
+            database.ref('faqs').set(defaultFAQs)
+                .then(() => {
+                    console.log('Default FAQs created successfully');
+                })
+                .catch(error => {
+                    console.error('Error creating default FAQs:', error);
+                });
+        }
+
+        function addDefaultQuickQuestions() {
+            const defaultQuickQuestions = {
+                'Deposits': {
+                    'q1': {
+                        id: 'q1',
+                        category: 'Deposits',
+                        question: 'Deposit nahi aaya?',
+                        response: 'Aapka deposit process ho raha hai. Please wait 5-10 minutes. Agar 15 minutes ke baad bhi nahi aaya to contact karein.',
+                        icon: 'fas fa-money-bill-wave',
+                        timestamp: Date.now()
+                    },
+                    'q2': {
+                        id: 'q2',
+                        category: 'Deposits',
+                        question: 'Deposit error aa raha hai',
+                        response: 'Please check your payment method and try again. Agar problem persist karta hai to different payment method try karein.',
+                        icon: 'fas fa-exclamation-triangle',
+                        timestamp: Date.now()
+                    },
+                    'q3': {
+                        id: 'q3',
+                        category: 'Deposits',
+                        question: 'Wrong amount bhar gaya',
+                        response: 'Don\'t worry! Extra amount automatically refund ho jayega within 24 hours. Contact support for immediate assistance.',
+                        icon: 'fas fa-undo',
+                        timestamp: Date.now()
+                    }
+                },
+                'Withdrawals': {
+                    'q1': {
+                        id: 'q1',
+                        category: 'Withdrawals',
+                        question: 'Withdrawal pending hai',
+                        response: 'Withdrawal process mein 24 hours lag sakte hain. Please wait. Agar 24 hours ke baad bhi pending hai to contact karein.',
+                        icon: 'fas fa-clock',
+                        timestamp: Date.now()
+                    },
+                    'q2': {
+                        id: 'q2',
+                        category: 'Withdrawals',
+                        question: 'Withdrawal failed',
+                        response: 'Please check your bank details and try again. Agar problem persist karta hai to different bank account try karein.',
+                        icon: 'fas fa-times-circle',
+                        timestamp: Date.now()
+                    }
+                },
+                'Game': {
+                    'q1': {
+                        id: 'q1',
+                        category: 'Game',
+                        question: 'Game crash ho raha hai',
+                        response: 'Please refresh the page or try after some time. Server maintenance ho sakta hai.',
+                        icon: 'fas fa-gamepad',
+                        timestamp: Date.now()
+                    },
+                    'q2': {
+                        id: 'q2',
+                        category: 'Game',
+                        question: 'Bet place nahi ho ra',
+                        response: 'Please check your balance and try again. Minimum bet amount check karein.',
+                        icon: 'fas fa-coins',
+                        timestamp: Date.now()
+                    }
+                },
+                'Account': {
+                    'q1': {
+                        id: 'q1',
+                        category: 'Account',
+                        question: 'Password reset karna hai',
+                        response: 'Forgot Password pe click karein. Email ya SMS se reset link milega.',
+                        icon: 'fas fa-key',
+                        timestamp: Date.now()
+                    },
+                    'q2': {
+                        id: 'q2',
+                        category: 'Account',
+                        question: 'Account lock ho gaya',
+                        response: 'Security reasons se account temporarily lock ho sakta hai. Contact support for immediate assistance.',
+                        icon: 'fas fa-lock',
+                        timestamp: Date.now()
+                    }
+                },
+                'Technical': {
+                    'q1': {
+                        id: 'q1',
+                        category: 'Technical',
+                        question: 'App load nahi ho ra',
+                        response: 'Please check your internet connection. Agar problem persist karta hai to app reinstall karein.',
+                        icon: 'fas fa-wifi',
+                        timestamp: Date.now()
+                    },
+                    'q2': {
+                        id: 'q2',
+                        category: 'Technical',
+                        question: 'Login nahi ho ra',
+                        response: 'Username aur password check karein. Agar forgot hai to reset karein.',
+                        icon: 'fas fa-sign-in-alt',
+                        timestamp: Date.now()
+                    }
+                }
+            };
+
+            database.ref('quickQuestions').set(defaultQuickQuestions)
+                .then(() => {
+                    console.log('Default Quick Questions created successfully');
+                })
+                .catch(error => {
+                    console.error('Error creating default Quick Questions:', error);
+                });
+        }
     </script>
 </body>
 </html>
