@@ -1044,6 +1044,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             showLoadingScreen();
             setupEventListeners();
+            
+            // Fallback: Always show content after 3 seconds
+            setTimeout(() => {
+                if (document.getElementById('appContainer').style.display === 'none') {
+                    hideLoadingScreen();
+                    showMainApp();
+                }
+            }, 3000);
+            
             checkUserSession();
         });
 
@@ -1175,6 +1184,10 @@
             document.getElementById('quickQuestionsSection').style.display = 'block';
             // Hide chat input by default
             document.getElementById('chatInputArea').style.display = 'none';
+            
+            // Ensure initial state shows chat tab
+            document.getElementById('chatTabSection').style.display = 'flex';
+            document.getElementById('faqTabSection').style.display = 'none';
         }
 
         function sendWelcomeMessage() {
@@ -1200,12 +1213,18 @@
             // Show/hide sections robustly
             const chatSection = document.getElementById('chatTabSection');
             const faqSection = document.getElementById('faqTabSection');
+            
             if (tabName === 'chat') {
                 chatSection.style.display = 'flex';
                 faqSection.style.display = 'none';
+                // Ensure chat content is visible
+                document.getElementById('messagesArea').style.display = 'block';
+                document.getElementById('quickQuestionsSection').style.display = 'block';
+                loadQuickQuestions();
             } else if (tabName === 'faq') {
                 chatSection.style.display = 'none';
                 faqSection.style.display = 'flex';
+                loadFAQSection();
             }
         }
 
