@@ -1261,6 +1261,25 @@
             margin-bottom: 12px;
         }
 
+        /* Back to Categories Button */
+        .back-to-categories-btn {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-bottom: 10px;
+            width: 100%;
+            text-align: left;
+            transition: background 0.3s;
+        }
+
+        .back-to-categories-btn:hover {
+            background: #555;
+        }
+
         .admin-sidebar {
             background: #222;
             padding: 20px 0;
@@ -2903,8 +2922,35 @@
             });
             event.target.classList.add('active');
 
+            // Hide categories and show questions
+            document.getElementById('categoriesContainer').style.display = 'none';
+            document.getElementById('questionsContainer').style.display = 'grid';
+            
+            // Add back button to questions container
+            const questionsContainer = document.getElementById('questionsContainer');
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-to-categories-btn';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Categories';
+            backBtn.onclick = showCategories;
+            backBtn.style.cssText = `
+                background: #444;
+                color: white;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 12px;
+                margin-bottom: 10px;
+                width: 100%;
+                text-align: left;
+            `;
+            
+            // Clear container and add back button
+            questionsContainer.innerHTML = '';
+            questionsContainer.appendChild(backBtn);
+
             // Load questions for this category
-            database.ref(`quickMessages/${category}`).once('value')
+            database.ref(`quickQuestions/${category}`).once('value')
                 .then(snapshot => {
                     const questions = snapshot.val() || {};
                     displayQuestions(questions);
@@ -2912,19 +2958,30 @@
                     // On mobile, scroll to questions
                     if (window.innerWidth <= 768) {
                         setTimeout(() => {
-                            const questionsContainer = document.getElementById('questionsContainer');
-                            if (questionsContainer) {
-                                questionsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                            }
+                            questionsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         }, 300);
                     }
                 });
         }
 
+        function showCategories() {
+            // Show categories and hide questions
+            document.getElementById('categoriesContainer').style.display = 'grid';
+            document.getElementById('questionsContainer').style.display = 'none';
+            
+            // Clear questions container
+            document.getElementById('questionsContainer').innerHTML = '';
+        }
+
         function displayQuestions(questions) {
             const container = document.getElementById('questionsContainer');
+            
+            // Keep the back button that was added in selectCategory
+            const backBtn = container.querySelector('.back-to-categories-btn');
             container.innerHTML = '';
-            container.style.display = 'grid';
+            if (backBtn) {
+                container.appendChild(backBtn);
+            }
 
             Object.keys(questions).forEach(questionId => {
                 const question = questions[questionId];
@@ -2976,7 +3033,8 @@
                 saveMessageToFirebase(adminMessage);
             }, 500);
 
-            // Collapse quick questions to Show Less, but keep menu/toggle visible
+            // Return to categories view after sending response
+            showCategories();
             collapseQuickQuestions();
         }
 
@@ -2998,6 +3056,11 @@
             const section = document.getElementById('quickQuestionsSection');
             const toggle = document.getElementById('quickQuestionsToggle');
             const content = section.querySelector('.categories-container');
+            const questionsContainer = document.getElementById('questionsContainer');
+            
+            // Hide questions and show categories collapsed
+            questionsContainer.style.display = 'none';
+            content.style.display = 'grid';
             content.classList.remove('quick-questions-expanded');
             content.classList.add('quick-questions-collapsed');
             toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
@@ -3008,6 +3071,11 @@
             const section = document.getElementById('quickQuestionsSection');
             const toggle = document.getElementById('quickQuestionsToggle');
             const content = section.querySelector('.categories-container');
+            const questionsContainer = document.getElementById('questionsContainer');
+            
+            // Show categories expanded
+            questionsContainer.style.display = 'none';
+            content.style.display = 'grid';
             content.classList.remove('quick-questions-collapsed');
             content.classList.add('quick-questions-expanded');
             toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
@@ -3018,6 +3086,7 @@
             const section = document.getElementById('quickQuestionsSection');
             const toggle = document.getElementById('quickQuestionsToggle');
             const content = section.querySelector('.categories-container');
+            
             if (content.classList.contains('quick-questions-collapsed')) {
                 expandQuickQuestions();
             } else {
