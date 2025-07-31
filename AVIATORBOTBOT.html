@@ -1502,9 +1502,27 @@
                     <input type="text" id="userSearch" placeholder="Search users..." class="search-input">
                     <select id="userFilter" class="filter-select">
                         <option value="all">All Users</option>
-                        <option value="active">Active Users</option>
+                        <option value="online">Online Users</option>
                         <option value="recent">Recent Users</option>
+                        <option value="new">New Users</option>
                     </select>
+                    <button id="refreshUsers" class="refresh-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div class="users-stats">
+                    <div class="stat-card">
+                        <span class="stat-number" id="totalUsers">0</span>
+                        <span class="stat-label">Total Users</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="onlineUsers">0</span>
+                        <span class="stat-label">Online Users</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="newUsersToday">0</span>
+                        <span class="stat-label">New Today</span>
+                    </div>
                 </div>
                 <div id="usersList" class="users-list">
                     <!-- Users will be loaded here -->
@@ -1550,6 +1568,38 @@
                 <div id="categoriesList" class="faq-list">
                     <!-- Categories will be loaded here -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Screen User Chat View -->
+    <div id="userChatFullscreen" class="fullscreen-modal" style="display: none;">
+        <div class="fullscreen-header">
+            <button class="back-btn" onclick="closeUserChatFullscreen()">
+                <i class="fas fa-arrow-left"></i> Back to Users
+            </button>
+            <div class="user-info">
+                <span id="chatUserName">User Name</span>
+                <span id="chatUserStatus" class="user-status offline">Offline</span>
+            </div>
+            <div class="chat-actions">
+                <button id="clearUserChat" class="action-btn danger">
+                    <i class="fas fa-trash"></i> Clear Chat
+                </button>
+                <button class="close-btn" onclick="closeUserChatFullscreen()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="fullscreen-content">
+            <div id="userChatMessages" class="chat-messages-admin">
+                <!-- User chat messages will be loaded here -->
+            </div>
+            <div class="admin-chat-input">
+                <input type="text" id="adminChatInput" placeholder="Type a message to user..." maxlength="500">
+                <button id="sendAdminMessage" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </div>
     </div>
