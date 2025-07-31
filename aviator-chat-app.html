@@ -396,8 +396,29 @@
             display: none;
         }
 
-        .quick-questions-section.collapsed .chat-with-us-btn {
+        /* Chat with Us button always visible */
+        .chat-with-us-btn {
+            background: linear-gradient(135deg, #ff4444, #ff6666);
+            color: white;
+            border: none;
+            padding: 14px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+            margin-top: 12px;
+            width: 100%;
+            min-height: 48px;
+            letter-spacing: 0.3px;
             display: block;
+        }
+
+        .chat-with-us-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
         }
 
         .categories-container {
@@ -1270,7 +1291,7 @@
             }
 
             .message-content {
-                max-width: 80%;
+                max-height: 80%;
             }
 
             .quick-questions-section {
@@ -1295,6 +1316,34 @@
 
             .question-btn {
                 min-height: 52px;
+                font-size: 14px;
+            }
+
+            .chat-with-us-btn {
+                min-height: 48px;
+                font-size: 14px;
+            }
+        }
+
+        /* Android display optimization */
+        @media (max-width: 720px) and (max-height: 1280px) {
+            .quick-questions-section {
+                max-height: 40vh;
+                min-height: 80px;
+            }
+
+            .categories-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .question-btn {
+                min-height: 48px;
+                font-size: 13px;
+            }
+
+            .chat-with-us-btn {
+                min-height: 48px;
                 font-size: 14px;
             }
         }
@@ -1958,17 +2007,21 @@
             container.innerHTML = '';
             container.appendChild(backBtn);
 
+            // Display all questions in the category
             Object.keys(questions).forEach(questionId => {
                 const question = questions[questionId];
                 const btn = document.createElement('button');
                 btn.className = 'question-btn';
                 btn.innerHTML = `
-                    <i class="${question.icon}"></i>
+                    <i class="${question.icon || 'fas fa-question-circle'}"></i>
                     <span>${question.question}</span>
                 `;
                 btn.onclick = () => sendQuickResponse(question.question, question.response);
                 container.appendChild(btn);
             });
+
+            // Ensure questions container is visible
+            container.style.display = 'flex';
         }
 
         function sendQuickResponse(question, response) {
