@@ -2154,77 +2154,118 @@
         function checkUserSession() {
             try {
                 const userData = localStorage.getItem('aviatorUser');
-                console.log('Checking user session. LocalStorage data:', userData);
+                console.log('🔍 Checking user session. LocalStorage data:', userData);
                 
                 if (userData) {
                     currentUser = JSON.parse(userData);
-                    console.log('Existing user found in localStorage:', currentUser);
+                    console.log('📱 Found user in localStorage:', currentUser);
                     
                     // Validate required user fields
                     if (!currentUser.id || !currentUser.name || !currentUser.email) {
-                        console.log('Invalid user data found, clearing localStorage');
+                        console.log('❌ Invalid user data found, clearing localStorage');
                         localStorage.removeItem('aviatorUser');
                         currentUser = null;
                         showUserRegistration();
                         return;
                     }
                     
-                    // Check if user data exists in Firebase
-                    console.log('Checking Firebase for user:', currentUser.id);
-                    database.ref('users/' + currentUser.id).once('value')
-                        .then(snapshot => {
-                            console.log('Firebase check result:', snapshot.exists());
-                            if (snapshot.exists()) {
-                                // User exists in Firebase - OLD USER
-                                console.log('✅ OLD USER verified in Firebase, proceeding to main app with history');
-                                const firebaseUserData = snapshot.val();
-                                
-                                // Merge Firebase data with localStorage data
-                                currentUser = {
-                                    ...currentUser,
-                                    ...firebaseUserData,
-                                    isNewUser: false
-                                };
-                                
-                                // Update last activity
-                                database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
-                                
-                                // Save updated user data
-                                localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
-                                
-                                console.log('Old user data loaded:', currentUser);
-                                document.getElementById('userRegistrationModal').style.display = 'none';
-                                showMainApp();
-                                loadChat();
-                            } else {
-                                // User not in Firebase - NEW USER
-                                console.log('🆕 NEW USER detected, user not found in Firebase');
-                                localStorage.removeItem('aviatorUser');
-                                currentUser = null;
-                                showUserRegistration();
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error checking Firebase user:', error);
-                            // On error, still try to proceed if user data looks valid
-                            if (currentUser.id && currentUser.name) {
-                                console.log('Firebase error, but user data valid, proceeding');
-                                document.getElementById('userRegistrationModal').style.display = 'none';
-                                showMainApp();
-                                loadChat();
-                            } else {
-                                showUserRegistration();
-                            }
-                        });
+                    // Comprehensive check for existing user with chat history
+                    console.log('🔥 Checking Firebase for comprehensive user data:', currentUser.id);
+                    checkUserExistenceWithHistory(currentUser.id, currentUser);
+                    
                 } else {
-                    console.log('No user data in localStorage, showing registration');
-                    showUserRegistration();
+                    console.log('🆕 No user data in localStorage, checking if this is a returning user');
+                    // Check if this might be a returning user by looking for any existing data
+                    checkForReturningUser();
                 }
             } catch (e) {
-                console.error('Error checking user session:', e);
+                console.error('❌ Error checking user session:', e);
                 localStorage.removeItem('aviatorUser');
                 showUserRegistration();
             }
+        }
+
+        // Comprehensive user existence check
+        function checkUserExistenceWithHistory(userId, userData) {
+            console.log('🔍 Comprehensive check for user:', userId);
+            
+            Promise.all([
+                database.ref(`users/${userId}`).once('value'),
+                database.ref(`chats/${userId}/messages`).once('value'),
+                database.ref('messages').orderByChild('userId').equalTo(userId).once('value'),
+                database.ref('chatHistory').orderByChild('userId').equalTo(userId).once('value')
+            ]).then(([userSnapshot, chatSnapshot, messagesSnapshot, historySnapshot]) => {
+                
+                const userExists = userSnapshot.exists();
+                const hasChats = chatSnapshot.exists() && Object.keys(chatSnapshot.val() || {}).length > 0;
+                const hasMessages = messagesSnapshot.exists();
+                const hasHistory = historySnapshot.exists();
+                
+                console.log('📊 User data analysis:', {
+                    userExists,
+                    hasChats,
+                    hasMessages, 
+                    hasHistory,
+                    userId
+                });
+                
+                if (userExists || hasChats || hasMessages || hasHistory) {
+                    // OLD USER - Has some data in Firebase
+                    console.log('✅ OLD USER DETECTED - Has chat history/data in Firebase');
+                    
+                    let finalUserData = userData;
+                    if (userExists) {
+                        const firebaseUserData = userSnapshot.val();
+                        finalUserData = {
+                            ...userData,
+                            ...firebaseUserData,
+                            isNewUser: false
+                        };
+                    } else {
+                        finalUserData.isNewUser = false;
+                    }
+                    
+                    currentUser = finalUserData;
+                    
+                    // Update last activity
+                    database.ref(`users/${userId}/lastActivity`).set(Date.now());
+                    
+                    // Save updated user data
+                    localStorage.setItem('aviatorUser', JSON.stringify(finalUserData));
+                    
+                    console.log('👤 OLD USER proceeding to main app with history');
+                    document.getElementById('userRegistrationModal').style.display = 'none';
+                    showMainApp();
+                    
+                } else {
+                    // NEW USER - No data found anywhere
+                    console.log('🆕 NEW USER DETECTED - No data found in Firebase');
+                    localStorage.removeItem('aviatorUser');
+                    currentUser = null;
+                    showUserRegistration();
+                }
+                
+            }).catch(error => {
+                console.error('❌ Error in comprehensive user check:', error);
+                // On error, if user data looks valid, proceed
+                if (userData.id && userData.name && userData.email) {
+                    console.log('⚠️ Firebase error, but user data valid, proceeding as old user');
+                    currentUser = { ...userData, isNewUser: false };
+                    localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
+                    document.getElementById('userRegistrationModal').style.display = 'none';
+                    showMainApp();
+                } else {
+                    showUserRegistration();
+                }
+            });
+        }
+
+        // Check for returning user without localStorage
+        function checkForReturningUser() {
+            console.log('🔍 Checking for returning user without localStorage');
+            // For now, just show registration for users without localStorage
+            // In future, could implement phone/email based detection
+            showUserRegistration();
         }
 
         function showUserRegistration() {
@@ -2315,15 +2356,26 @@
                 requestNotificationPermission();
                 
                 if (!currentUser.isNewUser) {
-                    // Load chat history for existing users
-                    console.log('Loading chat history for existing user:', currentUser.name);
-                    loadUserChatHistory();
-                    sendWelcomeMessage();
+                    // OLD USER - Load complete chat history and preserve it
+                    console.log('📚 OLD USER: Loading complete chat history for:', currentUser.name);
+                    loadUserChatHistory(); // This will also setup real-time messaging
+                    
+                    // Send welcome back message only if no recent activity
+                    const lastActivity = currentUser.lastActivity || 0;
+                    const oneHourAgo = Date.now() - (60 * 60 * 1000);
+                    
+                    if (lastActivity < oneHourAgo) {
+                        setTimeout(() => {
+                            sendWelcomeBackMessage();
+                        }, 1000);
+                    }
                 } else {
-                    // For new users, just send welcome message and set up real-time
-                    console.log('Setting up new user experience for:', currentUser.name);
-                    sendNewUserWelcome();
+                    // NEW USER - Fresh start
+                    console.log('🆕 NEW USER: Setting up fresh experience for:', currentUser.name);
                     setupRealTimeMessaging();
+                    setTimeout(() => {
+                        sendNewUserWelcome();
+                    }, 500);
                 }
             }, 100);
         }
@@ -2338,6 +2390,17 @@
 
             addMessageToUI(welcomeMessage);
             saveMessageToFirebase(welcomeMessage);
+        }
+
+        function sendWelcomeBackMessage() {
+            const welcomeBackMessage = {
+                id: Date.now().toString(),
+                text: `Welcome back ${currentUser.name}! 👋\n\n📚 Your previous chat history has been restored. How can I help you today?`,
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+            addMessageToUI(welcomeBackMessage);
+            saveMessageToFirebase(welcomeBackMessage);
         }
 
         function switchTab(tabName) {
