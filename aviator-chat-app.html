@@ -396,6 +396,10 @@
             display: none;
         }
 
+        .quick-questions-section.collapsed .chat-with-us-btn {
+            display: block;
+        }
+
         .categories-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -517,6 +521,7 @@
             width: 100%;
             min-height: 48px;
             letter-spacing: 0.3px;
+            display: block;
         }
 
         .chat-with-us-btn:hover {
@@ -1364,10 +1369,10 @@
                     <div id="questionsContainer" class="questions-container">
                         <!-- Questions will be loaded here -->
                     </div>
-                    <button class="chat-with-us-btn" onclick="showChatInput()">
-                        <i class="fas fa-comment"></i> Chat with Us
-                    </button>
                 </div>
+                <button class="chat-with-us-btn" onclick="showChatInput()">
+                    <i class="fas fa-comment"></i> Chat with Us
+                </button>
             </div>
 
             <!-- Input Area -->
@@ -1784,7 +1789,7 @@
                 chatWithUsBtn.style.display = 'block';
             }
             
-            // Load quick questions immediately
+            // Load quick questions immediately and show categories when expanded
             loadQuickQuestions();
             
             setTimeout(() => {
@@ -1853,6 +1858,12 @@
                     if (categoriesContainer) {
                         categoriesContainer.style.display = 'grid';
                         console.log('Categories container display set to grid');
+                    }
+                    
+                    // Ensure "Chat with Us" button is always visible
+                    const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+                    if (chatWithUsBtn) {
+                        chatWithUsBtn.style.display = 'block';
                     }
                 })
                 .catch(error => {
@@ -2015,6 +2026,7 @@
             
             // Keep quick questions section visible but collapsed
             document.getElementById('quickQuestionsSection').style.display = 'block';
+            document.getElementById('quickQuestionsSection').classList.add('collapsed');
             
             setTimeout(() => {
                 document.getElementById('messageInput').focus();
@@ -2079,8 +2091,9 @@
                 chatWithUsBtn.style.display = 'block';
             }
             
-            // Keep quick questions section visible
+            // Keep quick questions section visible and collapsed
             document.getElementById('quickQuestionsSection').style.display = 'block';
+            document.getElementById('quickQuestionsSection').classList.add('collapsed');
 
             setTimeout(() => {
                 const adminResponse = {
@@ -2238,10 +2251,22 @@
                 // Expand
                 section.classList.remove('collapsed');
                 toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
+                
+                // Ensure categories are visible
+                const categoriesContainer = document.getElementById('categoriesContainer');
+                if (categoriesContainer) {
+                    categoriesContainer.style.display = 'grid';
+                }
             } else {
                 // Collapse
                 section.classList.add('collapsed');
                 toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
+            }
+            
+            // Ensure "Chat with Us" button is always visible
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'block';
             }
         }
 
