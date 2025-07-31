@@ -966,6 +966,61 @@
              border-color: #ff4444;
          }
 
+         /* Messages Management */
+         .messages-controls {
+             display: flex;
+             flex-direction: column;
+             gap: 20px;
+         }
+
+         .message-card {
+             background: rgba(255, 255, 255, 0.05);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             border-radius: 12px;
+             padding: 20px;
+         }
+
+         .message-card h3 {
+             color: #ff4444;
+             margin: 0 0 12px 0;
+             font-size: 16px;
+         }
+
+         .message-card textarea {
+             width: 100%;
+             background: rgba(255, 255, 255, 0.05);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             color: white;
+             padding: 12px;
+             border-radius: 8px;
+             font-size: 14px;
+             line-height: 1.5;
+             resize: vertical;
+             margin-bottom: 12px;
+         }
+
+         .message-card textarea:focus {
+             outline: none;
+             border-color: #ff4444;
+         }
+
+         .save-btn {
+             background: #ff4444;
+             color: white;
+             border: none;
+             padding: 10px 20px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 14px;
+             font-weight: 500;
+             transition: all 0.3s ease;
+         }
+
+         .save-btn:hover {
+             background: #ff6666;
+             transform: translateY(-1px);
+         }
+
         /* Input Area */
         .input-area {
             background: #2a2a2a;
@@ -1767,13 +1822,14 @@
 
     <!-- Admin Panel -->
     <div id="adminPanel" class="admin-panel">
-        <div class="admin-sidebar">
-            <button class="admin-sidebar-btn active" data-section="users">Users</button>
-            <button class="admin-sidebar-btn" data-section="faq">FAQ</button>
-            <button class="admin-sidebar-btn" data-section="quick">Quick Q</button>
-            <button class="admin-sidebar-btn" data-section="categories">Categories</button>
-            <button id="closeAdminBtn" class="admin-sidebar-btn" onclick="hideAdminPanel()" style="background:#ff4444;color:#fff;">Close</button>
-        </div>
+                         <div class="admin-sidebar">
+                     <button class="admin-sidebar-btn active" data-section="users">Users</button>
+                     <button class="admin-sidebar-btn" data-section="faq">FAQ</button>
+                     <button class="admin-sidebar-btn" data-section="quick">Quick Q</button>
+                     <button class="admin-sidebar-btn" data-section="categories">Categories</button>
+                     <button class="admin-sidebar-btn" data-section="messages">Messages</button>
+                     <button id="closeAdminBtn" class="admin-sidebar-btn" onclick="hideAdminPanel()" style="background:#ff4444;color:#fff;">Close</button>
+                 </div>
         <div class="admin-content">
             <!-- Users Section -->
             <div id="usersSection" class="admin-section active">
@@ -1845,12 +1901,58 @@
                 <div class="faq-controls">
                     <button id="addCategoryBtn" class="add-btn">Add New Category</button>
                 </div>
-                <div id="categoriesList" class="faq-list">
-                    <!-- Categories will be loaded here -->
-                </div>
-            </div>
-        </div>
-    </div>
+                                 <div id="categoriesList" class="faq-list">
+                     <!-- Categories will be loaded here -->
+                 </div>
+             </div>
+
+             <!-- Messages Section -->
+             <div id="messagesSection" class="admin-section">
+                 <h2><i class="fas fa-comments"></i> Welcome Messages Management</h2>
+                 <div class="messages-controls">
+                     <div class="message-card">
+                         <h3>New User Welcome Message</h3>
+                         <textarea id="newUserWelcomeMsg" placeholder="Enter welcome message for new users..." rows="6">Hello {{name}}! 👋
+
+Welcome to Aviator Game Support! We're excited to help you get started.
+
+🎮 As a new player, here's what you can do:
+
+1️⃣ Browse our Quick Questions below for instant help
+2️⃣ Check the FAQ section for detailed information  
+3️⃣ Chat with us directly for personalized support
+
+💡 Pro tip: Start with our Quick Questions - they cover the most common topics!
+
+How can we help you today?</textarea>
+                         <button id="saveNewUserMsg" class="save-btn">Save New User Message</button>
+                     </div>
+                     
+                     <div class="message-card">
+                         <h3>Welcome Back Message</h3>
+                         <textarea id="welcomeBackMsg" placeholder="Enter welcome back message for returning users..." rows="4">Welcome back {{name}}! 👋
+
+📚 Your previous chat history has been restored. How can I help you today?</textarea>
+                         <button id="saveWelcomeBackMsg" class="save-btn">Save Welcome Back Message</button>
+                     </div>
+                     
+                     <div class="message-card">
+                         <h3>Regular Welcome Message</h3>
+                         <textarea id="regularWelcomeMsg" placeholder="Enter regular welcome message..." rows="6">Welcome back {{name}}! 🎮
+
+I'm here to help you with any questions about the Aviator game. You can:
+
+1️⃣ Use the Quick Questions below for instant answers
+2️⃣ Type your message directly for personalized support  
+3️⃣ Check the FAQ section for common questions
+
+💡 Tip: Use the Quick Questions for faster responses!</textarea>
+                         <button id="saveRegularMsg" class="save-btn">Save Regular Message</button>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
 
     <!-- Full Screen User Chat View -->
     <div id="userChatFullscreen" class="fullscreen-modal" style="display: none;">
@@ -2154,32 +2256,40 @@
         function checkUserSession() {
             try {
                 const userData = localStorage.getItem('aviatorUser');
-                console.log('🔍 Checking user session. LocalStorage data:', userData);
+                console.log('🔍 DEBUGGING: Checking user session. LocalStorage data:', userData);
                 
                 if (userData) {
                     currentUser = JSON.parse(userData);
-                    console.log('📱 Found user in localStorage:', currentUser);
+                    console.log('📱 DEBUGGING: Found user in localStorage:', currentUser);
+                    console.log('🔍 DEBUGGING: User validation - ID:', currentUser.id, 'Name:', currentUser.name, 'Email:', currentUser.email);
                     
                     // Validate required user fields
                     if (!currentUser.id || !currentUser.name || !currentUser.email) {
-                        console.log('❌ Invalid user data found, clearing localStorage');
+                        console.log('❌ DEBUGGING: Invalid user data found, clearing localStorage');
                         localStorage.removeItem('aviatorUser');
                         currentUser = null;
                         showUserRegistration();
                         return;
                     }
                     
-                    // Comprehensive check for existing user with chat history
-                    console.log('🔥 Checking Firebase for comprehensive user data:', currentUser.id);
-                    checkUserExistenceWithHistory(currentUser.id, currentUser);
+                    // FORCE OLD USER TREATMENT - Skip Firebase check for now
+                    console.log('🔥 DEBUGGING: FORCING OLD USER TREATMENT for:', currentUser.name);
+                    currentUser.isNewUser = false;
+                    localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
+                    
+                    // Update last activity
+                    database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
+                    
+                    console.log('✅ DEBUGGING: Proceeding as OLD USER with history');
+                    document.getElementById('userRegistrationModal').style.display = 'none';
+                    showMainApp();
                     
                 } else {
-                    console.log('🆕 No user data in localStorage, checking if this is a returning user');
-                    // Check if this might be a returning user by looking for any existing data
-                    checkForReturningUser();
+                    console.log('🆕 DEBUGGING: No user data in localStorage, showing registration');
+                    showUserRegistration();
                 }
             } catch (e) {
-                console.error('❌ Error checking user session:', e);
+                console.error('❌ DEBUGGING: Error checking user session:', e);
                 localStorage.removeItem('aviatorUser');
                 showUserRegistration();
             }
@@ -2325,15 +2435,41 @@
         }
 
         function sendNewUserWelcome() {
-            const welcomeMessage = {
-                id: Date.now().toString(),
-                text: `Hello ${currentUser.name}! 👋\n\nWelcome to Aviator Game Support! We're excited to help you get started.\n\n🎮 As a new player, here's what you can do:\n\n1️⃣ Browse our Quick Questions below for instant help\n2️⃣ Check the FAQ section for detailed information\n3️⃣ Chat with us directly for personalized support\n\n💡 Pro tip: Start with our Quick Questions - they cover the most common topics!\n\nHow can we help you today?`,
-                sender: 'admin',
-                timestamp: Date.now()
-            };
+            // Load custom message from Firebase or use default
+            database.ref('welcomeMessages/newUser').once('value')
+                .then(snapshot => {
+                    let messageText;
+                    if (snapshot.exists()) {
+                        messageText = snapshot.val();
+                    } else {
+                        messageText = `Hello {{name}}! 👋\n\nWelcome to Aviator Game Support! We're excited to help you get started.\n\n🎮 As a new player, here's what you can do:\n\n1️⃣ Browse our Quick Questions below for instant help\n2️⃣ Check the FAQ section for detailed information\n3️⃣ Chat with us directly for personalized support\n\n💡 Pro tip: Start with our Quick Questions - they cover the most common topics!\n\nHow can we help you today?`;
+                    }
+                    
+                    // Replace placeholder with actual name
+                    messageText = messageText.replace(/\{\{name\}\}/g, currentUser.name);
+                    
+                    const welcomeMessage = {
+                        id: Date.now().toString(),
+                        text: messageText,
+                        sender: 'admin',
+                        timestamp: Date.now()
+                    };
 
-            addMessageToUI(welcomeMessage);
-            saveMessageToFirebase(welcomeMessage);
+                    addMessageToUI(welcomeMessage);
+                    saveMessageToFirebase(welcomeMessage);
+                })
+                .catch(error => {
+                    console.error('Error loading welcome message:', error);
+                    // Fallback to default
+                    const welcomeMessage = {
+                        id: Date.now().toString(),
+                        text: `Hello ${currentUser.name}! 👋\n\nWelcome to Aviator Game Support! How can I help you today?`,
+                        sender: 'admin',
+                        timestamp: Date.now()
+                    };
+                    addMessageToUI(welcomeMessage);
+                    saveMessageToFirebase(welcomeMessage);
+                });
         }
 
         function sendWelcomeBackMessage() {
@@ -2368,26 +2504,18 @@
                 
                 if (!currentUser.isNewUser) {
                     // OLD USER - Load complete chat history and preserve it
-                    console.log('📚 OLD USER: Loading complete chat history for:', currentUser.name);
+                    console.log('📚 DEBUGGING: OLD USER - Loading complete chat history for:', currentUser.name);
                     loadUserChatHistory(); // This will also setup real-time messaging
                     
-                    // Send welcome back message only if no recent activity
-                    const lastActivity = currentUser.lastActivity || 0;
-                    const oneHourAgo = Date.now() - (60 * 60 * 1000);
+                    // NO WELCOME MESSAGE FOR OLD USERS - History speaks for itself
+                    console.log('🚫 DEBUGGING: Skipping welcome message for old user - history loaded');
                     
-                    if (lastActivity < oneHourAgo) {
-                        setTimeout(() => {
-                            console.log('👋 Sending welcome back message for inactive user');
-                            sendWelcomeBackMessage();
-                        }, 2000); // Wait longer to ensure history is loaded first
-                    } else {
-                        console.log('⏰ User was recently active, skipping welcome back message');
-                    }
                 } else {
                     // NEW USER - Fresh start
-                    console.log('🆕 NEW USER: Setting up fresh experience for:', currentUser.name);
+                    console.log('🆕 DEBUGGING: NEW USER - Setting up fresh experience for:', currentUser.name);
                     setupRealTimeMessaging();
                     setTimeout(() => {
+                        console.log('👋 DEBUGGING: Sending welcome message for new user');
                         sendNewUserWelcome();
                     }, 500);
                 }
@@ -3033,6 +3161,7 @@
             loadFAQs();
             loadQuickQuestionsAdmin();
             loadCategories();
+            loadWelcomeMessages();
             setupAdminEventListeners();
         }
 
@@ -3889,6 +4018,67 @@
         // Global variables
         let currentChatUserId = null;
 
+        // Welcome Messages Management
+        function loadWelcomeMessages() {
+            console.log('Loading welcome messages for admin panel');
+            
+            // Load New User Message
+            database.ref('welcomeMessages/newUser').once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        document.getElementById('newUserWelcomeMsg').value = snapshot.val();
+                    }
+                });
+            
+            // Load Welcome Back Message  
+            database.ref('welcomeMessages/welcomeBack').once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        document.getElementById('welcomeBackMsg').value = snapshot.val();
+                    }
+                });
+            
+            // Load Regular Welcome Message
+            database.ref('welcomeMessages/regular').once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        document.getElementById('regularWelcomeMsg').value = snapshot.val();
+                    }
+                });
+        }
+
+        function saveWelcomeMessage(type) {
+            let messageText, elementId;
+            
+            switch(type) {
+                case 'newUser':
+                    elementId = 'newUserWelcomeMsg';
+                    break;
+                case 'welcomeBack':
+                    elementId = 'welcomeBackMsg';
+                    break;
+                case 'regular':
+                    elementId = 'regularWelcomeMsg';
+                    break;
+            }
+            
+            messageText = document.getElementById(elementId).value;
+            
+            if (!messageText.trim()) {
+                alert('Message cannot be empty!');
+                return;
+            }
+            
+            database.ref(`welcomeMessages/${type}`).set(messageText)
+                .then(() => {
+                    alert('Welcome message saved successfully!');
+                })
+                .catch(error => {
+                    console.error('Error saving welcome message:', error);
+                    alert('Error saving message: ' + error.message);
+                });
+        }
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             // Setup icon selectors
@@ -3933,6 +4123,22 @@
                         clearUserChat(currentChatUserId);
                     }
                 });
+            }
+            
+            // Welcome message save buttons
+            const saveNewUserBtn = document.getElementById('saveNewUserMsg');
+            if (saveNewUserBtn) {
+                saveNewUserBtn.addEventListener('click', () => saveWelcomeMessage('newUser'));
+            }
+            
+            const saveWelcomeBackBtn = document.getElementById('saveWelcomeBackMsg');
+            if (saveWelcomeBackBtn) {
+                saveWelcomeBackBtn.addEventListener('click', () => saveWelcomeMessage('welcomeBack'));
+            }
+            
+            const saveRegularBtn = document.getElementById('saveRegularMsg');
+            if (saveRegularBtn) {
+                saveRegularBtn.addEventListener('click', () => saveWelcomeMessage('regular'));
             }
         });
 
