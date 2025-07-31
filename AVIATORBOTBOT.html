@@ -686,6 +686,247 @@
              flex-shrink: 0;
          }
 
+         /* Fullscreen Modal */
+         .fullscreen-modal {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background: #1a1a1a;
+             z-index: 10000;
+             display: flex;
+             flex-direction: column;
+         }
+
+         .fullscreen-header {
+             background: #2a2a2a;
+             padding: 16px 20px;
+             border-bottom: 2px solid #444;
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+         }
+
+         .user-info {
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             flex: 1;
+         }
+
+         #chatUserName {
+             color: #ff4444;
+             font-size: 18px;
+             font-weight: 600;
+             margin-bottom: 4px;
+         }
+
+         .user-status {
+             font-size: 12px;
+             padding: 2px 8px;
+             border-radius: 12px;
+             font-weight: 500;
+         }
+
+         .user-status.online {
+             background: rgba(0, 255, 0, 0.2);
+             color: #00ff00;
+         }
+
+         .user-status.offline {
+             background: rgba(255, 255, 255, 0.1);
+             color: #ccc;
+         }
+
+         .chat-actions {
+             display: flex;
+             gap: 12px;
+         }
+
+         .action-btn {
+             background: rgba(255, 68, 68, 0.1);
+             border: 1px solid rgba(255, 68, 68, 0.3);
+             color: #ff4444;
+             padding: 10px 16px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 14px;
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             transition: all 0.3s ease;
+             font-weight: 500;
+         }
+
+         .action-btn.danger:hover {
+             background: rgba(255, 68, 68, 0.2);
+             transform: translateY(-1px);
+         }
+
+         .fullscreen-content {
+             flex: 1;
+             display: flex;
+             flex-direction: column;
+             overflow: hidden;
+         }
+
+         .chat-messages-admin {
+             flex: 1;
+             overflow-y: auto;
+             padding: 20px;
+             background: #1a1a1a;
+         }
+
+         .admin-chat-input {
+             background: #2a2a2a;
+             padding: 16px 20px;
+             border-top: 1px solid #444;
+             display: flex;
+             gap: 12px;
+             align-items: center;
+         }
+
+         .admin-chat-input input {
+             flex: 1;
+             background: rgba(255, 255, 255, 0.05);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             color: white;
+             padding: 12px 16px;
+             border-radius: 8px;
+             font-size: 14px;
+         }
+
+         .admin-chat-input input:focus {
+             outline: none;
+             border-color: #ff4444;
+         }
+
+         .send-btn {
+             background: #ff4444;
+             border: none;
+             color: white;
+             padding: 12px 16px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 16px;
+             transition: all 0.3s ease;
+         }
+
+         .send-btn:hover {
+             background: #ff6666;
+             transform: translateY(-1px);
+         }
+
+         /* Enhanced Admin Styles */
+         .users-stats {
+             display: flex;
+             gap: 16px;
+             margin-bottom: 20px;
+         }
+
+         .stat-card {
+             background: rgba(255, 255, 255, 0.05);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             border-radius: 12px;
+             padding: 16px;
+             text-align: center;
+             flex: 1;
+         }
+
+         .stat-number {
+             display: block;
+             font-size: 24px;
+             font-weight: 700;
+             color: #ff4444;
+             margin-bottom: 4px;
+         }
+
+         .stat-label {
+             font-size: 12px;
+             color: #ccc;
+             text-transform: uppercase;
+             letter-spacing: 0.5px;
+         }
+
+         .refresh-btn {
+             background: rgba(255, 255, 255, 0.1);
+             border: 1px solid rgba(255, 255, 255, 0.2);
+             color: white;
+             padding: 8px 16px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 14px;
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             transition: all 0.3s ease;
+         }
+
+         .refresh-btn:hover {
+             background: rgba(255, 255, 255, 0.15);
+         }
+
+         .user-card {
+             position: relative;
+         }
+
+         .user-card .online-indicator {
+             position: absolute;
+             top: 12px;
+             right: 12px;
+             width: 12px;
+             height: 12px;
+             background: #00ff00;
+             border-radius: 50%;
+             border: 2px solid #1a1a1a;
+         }
+
+         .user-card .offline-indicator {
+             position: absolute;
+             top: 12px;
+             right: 12px;
+             width: 12px;
+             height: 12px;
+             background: #666;
+             border-radius: 50%;
+             border: 2px solid #1a1a1a;
+         }
+
+         .icon-selector {
+             display: grid;
+             grid-template-columns: repeat(6, 1fr);
+             gap: 8px;
+             margin: 12px 0;
+             padding: 12px;
+             background: rgba(255, 255, 255, 0.05);
+             border-radius: 8px;
+         }
+
+         .icon-btn {
+             background: rgba(255, 255, 255, 0.1);
+             border: 1px solid rgba(255, 255, 255, 0.2);
+             color: #ff4444;
+             padding: 12px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 18px;
+             transition: all 0.3s ease;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+         }
+
+         .icon-btn:hover {
+             background: rgba(255, 68, 68, 0.2);
+             transform: scale(1.1);
+         }
+
+         .icon-btn.selected {
+             background: rgba(255, 68, 68, 0.3);
+             border-color: #ff4444;
+         }
+
         /* Input Area */
         .input-area {
             background: #2a2a2a;
@@ -1623,6 +1864,24 @@
                     <label>Answer</label>
                     <textarea id="faqAnswer" required></textarea>
                 </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <div class="icon-selector" id="faqIconSelector">
+                        <button type="button" class="icon-btn" data-icon="fas fa-question-circle"><i class="fas fa-question-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-info-circle"><i class="fas fa-info-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-exclamation-circle"><i class="fas fa-exclamation-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-lightbulb"><i class="fas fa-lightbulb"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-star"><i class="fas fa-star"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-heart"><i class="fas fa-heart"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-check-circle"><i class="fas fa-check-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-times-circle"><i class="fas fa-times-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-cog"><i class="fas fa-cog"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-user"><i class="fas fa-user"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-phone"><i class="fas fa-phone"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-envelope"><i class="fas fa-envelope"></i></button>
+                    </div>
+                    <input type="hidden" id="faqIcon" value="fas fa-question-circle">
+                </div>
                 <div class="modal-buttons">
                     <button type="submit" class="save-btn">Save</button>
                     <button type="button" class="cancel-btn" onclick="closeModal('faqModal')">Cancel</button>
@@ -1651,25 +1910,23 @@
                 </div>
                 <div class="form-group">
                     <label>Icon</label>
-                    <div class="icon-selector">
-                        <i class="fas fa-home icon-option" data-icon="fas fa-home"></i>
-                        <i class="fas fa-user icon-option" data-icon="fas fa-user"></i>
-                        <i class="fas fa-cog icon-option" data-icon="fas fa-cog"></i>
-                        <i class="fas fa-heart icon-option" data-icon="fas fa-heart"></i>
-                        <i class="fas fa-star icon-option" data-icon="fas fa-star"></i>
-                        <i class="fas fa-bell icon-option" data-icon="fas fa-bell"></i>
-                        <i class="fas fa-envelope icon-option" data-icon="fas fa-envelope"></i>
-                        <i class="fas fa-phone icon-option" data-icon="fas fa-phone"></i>
-                        <i class="fas fa-money-bill icon-option" data-icon="fas fa-money-bill"></i>
-                        <i class="fas fa-credit-card icon-option" data-icon="fas fa-credit-card"></i>
-                        <i class="fas fa-gamepad icon-option" data-icon="fas fa-gamepad"></i>
-                        <i class="fas fa-exclamation-triangle icon-option" data-icon="fas fa-exclamation-triangle"></i>
-                        <i class="fas fa-clock icon-option" data-icon="fas fa-clock"></i>
-                        <i class="fas fa-check-circle icon-option" data-icon="fas fa-check-circle"></i>
-                        <i class="fas fa-times-circle icon-option" data-icon="fas fa-times-circle"></i>
+                    <div class="icon-selector" id="quickIconSelector">
+                        <button type="button" class="icon-btn" data-icon="fas fa-question-circle"><i class="fas fa-question-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-info-circle"><i class="fas fa-info-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-exclamation-circle"><i class="fas fa-exclamation-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-lightbulb"><i class="fas fa-lightbulb"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-star"><i class="fas fa-star"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-heart"><i class="fas fa-heart"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-check-circle"><i class="fas fa-check-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-times-circle"><i class="fas fa-times-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-cog"><i class="fas fa-cog"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-user"><i class="fas fa-user"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-phone"><i class="fas fa-phone"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-envelope"><i class="fas fa-envelope"></i></button>
                     </div>
-                    <input type="hidden" id="selectedIcon" value="fas fa-home">
+                    <input type="hidden" id="quickIcon" value="fas fa-question-circle">
                 </div>
+
                 <div class="modal-buttons">
                     <button type="submit" class="save-btn">Save</button>
                     <button type="button" class="cancel-btn" onclick="closeModal('quickModal')">Cancel</button>
@@ -1717,6 +1974,38 @@
                  <div id="popupQuestions" class="popup-questions" style="display: none;">
                      <!-- Questions will be loaded here -->
                  </div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Full Screen User Chat View -->
+     <div id="userChatFullscreen" class="fullscreen-modal" style="display: none;">
+         <div class="fullscreen-header">
+             <button class="back-btn" onclick="closeUserChatFullscreen()">
+                 <i class="fas fa-arrow-left"></i> Back to Users
+             </button>
+             <div class="user-info">
+                 <span id="chatUserName">User Name</span>
+                 <span id="chatUserStatus" class="user-status offline">Offline</span>
+             </div>
+             <div class="chat-actions">
+                 <button id="clearUserChat" class="action-btn danger">
+                     <i class="fas fa-trash"></i> Clear Chat
+                 </button>
+                 <button class="close-btn" onclick="closeUserChatFullscreen()">
+                     <i class="fas fa-times"></i>
+                 </button>
+             </div>
+         </div>
+         <div class="fullscreen-content">
+             <div id="userChatMessages" class="chat-messages-admin">
+                 <!-- User chat messages will be loaded here -->
+             </div>
+             <div class="admin-chat-input">
+                 <input type="text" id="adminChatInput" placeholder="Type a message to user..." maxlength="500">
+                 <button id="sendAdminMessage" class="send-btn">
+                     <i class="fas fa-paper-plane"></i>
+                 </button>
              </div>
          </div>
      </div>
@@ -2094,7 +2383,7 @@
                 setTimeout(() => {
                     const adminResponse = {
                         id: (Date.now() + 1).toString(),
-                        text: "🔐 Admin access granted! Admin panel is now available.",
+                        text: "🔐 Admin access granted! Opening admin panel...",
                         sender: 'admin',
                         timestamp: Date.now()
                     };
@@ -2102,7 +2391,12 @@
                     saveMessageToFirebase(adminResponse);
                     
                     isAdmin = true;
-                    document.getElementById('adminPanelBtn').style.display = 'block';
+                    // Hide admin button and auto-open admin panel
+                    document.getElementById('adminPanelBtn').style.display = 'none';
+                    setTimeout(() => {
+                        showAdminPanel();
+                        loadAdminData();
+                    }, 1000);
                 }, 500);
                 return;
             }
@@ -2393,24 +2687,53 @@
             const container = document.getElementById('usersList');
             container.innerHTML = '';
 
+            let totalUsers = 0;
+            let onlineUsers = 0;
+            let newUsersToday = 0;
+            const today = new Date().toDateString();
+
             Object.keys(users).forEach(userId => {
                 const user = users[userId];
+                totalUsers++;
+                
+                // Check if user is online (last activity within 5 minutes)
+                const isOnline = user.lastActivity && (Date.now() - user.lastActivity) < 300000;
+                if (isOnline) onlineUsers++;
+                
+                // Check if user joined today
+                if (user.timestamp && new Date(user.timestamp).toDateString() === today) {
+                    newUsersToday++;
+                }
+
                 const userCard = document.createElement('div');
                 userCard.className = 'user-card';
-                                 userCard.innerHTML = `
-                     <div class="user-info">
-                         <h4>${user.name}</h4>
-                         <p>${user.email} • ${user.phone}</p>
-                         <p>Promo: ${user.promo || 'None'} • Joined: ${new Date(user.timestamp).toLocaleDateString()}</p>
-                     </div>
-                     <div class="user-actions">
-                         <button class="action-btn delete-btn" onclick="deleteUser('${userId}')">
-                             <i class="fas fa-trash"></i> Delete
-                         </button>
-                     </div>
-                 `;
+                userCard.innerHTML = `
+                    <div class="${isOnline ? 'online-indicator' : 'offline-indicator'}"></div>
+                    <div class="user-info">
+                        <h4>${user.name} ${isOnline ? '<span style="color: #00ff00;">●</span>' : '<span style="color: #666;">●</span>'}</h4>
+                        <p>${user.email} • ${user.phone}</p>
+                        <p>Promo: ${user.promo || 'None'} • Joined: ${new Date(user.timestamp).toLocaleDateString()}</p>
+                        <p class="user-status-text">${isOnline ? 'Online' : 'Offline'} • Last seen: ${user.lastActivity ? new Date(user.lastActivity).toLocaleString() : 'Never'}</p>
+                    </div>
+                    <div class="user-actions">
+                        <button class="action-btn view-btn" onclick="openUserChat('${userId}', '${user.name}', ${isOnline})">
+                            <i class="fas fa-comments"></i> Chat
+                        </button>
+                        <button class="action-btn clear-btn" onclick="clearUserChat('${userId}')">
+                            <i class="fas fa-broom"></i> Clear
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteUser('${userId}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
                 container.appendChild(userCard);
             });
+
+            // Update stats
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('onlineUsers').textContent = onlineUsers;
+            document.getElementById('newUsersToday').textContent = newUsersToday;
         }
 
         function filterUsers() {
@@ -2915,6 +3238,284 @@
             document.getElementById('adminPanelBtn').style.display = 'none';
             isAdmin = false;
         }
+
+        // Enhanced Admin Functions
+        function openUserChat(userId, userName, isOnline) {
+            currentChatUserId = userId;
+            document.getElementById('chatUserName').textContent = userName;
+            document.getElementById('chatUserStatus').textContent = isOnline ? 'Online' : 'Offline';
+            document.getElementById('chatUserStatus').className = `user-status ${isOnline ? 'online' : 'offline'}`;
+            
+            // Load user's chat history
+            loadUserChatHistory(userId);
+            
+            // Show fullscreen modal
+            document.getElementById('userChatFullscreen').style.display = 'flex';
+        }
+
+        function closeUserChatFullscreen() {
+            document.getElementById('userChatFullscreen').style.display = 'none';
+            currentChatUserId = null;
+        }
+
+        function loadUserChatHistory(userId) {
+            const messagesContainer = document.getElementById('userChatMessages');
+            messagesContainer.innerHTML = '<div class="loading">Loading chat history...</div>';
+
+            database.ref('chatHistory').orderByChild('userId').equalTo(userId).once('value')
+                .then(snapshot => {
+                    const messages = [];
+                    snapshot.forEach(child => {
+                        messages.push(child.val());
+                    });
+                    
+                    // Also load direct messages
+                    database.ref('messages').orderByChild('userId').equalTo(userId).once('value')
+                        .then(msgSnapshot => {
+                            msgSnapshot.forEach(child => {
+                                const msg = child.val();
+                                messages.push({
+                                    message: msg.text,
+                                    timestamp: msg.timestamp,
+                                    sender: msg.sender,
+                                    type: 'direct_message'
+                                });
+                            });
+                            
+                            displayUserChatHistory(messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)));
+                        });
+                })
+                .catch(error => {
+                    console.error('Error loading chat history:', error);
+                    messagesContainer.innerHTML = '<div class="error">Error loading chat history</div>';
+                });
+        }
+
+        function displayUserChatHistory(messages) {
+            const container = document.getElementById('userChatMessages');
+            container.innerHTML = '';
+
+            if (messages.length === 0) {
+                container.innerHTML = '<div class="no-messages">No chat history found</div>';
+                return;
+            }
+
+            messages.forEach(msg => {
+                const messageEl = document.createElement('div');
+                messageEl.className = `chat-message ${msg.sender === 'user' ? 'user-message' : 'admin-message'}`;
+                messageEl.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-text">${msg.message || msg.response || 'No content'}</div>
+                        <div class="message-time">${new Date(msg.timestamp).toLocaleString()}</div>
+                        <div class="message-type">${msg.type || 'chat'}</div>
+                    </div>
+                `;
+                container.appendChild(messageEl);
+            });
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearUserChat(userId) {
+            if (!confirm('Are you sure you want to clear this user\'s chat history? This action cannot be undone.')) {
+                return;
+            }
+
+            // Clear chat history
+            database.ref('chatHistory').orderByChild('userId').equalTo(userId).once('value')
+                .then(snapshot => {
+                    const updates = {};
+                    snapshot.forEach(child => {
+                        updates[child.key] = null;
+                    });
+                    return database.ref('chatHistory').update(updates);
+                })
+                .then(() => {
+                    // Clear direct messages
+                    return database.ref('messages').orderByChild('userId').equalTo(userId).once('value');
+                })
+                .then(snapshot => {
+                    const updates = {};
+                    snapshot.forEach(child => {
+                        updates[child.key] = null;
+                    });
+                    return database.ref('messages').update(updates);
+                })
+                .then(() => {
+                    alert('User chat history cleared successfully!');
+                    if (currentChatUserId === userId) {
+                        loadUserChatHistory(userId);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error clearing chat:', error);
+                    alert('Error clearing chat history');
+                });
+        }
+
+        function sendAdminMessage() {
+            const input = document.getElementById('adminChatInput');
+            const messageText = input.value.trim();
+            
+            if (!messageText || !currentChatUserId) return;
+
+            const message = {
+                id: Date.now().toString(),
+                text: messageText,
+                sender: 'admin',
+                timestamp: Date.now(),
+                userId: currentChatUserId,
+                isAdminMessage: true
+            };
+
+            // Save to messages
+            database.ref('messages').push(message)
+                .then(() => {
+                    // Save to chat history
+                    const historyData = {
+                        userId: currentChatUserId,
+                        message: messageText,
+                        timestamp: new Date().toISOString(),
+                        sender: 'admin',
+                        type: 'admin_message'
+                    };
+                    return database.ref('chatHistory').push(historyData);
+                })
+                .then(() => {
+                    input.value = '';
+                    loadUserChatHistory(currentChatUserId);
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                    alert('Error sending message');
+                });
+        }
+
+        function setupIconSelector(selectorId, hiddenInputId) {
+            const selector = document.getElementById(selectorId);
+            const hiddenInput = document.getElementById(hiddenInputId);
+            
+            if (!selector || !hiddenInput) return;
+
+            const iconBtns = selector.querySelectorAll('.icon-btn');
+            
+            // Set first icon as default selected
+            if (iconBtns.length > 0) {
+                iconBtns[0].classList.add('selected');
+                hiddenInput.value = iconBtns[0].dataset.icon;
+            }
+
+            iconBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove selected from all
+                    iconBtns.forEach(b => b.classList.remove('selected'));
+                    
+                    // Add selected to clicked
+                    btn.classList.add('selected');
+                    hiddenInput.value = btn.dataset.icon;
+                });
+            });
+        }
+
+        function searchUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const filterValue = document.getElementById('userFilter').value;
+            
+            database.ref('users').once('value')
+                .then(snapshot => {
+                    const users = snapshot.val() || {};
+                    const filteredUsers = {};
+                    
+                    Object.keys(users).forEach(userId => {
+                        const user = users[userId];
+                        const matchesSearch = !searchTerm || 
+                            user.name.toLowerCase().includes(searchTerm) ||
+                            user.email.toLowerCase().includes(searchTerm) ||
+                            user.phone.includes(searchTerm);
+                        
+                        let matchesFilter = true;
+                        if (filterValue === 'online') {
+                            matchesFilter = user.lastActivity && (Date.now() - user.lastActivity) < 300000;
+                        } else if (filterValue === 'recent') {
+                            const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
+                            matchesFilter = user.timestamp && user.timestamp > threeDaysAgo;
+                        } else if (filterValue === 'new') {
+                            const today = new Date().toDateString();
+                            matchesFilter = user.timestamp && new Date(user.timestamp).toDateString() === today;
+                        }
+                        
+                        if (matchesSearch && matchesFilter) {
+                            filteredUsers[userId] = user;
+                        }
+                    });
+                    
+                    displayUsers(filteredUsers);
+                })
+                .catch(error => {
+                    console.error('Error searching users:', error);
+                });
+        }
+
+        function updateUserActivity() {
+            if (currentUser && currentUser.id) {
+                database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
+            }
+        }
+
+        // Global variables
+        let currentChatUserId = null;
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup icon selectors
+            setupIconSelector('faqIconSelector', 'faqIcon');
+            setupIconSelector('quickIconSelector', 'quickIcon');
+            
+            // User search
+            const userSearch = document.getElementById('userSearch');
+            if (userSearch) {
+                userSearch.addEventListener('input', searchUsers);
+            }
+            
+            const userFilter = document.getElementById('userFilter');
+            if (userFilter) {
+                userFilter.addEventListener('change', searchUsers);
+            }
+            
+            const refreshBtn = document.getElementById('refreshUsers');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', loadUsers);
+            }
+            
+            // Admin chat input
+            const adminChatInput = document.getElementById('adminChatInput');
+            if (adminChatInput) {
+                adminChatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendAdminMessage();
+                    }
+                });
+            }
+            
+            const sendAdminBtn = document.getElementById('sendAdminMessage');
+            if (sendAdminBtn) {
+                sendAdminBtn.addEventListener('click', sendAdminMessage);
+            }
+            
+            const clearUserChatBtn = document.getElementById('clearUserChat');
+            if (clearUserChatBtn) {
+                clearUserChatBtn.addEventListener('click', function() {
+                    if (currentChatUserId) {
+                        clearUserChat(currentChatUserId);
+                    }
+                });
+            }
+        });
+
+        // Update user activity every 30 seconds
+        setInterval(updateUserActivity, 30000);
     </script>
 </body>
 </html>
