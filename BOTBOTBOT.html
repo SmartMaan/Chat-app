@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOTBOTBOT - AI Assistant</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        /* Main Chat Area */
+        .chat-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .message.user .message-avatar {
+            background: #764ba2;
+        }
+
+        .message-content {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        /* Quick Questions */
+        .quick-questions {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .quick-question {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quick-question:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+
+        .admin-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .admin-tab {
+            padding: 12px 24px;
+            border: none;
+            background: #f1f3f4;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #5a6fd8;
+        }
+
+        /* User Registration */
+        .user-registration {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+
+        .registration-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .chat-container {
+                height: 60vh;
+            }
+            
+            .quick-questions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                BOTBOTBOT
+            </div>
+            <button class="admin-btn" onclick="openAdminPanel()">
+                <i class="fas fa-cog"></i> Admin Panel
+            </button>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <h3>Chat with BOTBOTBOT</h3>
+                <p>Ask me anything or select a quick question below</p>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <p>Hello! I'm BOTBOTBOT, your AI assistant. How can I help you today?</p>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="handleEnter(event)">
+                <button class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Questions -->
+        <div class="quick-questions" id="quickQuestions">
+            <!-- Quick questions will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2>Admin Panel</h2>
+                <button class="close-btn" onclick="closeAdminPanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="showAdminTab('quick-questions')">Quick Questions</button>
+                <button class="admin-tab" onclick="showAdminTab('faq-categories')">FAQ Categories</button>
+                <button class="admin-tab" onclick="showAdminTab('bot-responses')">Bot Responses</button>
+                <button class="admin-tab" onclick="showAdminTab('user-management')">User Management</button>
+            </div>
+            
+            <!-- Quick Questions Section -->
+            <div class="admin-section active" id="quick-questions-section">
+                <h3>Add Quick Question</h3>
+                <form id="quickQuestionForm">
+                    <div class="form-group">
+                        <label>Question:</label>
+                        <input type="text" id="quickQuestion" placeholder="Enter quick question" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Response:</label>
+                        <textarea id="quickResponse" placeholder="Enter bot response" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Add Quick Question</button>
+                </form>
+                
+                <h3 style="margin-top: 30px;">Existing Quick Questions</h3>
+                <div id="existingQuickQuestions">
+                    <!-- Existing questions will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- FAQ Categories Section -->
+            <div class="admin-section" id="faq-categories-section">
+                <h3>Add FAQ Category</h3>
+                <form id="faqCategoryForm">
+                    <div class="form-group">
+                        <label>Category Name:</label>
+                        <input type="text" id="faqCategoryName" placeholder="Enter category name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <textarea id="faqCategoryDesc" placeholder="Enter category description" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Add Category</button>
+                </form>
+                
+                <h3 style="margin-top: 30px;">Add FAQ to Category</h3>
+                <form id="faqForm">
+                    <div class="form-group">
+                        <label>Category:</label>
+                        <select id="faqCategory" required>
+                            <option value="">Select category</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Question:</label>
+                        <input type="text" id="faqQuestion" placeholder="Enter FAQ question" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Answer:</label>
+                        <textarea id="faqAnswer" placeholder="Enter FAQ answer" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Add FAQ</button>
+                </form>
+            </div>
+            
+            <!-- Bot Responses Section -->
+            <div class="admin-section" id="bot-responses-section">
+                <h3>Manage Bot Responses</h3>
+                <form id="botResponseForm">
+                    <div class="form-group">
+                        <label>Trigger Keywords:</label>
+                        <input type="text" id="triggerKeywords" placeholder="Enter keywords separated by commas" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Response:</label>
+                        <textarea id="botResponse" placeholder="Enter bot response" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Add Response</button>
+                </form>
+                
+                <h3 style="margin-top: 30px;">Existing Responses</h3>
+                <div id="existingResponses">
+                    <!-- Existing responses will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- User Management Section -->
+            <div class="admin-section" id="user-management-section">
+                <h3>User Management</h3>
+                <div id="userList">
+                    <!-- User list will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Registration -->
+    <div class="user-registration" id="userRegistration">
+        <div class="registration-content">
+            <h2>Welcome! Please Register</h2>
+            <p>We need some information to personalize your experience.</p>
+            
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label>Full Name:</label>
+                    <input type="text" id="userName" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="userEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number:</label>
+                    <input type="tel" id="userPhone" placeholder="Enter your phone number">
+                </div>
+                <div class="form-group">
+                    <label>Age:</label>
+                    <input type="number" id="userAge" placeholder="Enter your age" min="1" max="120">
+                </div>
+                <div class="form-group">
+                    <label>Location:</label>
+                    <input type="text" id="userLocation" placeholder="Enter your location">
+                </div>
+                <button type="submit" class="submit-btn">Start Chatting</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        // Global variables
+        let currentUser = null;
+        let userData = null;
+
+        // Check if user exists in Firebase
+        async function checkUserExists() {
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                showUserRegistration();
+                return;
+            }
+
+            try {
+                const userRef = db.ref(`users/${userId}`);
+                const snapshot = await userRef.once('value');
+                
+                if (snapshot.exists()) {
+                    userData = snapshot.val();
+                    currentUser = userId;
+                    loadUserHistory();
+                } else {
+                    showUserRegistration();
+                }
+            } catch (error) {
+                console.error('Error checking user:', error);
+                showUserRegistration();
+            }
+        }
+
+        // Show user registration
+        function showUserRegistration() {
+            document.getElementById('userRegistration').style.display = 'block';
+        }
+
+        // Hide user registration
+        function hideUserRegistration() {
+            document.getElementById('userRegistration').style.display = 'none';
+        }
+
+        // Handle registration form submission
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userData = {
+                name: document.getElementById('userName').value,
+                email: document.getElementById('userEmail').value,
+                phone: document.getElementById('userPhone').value,
+                age: document.getElementById('userAge').value,
+                location: document.getElementById('userLocation').value,
+                registrationDate: new Date().toISOString(),
+                lastActive: new Date().toISOString()
+            };
+
+            try {
+                const userId = generateUserId();
+                await db.ref(`users/${userId}`).set(userData);
+                
+                localStorage.setItem('userId', userId);
+                currentUser = userId;
+                userData = userData;
+                
+                hideUserRegistration();
+                addBotMessage(`Welcome ${userData.name}! I'm here to help you. How can I assist you today?`);
+                loadQuickQuestions();
+            } catch (error) {
+                console.error('Error registering user:', error);
+                alert('Error registering user. Please try again.');
+            }
+        });
+
+        // Generate user ID
+        function generateUserId() {
+            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Load user chat history
+        async function loadUserHistory() {
+            try {
+                const historyRef = db.ref(`chatHistory/${currentUser}`);
+                const snapshot = await historyRef.once('value');
+                
+                if (snapshot.exists()) {
+                    const history = snapshot.val();
+                    Object.values(history).forEach(message => {
+                        displayMessage(message.text, message.sender, message.timestamp);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            if (!currentUser) {
+                showUserRegistration();
+                return;
+            }
+
+            // Display user message
+            displayMessage(message, 'user');
+            input.value = '';
+
+            // Save to Firebase
+            await saveMessage(message, 'user');
+
+            // Generate bot response
+            const response = await generateBotResponse(message);
+            
+            // Display bot response
+            displayMessage(response, 'bot');
+            
+            // Save bot response to Firebase
+            await saveMessage(response, 'bot');
+        }
+
+        // Handle Enter key
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Display message
+        function displayMessage(text, sender, timestamp = new Date().toISOString()) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const time = new Date(timestamp).toLocaleTimeString();
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    ${sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>'}
+                </div>
+                <div class="message-content">
+                    <p>${text}</p>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Add bot message
+        function addBotMessage(text) {
+            displayMessage(text, 'bot');
+        }
+
+        // Save message to Firebase
+        async function saveMessage(text, sender) {
+            if (!currentUser) return;
+            
+            try {
+                const messageData = {
+                    text: text,
+                    sender: sender,
+                    timestamp: new Date().toISOString()
+                };
+                
+                await db.ref(`chatHistory/${currentUser}`).push(messageData);
+            } catch (error) {
+                console.error('Error saving message:', error);
+            }
+        }
+
+        // Generate bot response
+        async function generateBotResponse(message) {
+            try {
+                // Check quick questions
+                const quickQuestionsRef = db.ref('quickQuestions');
+                const snapshot = await quickQuestionsRef.once('value');
+                
+                if (snapshot.exists()) {
+                    const questions = snapshot.val();
+                    for (const [id, q] of Object.entries(questions)) {
+                        if (message.toLowerCase().includes(q.question.toLowerCase())) {
+                            return q.response;
+                        }
+                    }
+                }
+
+                // Check FAQ
+                const faqRef = db.ref('faqs');
+                const faqSnapshot = await faqRef.once('value');
+                
+                if (faqSnapshot.exists()) {
+                    const faqs = faqSnapshot.val();
+                    for (const [id, faq] of Object.entries(faqs)) {
+                        if (message.toLowerCase().includes(faq.question.toLowerCase())) {
+                            return faq.answer;
+                        }
+                    }
+                }
+
+                // Check bot responses
+                const responsesRef = db.ref('botResponses');
+                const responsesSnapshot = await responsesRef.once('value');
+                
+                if (responsesSnapshot.exists()) {
+                    const responses = responsesSnapshot.val();
+                    for (const [id, response] of Object.entries(responses)) {
+                        const keywords = response.keywords.split(',').map(k => k.trim().toLowerCase());
+                        for (const keyword of keywords) {
+                            if (message.toLowerCase().includes(keyword)) {
+                                return response.response;
+                            }
+                        }
+                    }
+                }
+
+                // Default response
+                return "I'm sorry, I don't have a specific response for that. Could you please rephrase your question or ask something else?";
+                
+            } catch (error) {
+                console.error('Error generating response:', error);
+                return "I'm having trouble processing your request. Please try again.";
+            }
+        }
+
+        // Load quick questions
+        async function loadQuickQuestions() {
+            try {
+                const questionsRef = db.ref('quickQuestions');
+                const snapshot = await questionsRef.once('value');
+                
+                const container = document.getElementById('quickQuestions');
+                container.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const questions = snapshot.val();
+                    Object.entries(questions).forEach(([id, question]) => {
+                        const questionDiv = document.createElement('div');
+                        questionDiv.className = 'quick-question';
+                        questionDiv.innerHTML = `<p>${question.question}</p>`;
+                        questionDiv.onclick = () => askQuickQuestion(question.question);
+                        container.appendChild(questionDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading quick questions:', error);
+            }
+        }
+
+        // Ask quick question
+        async function askQuickQuestion(question) {
+            document.getElementById('messageInput').value = question;
+            sendMessage();
+        }
+
+        // Admin Panel Functions
+        function openAdminPanel() {
+            document.getElementById('adminPanel').style.display = 'block';
+            loadAdminData();
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        function showAdminTab(tabName) {
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(`${tabName}-section`).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Load admin data
+        async function loadAdminData() {
+            await loadExistingQuickQuestions();
+            await loadFAQCategories();
+            await loadExistingResponses();
+            await loadUsers();
+        }
+
+        // Quick Questions Form
+        document.getElementById('quickQuestionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const question = document.getElementById('quickQuestion').value;
+            const response = document.getElementById('quickResponse').value;
+            
+            try {
+                await db.ref('quickQuestions').push({
+                    question: question,
+                    response: response,
+                    createdAt: new Date().toISOString()
+                });
+                
+                alert('Quick question added successfully!');
+                document.getElementById('quickQuestionForm').reset();
+                loadExistingQuickQuestions();
+                loadQuickQuestions();
+            } catch (error) {
+                console.error('Error adding quick question:', error);
+                alert('Error adding quick question. Please try again.');
+            }
+        });
+
+        // Load existing quick questions
+        async function loadExistingQuickQuestions() {
+            try {
+                const questionsRef = db.ref('quickQuestions');
+                const snapshot = await questionsRef.once('value');
+                
+                const container = document.getElementById('existingQuickQuestions');
+                container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+                
+                if (snapshot.exists()) {
+                    const questions = snapshot.val();
+                    container.innerHTML = '';
+                    
+                    Object.entries(questions).forEach(([id, question]) => {
+                        const questionDiv = document.createElement('div');
+                        questionDiv.className = 'quick-question';
+                        questionDiv.innerHTML = `
+                            <h4>${question.question}</h4>
+                            <p>${question.response}</p>
+                            <button onclick="deleteQuickQuestion('${id}')" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; margin-top: 10px;">Delete</button>
+                        `;
+                        container.appendChild(questionDiv);
+                    });
+                } else {
+                    container.innerHTML = '<p>No quick questions found.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading existing questions:', error);
+            }
+        }
+
+        // Delete quick question
+        async function deleteQuickQuestion(id) {
+            if (confirm('Are you sure you want to delete this question?')) {
+                try {
+                    await db.ref(`quickQuestions/${id}`).remove();
+                    loadExistingQuickQuestions();
+                    loadQuickQuestions();
+                } catch (error) {
+                    console.error('Error deleting question:', error);
+                }
+            }
+        }
+
+        // FAQ Category Form
+        document.getElementById('faqCategoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('faqCategoryName').value;
+            const description = document.getElementById('faqCategoryDesc').value;
+            
+            try {
+                await db.ref('faqCategories').push({
+                    name: name,
+                    description: description,
+                    createdAt: new Date().toISOString()
+                });
+                
+                alert('FAQ category added successfully!');
+                document.getElementById('faqCategoryForm').reset();
+                loadFAQCategories();
+            } catch (error) {
+                console.error('Error adding FAQ category:', error);
+                alert('Error adding FAQ category. Please try again.');
+            }
+        });
+
+        // Load FAQ categories
+        async function loadFAQCategories() {
+            try {
+                const categoriesRef = db.ref('faqCategories');
+                const snapshot = await categoriesRef.once('value');
+                
+                const select = document.getElementById('faqCategory');
+                select.innerHTML = '<option value="">Select category</option>';
+                
+                if (snapshot.exists()) {
+                    const categories = snapshot.val();
+                    Object.entries(categories).forEach(([id, category]) => {
+                        const option = document.createElement('option');
+                        option.value = id;
+                        option.textContent = category.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading FAQ categories:', error);
+            }
+        }
+
+        // FAQ Form
+        document.getElementById('faqForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const categoryId = document.getElementById('faqCategory').value;
+            const question = document.getElementById('faqQuestion').value;
+            const answer = document.getElementById('faqAnswer').value;
+            
+            if (!categoryId) {
+                alert('Please select a category first.');
+                return;
+            }
+            
+            try {
+                await db.ref('faqs').push({
+                    categoryId: categoryId,
+                    question: question,
+                    answer: answer,
+                    createdAt: new Date().toISOString()
+                });
+                
+                alert('FAQ added successfully!');
+                document.getElementById('faqForm').reset();
+            } catch (error) {
+                console.error('Error adding FAQ:', error);
+                alert('Error adding FAQ. Please try again.');
+            }
+        });
+
+        // Bot Responses Form
+        document.getElementById('botResponseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const keywords = document.getElementById('triggerKeywords').value;
+            const response = document.getElementById('botResponse').value;
+            
+            try {
+                await db.ref('botResponses').push({
+                    keywords: keywords,
+                    response: response,
+                    createdAt: new Date().toISOString()
+                });
+                
+                alert('Bot response added successfully!');
+                document.getElementById('botResponseForm').reset();
+                loadExistingResponses();
+            } catch (error) {
+                console.error('Error adding bot response:', error);
+                alert('Error adding bot response. Please try again.');
+            }
+        });
+
+        // Load existing responses
+        async function loadExistingResponses() {
+            try {
+                const responsesRef = db.ref('botResponses');
+                const snapshot = await responsesRef.once('value');
+                
+                const container = document.getElementById('existingResponses');
+                container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+                
+                if (snapshot.exists()) {
+                    const responses = snapshot.val();
+                    container.innerHTML = '';
+                    
+                    Object.entries(responses).forEach(([id, response]) => {
+                        const responseDiv = document.createElement('div');
+                        responseDiv.className = 'quick-question';
+                        responseDiv.innerHTML = `
+                            <h4>Keywords: ${response.keywords}</h4>
+                            <p>${response.response}</p>
+                            <button onclick="deleteBotResponse('${id}')" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; margin-top: 10px;">Delete</button>
+                        `;
+                        container.appendChild(responseDiv);
+                    });
+                } else {
+                    container.innerHTML = '<p>No bot responses found.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading existing responses:', error);
+            }
+        }
+
+        // Delete bot response
+        async function deleteBotResponse(id) {
+            if (confirm('Are you sure you want to delete this response?')) {
+                try {
+                    await db.ref(`botResponses/${id}`).remove();
+                    loadExistingResponses();
+                } catch (error) {
+                    console.error('Error deleting response:', error);
+                }
+            }
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                const usersRef = db.ref('users');
+                const snapshot = await usersRef.once('value');
+                
+                const container = document.getElementById('userList');
+                container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+                
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    container.innerHTML = '<h3>Registered Users</h3>';
+                    
+                    Object.entries(users).forEach(([id, user]) => {
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'quick-question';
+                        userDiv.innerHTML = `
+                            <h4>${user.name}</h4>
+                            <p>Email: ${user.email}</p>
+                            <p>Phone: ${user.phone || 'N/A'}</p>
+                            <p>Age: ${user.age || 'N/A'}</p>
+                            <p>Location: ${user.location || 'N/A'}</p>
+                            <p>Registered: ${new Date(user.registrationDate).toLocaleDateString()}</p>
+                            <button onclick="deleteUser('${id}')" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; margin-top: 10px;">Delete User</button>
+                        `;
+                        container.appendChild(userDiv);
+                    });
+                } else {
+                    container.innerHTML = '<p>No users found.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Delete user
+        async function deleteUser(id) {
+            if (confirm('Are you sure you want to delete this user? This will also delete their chat history.')) {
+                try {
+                    await db.ref(`users/${id}`).remove();
+                    await db.ref(`chatHistory/${id}`).remove();
+                    loadUsers();
+                } catch (error) {
+                    console.error('Error deleting user:', error);
+                }
+            }
+        }
+
+        // Initialize app
+        window.onload = function() {
+            checkUserExists();
+        };
+    </script>
+</body>
+</html>
