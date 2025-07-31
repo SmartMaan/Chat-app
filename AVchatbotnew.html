@@ -1882,33 +1882,25 @@
             }
         }
 
+        // 1. Only send welcome message for new users
+        let welcomeMessageSent = false;
+
         function showMainApp() {
-            // Hide registration modal first
-            document.getElementById('userRegistrationModal').style.display = 'none';
-            
             document.getElementById('mainApp').style.display = 'flex';
             document.getElementById('chatTabSection').style.display = 'flex';
             document.getElementById('faqTabSection').style.display = 'none';
-            
-            // Ensure quick questions section is visible and starts expanded
             const quickQuestionsSection = document.getElementById('quickQuestionsSection');
             quickQuestionsSection.style.display = 'block';
             quickQuestionsSection.classList.remove('collapsed');
-            
             document.getElementById('chatInputArea').style.display = 'none';
-            
-            // Ensure "Chat with Us" button is visible
             const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
-            if (chatWithUsBtn) {
-                chatWithUsBtn.style.display = 'block';
-            }
-            
-            // Load quick questions immediately and show categories when expanded
-            loadQuickQuestions();
-            
-            setTimeout(() => {
+            if (chatWithUsBtn) chatWithUsBtn.style.display = 'block';
+            loadQuickCategories();
+            if (!welcomeMessageSent && (!localStorage.getItem('aviatorWelcomeSent') || localStorage.getItem('aviatorWelcomeSent') !== currentUser.id)) {
                 sendWelcomeMessage();
-            }, 100);
+                localStorage.setItem('aviatorWelcomeSent', currentUser.id);
+                welcomeMessageSent = true;
+            }
         }
 
         function sendWelcomeMessage() {
@@ -2723,22 +2715,69 @@
                 });
         }
 
+        // 2. Refactor quick questions UI to show categories, then questions for the selected category
         function loadQuickCategories() {
             database.ref('quickQuestions').once('value')
                 .then(snapshot => {
-                    const quickQuestions = snapshot.val() || {};
-                    const categories = Object.keys(quickQuestions);
-                    
-                    const select = document.getElementById('quickCategorySelect');
-                    select.innerHTML = '<option value="">Select Category</option><option value="new">Create New Category</option>';
-                    
-                    categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category;
-                        option.textContent = category;
-                        select.appendChild(option);
-                    });
+                    const data = snapshot.val() || {};
+                    const categories = Object.keys(data);
+                    displayQuickCategories(categories, data);
+                })
+                .catch(error => {
+                    console.error('Error loading quick question categories:', error);
+                    displayQuickCategories([], {});
                 });
+        }
+
+        function displayQuickCategories(categories, data) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            if (categories.length === 0) {
+                container.innerHTML = '<div style="color:#ccc;text-align:center;padding:16px;">No quick question categories available.</div>';
+            } else {
+                categories.forEach(category => {
+                    const btn = document.createElement('button');
+                    btn.className = 'category-btn';
+                    btn.textContent = category;
+                    btn.onclick = () => showQuickQuestionsForCategory(category, data[category]);
+                    container.appendChild(btn);
+                });
+            }
+            // Move Chat with Us button to the end
+            const chatBtn = document.querySelector('.chat-with-us-btn');
+            if (chatBtn) {
+                container.appendChild(chatBtn);
+                chatBtn.style.display = 'block';
+            }
+        }
+
+        function showQuickQuestionsForCategory(category, questionsObj) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            // Back button
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-to-categories-btn';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+            backBtn.onclick = loadQuickCategories;
+            container.appendChild(backBtn);
+            // List questions
+            Object.keys(questionsObj).forEach(qid => {
+                const question = questionsObj[qid];
+                const btn = document.createElement('button');
+                btn.className = 'question-btn';
+                btn.innerHTML = `
+                    <i class="${question.icon || 'fas fa-question-circle'}"></i>
+                    <span>${question.question}</span>
+                `;
+                btn.onclick = () => sendQuickResponse(question.question, question.response);
+                container.appendChild(btn);
+            });
+            // Move Chat with Us button to the end
+            const chatBtn = document.querySelector('.chat-with-us-btn');
+            if (chatBtn) {
+                container.appendChild(chatBtn);
+                chatBtn.style.display = 'block';
+            }
         }
 
         function updateFaqIconSelection() {
