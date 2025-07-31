@@ -2156,9 +2156,7 @@
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
-
             if (!text) return;
-
             if (text.toLowerCase() === 'aviator2025adminmaan') {
                 const message = {
                     id: Date.now().toString(),
@@ -2166,10 +2164,8 @@
                     sender: 'user',
                     timestamp: Date.now()
                 };
-                addMessageToUI(message);
                 saveMessageToFirebase(message);
                 input.value = '';
-
                 setTimeout(() => {
                     const adminResponse = {
                         id: (Date.now() + 1).toString(),
@@ -2177,44 +2173,30 @@
                         sender: 'admin',
                         timestamp: Date.now()
                     };
-                    addMessageToUI(adminResponse);
                     saveMessageToFirebase(adminResponse);
-                    
                     isAdmin = true;
                     document.getElementById('adminPanelBtn').style.display = 'block';
-                    
-                    // Automatically open admin panel after 1 second
                     setTimeout(() => {
                         showAdminPanel();
                     }, 1000);
                 }, 500);
                 return;
             }
-
             const message = {
                 id: Date.now().toString(),
                 text: text,
                 sender: 'user',
                 timestamp: Date.now()
             };
-
-            addMessageToUI(message);
             saveMessageToFirebase(message);
             input.value = '';
-
-            // Hide input area
             document.getElementById('chatInputArea').style.display = 'none';
-            
-            // Show the "Chat with Us" button again
             const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
             if (chatWithUsBtn) {
                 chatWithUsBtn.style.display = 'block';
             }
-            
-            // Keep quick questions section visible and collapsed
             document.getElementById('quickQuestionsSection').style.display = 'block';
             document.getElementById('quickQuestionsSection').classList.add('collapsed');
-
             setTimeout(() => {
                 const adminResponse = {
                     id: (Date.now() + 1).toString(),
@@ -2222,7 +2204,6 @@
                     sender: 'admin',
                     timestamp: Date.now()
                 };
-                addMessageToUI(adminResponse);
                 saveMessageToFirebase(adminResponse);
             }, 1000);
         }
