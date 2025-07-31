@@ -2336,6 +2336,17 @@
             saveMessageToFirebase(welcomeMessage);
         }
 
+        function sendWelcomeBackMessage() {
+            const welcomeBackMessage = {
+                id: Date.now().toString(),
+                text: `Welcome back ${currentUser.name}! 👋\n\n📚 Your previous chat history has been restored. How can I help you today?`,
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+            addMessageToUI(welcomeBackMessage);
+            saveMessageToFirebase(welcomeBackMessage);
+        }
+
         function showMainApp() {
             document.getElementById('userRegistrationModal').style.display = 'none';
             document.getElementById('mainApp').style.display = 'flex';
@@ -2366,8 +2377,11 @@
                     
                     if (lastActivity < oneHourAgo) {
                         setTimeout(() => {
+                            console.log('👋 Sending welcome back message for inactive user');
                             sendWelcomeBackMessage();
-                        }, 1000);
+                        }, 2000); // Wait longer to ensure history is loaded first
+                    } else {
+                        console.log('⏰ User was recently active, skipping welcome back message');
                     }
                 } else {
                     // NEW USER - Fresh start
@@ -2706,7 +2720,12 @@
         function loadUserChatHistory() {
             if (!currentUser || !currentUser.id) return;
 
+            console.log('📚 Loading chat history for user:', currentUser.name, currentUser.id);
             const messagesArea = document.getElementById('messagesArea');
+            
+            // Clear existing messages first to prevent duplicates
+            messagesArea.innerHTML = '';
+            console.log('🧹 Cleared messages area for fresh history load');
             
             // Load chat messages from multiple sources
             Promise.all([
@@ -2774,6 +2793,7 @@
                 });
                 
                 // Display messages
+                console.log('📝 Displaying', uniqueMessages.length, 'historical messages');
                 uniqueMessages.forEach(message => {
                     addMessageToUI(message);
                 });
@@ -2781,7 +2801,14 @@
                 // Scroll to bottom
                 messagesArea.scrollTop = messagesArea.scrollHeight;
                 
-                console.log(`Loaded ${uniqueMessages.length} chat history messages for user ${currentUser.name}`);
+                console.log(`✅ Successfully loaded ${uniqueMessages.length} chat history messages for user ${currentUser.name}`);
+                if (uniqueMessages.length > 0) {
+                    console.log('📊 Message types loaded:', {
+                        userMessages: uniqueMessages.filter(m => m.sender === 'user').length,
+                        adminMessages: uniqueMessages.filter(m => m.sender === 'admin').length,
+                        totalMessages: uniqueMessages.length
+                    });
+                }
                 
                 // Set up real-time listeners after loading history
                 setupRealTimeMessaging();
