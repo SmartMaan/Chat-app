@@ -1868,12 +1868,10 @@
             });
         }
 
-        // Ensure user chat node exists
         function ensureUserChat(userId, callback) {
             const chatRef = database.ref(`chats/${userId}/messages`);
             chatRef.once('value').then(snapshot => {
                 if (!snapshot.exists()) {
-                    // Create empty chat node
                     chatRef.set({});
                 }
                 if (typeof callback === 'function') callback();
