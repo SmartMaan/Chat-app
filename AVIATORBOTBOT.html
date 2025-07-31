@@ -2034,12 +2034,26 @@
         let selectedCategory = null;
         let editingItem = null;
 
+        // Update user activity
+        function updateUserActivity() {
+            if (currentUser && currentUser.id) {
+                database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
+            }
+        }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             console.log('App starting...');
             setupEventListeners();
             initializeDefaultData();
             checkUserSession();
+            
+            // Update user activity every 30 seconds
+            setInterval(updateUserActivity, 30000);
+            
+            // Update activity on user interaction
+            document.addEventListener('click', updateUserActivity);
+            document.addEventListener('keypress', updateUserActivity);
         });
 
         function setupEventListeners() {
@@ -2082,6 +2096,8 @@
                         .then(snapshot => {
                             if (snapshot.exists()) {
                                 // User exists in Firebase, proceed normally
+                                // Update last activity
+                                database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
                                 document.getElementById('userRegistrationModal').style.display = 'none';
                                 showMainApp();
                                 loadChat();
@@ -2183,12 +2199,17 @@
                 chatWithUsBtn.style.display = 'block';
             }
             
-                         setTimeout(() => {
-                 loadQuickQuestions();
-                 if (!currentUser.isNewUser) {
-                     sendWelcomeMessage();
-                 }
-             }, 100);
+                                     setTimeout(() => {
+                loadQuickQuestions();
+                if (!currentUser.isNewUser) {
+                    // Load chat history for existing users
+                    loadUserChatHistory();
+                    sendWelcomeMessage();
+                } else {
+                    // For new users, just send welcome message
+                    sendNewUserWelcome();
+                }
+            }, 100);
         }
 
         function sendWelcomeMessage() {
@@ -2340,7 +2361,8 @@
                 saveMessageToFirebase(adminMessage);
             }, 500);
 
-            showCategories();
+            // Close the quick questions popup
+            closeQuickQuestionsPopup();
             
             const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
             if (chatWithUsBtn) {
@@ -2487,6 +2509,90 @@
                         addMessageToUI(messages[messageId]);
                     });
                 });
+        }
+
+        function loadUserChatHistory() {
+            if (!currentUser || !currentUser.id) return;
+
+            const messagesArea = document.getElementById('messagesArea');
+            
+            // Load chat messages from multiple sources
+            Promise.all([
+                database.ref(`chats/${currentUser.id}/messages`).once('value'),
+                database.ref('messages').orderByChild('userId').equalTo(currentUser.id).once('value'),
+                database.ref('chatHistory').orderByChild('userId').equalTo(currentUser.id).once('value')
+            ]).then(([chatSnapshot, messagesSnapshot, historySnapshot]) => {
+                const allMessages = [];
+                
+                // Load from chats
+                if (chatSnapshot.exists()) {
+                    const chatMessages = chatSnapshot.val();
+                    Object.keys(chatMessages).forEach(msgId => {
+                        allMessages.push(chatMessages[msgId]);
+                    });
+                }
+                
+                // Load from messages
+                if (messagesSnapshot.exists()) {
+                    messagesSnapshot.forEach(child => {
+                        const msg = child.val();
+                        allMessages.push({
+                            id: child.key,
+                            text: msg.text,
+                            sender: msg.sender,
+                            timestamp: msg.timestamp
+                        });
+                    });
+                }
+                
+                // Load from chat history (quick questions, etc.)
+                if (historySnapshot.exists()) {
+                    historySnapshot.forEach(child => {
+                        const history = child.val();
+                        // Add user question
+                        if (history.message) {
+                            allMessages.push({
+                                id: child.key + '_q',
+                                text: history.message,
+                                sender: 'user',
+                                timestamp: new Date(history.timestamp).getTime()
+                            });
+                        }
+                        // Add bot response
+                        if (history.response) {
+                            allMessages.push({
+                                id: child.key + '_r',
+                                text: history.response,
+                                sender: 'admin',
+                                timestamp: new Date(history.timestamp).getTime() + 1000
+                            });
+                        }
+                    });
+                }
+                
+                // Sort messages by timestamp and display
+                allMessages.sort((a, b) => a.timestamp - b.timestamp);
+                
+                // Remove duplicates based on text and timestamp
+                const uniqueMessages = allMessages.filter((msg, index, arr) => {
+                    return index === arr.findIndex(m => 
+                        m.text === msg.text && 
+                        Math.abs(m.timestamp - msg.timestamp) < 5000 // 5 second tolerance
+                    );
+                });
+                
+                // Display messages
+                uniqueMessages.forEach(message => {
+                    addMessageToUI(message);
+                });
+                
+                // Scroll to bottom
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+                
+                console.log(`Loaded ${uniqueMessages.length} chat history messages for user ${currentUser.name}`);
+            }).catch(error => {
+                console.error('Error loading chat history:', error);
+            });
         }
 
         function loadFAQSection() {
