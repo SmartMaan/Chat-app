@@ -520,102 +520,105 @@
              box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
          }
 
-         /* Quick Questions Content */
-         .quick-questions-content {
-             padding-top: 12px;
-             animation: slideDown 0.3s ease;
-         }
-
-         /* Quick Questions Popup Modal */
-         .quick-questions-popup {
-             max-width: 90vw;
-             max-height: 85vh;
+         /* Full Screen Popup */
+         .fullscreen-popup {
+             position: fixed;
+             top: 0;
+             left: 0;
              width: 100%;
-             margin: auto;
+             height: 100%;
+             background: #1a1a1a;
+             z-index: 10000;
+             display: flex;
+             flex-direction: column;
          }
 
-         .popup-header {
+         .fullscreen-header {
+             background: #2a2a2a;
+             padding: 16px 20px;
+             border-bottom: 2px solid #444;
              display: flex;
              align-items: center;
              justify-content: space-between;
-             padding: 16px 20px;
-             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-             background: rgba(255, 255, 255, 0.05);
-             border-radius: 16px 16px 0 0;
          }
 
-         .popup-header h3 {
-             margin: 0;
+         .fullscreen-header h2 {
              color: #ff4444;
-             font-size: 18px;
+             margin: 0;
+             font-size: 20px;
              flex: 1;
              text-align: center;
          }
 
-         .back-btn {
+         .back-button {
              background: rgba(255, 68, 68, 0.1);
              border: 1px solid rgba(255, 68, 68, 0.3);
              color: #ff4444;
-             padding: 8px 12px;
+             padding: 10px 16px;
              border-radius: 8px;
              cursor: pointer;
              font-size: 14px;
              display: flex;
              align-items: center;
-             gap: 6px;
+             gap: 8px;
              transition: all 0.3s ease;
+             font-weight: 500;
          }
 
-         .back-btn:hover {
+         .back-button:hover {
              background: rgba(255, 68, 68, 0.2);
              transform: translateY(-1px);
          }
 
-         .close-popup-btn {
+         .close-button {
              background: rgba(255, 255, 255, 0.1);
              border: 1px solid rgba(255, 255, 255, 0.2);
              color: white;
-             padding: 8px;
-             border-radius: 6px;
+             padding: 10px;
+             border-radius: 8px;
              cursor: pointer;
-             font-size: 16px;
+             font-size: 18px;
              transition: all 0.3s ease;
-             width: 36px;
-             height: 36px;
+             width: 44px;
+             height: 44px;
              display: flex;
              align-items: center;
              justify-content: center;
          }
 
-         .close-popup-btn:hover {
+         .close-button:hover {
              background: rgba(255, 255, 255, 0.2);
+             transform: translateY(-1px);
          }
 
-         .popup-content {
+         .fullscreen-content {
+             flex: 1;
              padding: 20px;
-             max-height: 60vh;
              overflow-y: auto;
+             background: #1a1a1a;
          }
 
-         .popup-categories-container {
+         .fullscreen-categories {
              display: grid;
              grid-template-columns: repeat(2, 1fr);
-             gap: 12px;
+             gap: 16px;
+             max-width: 600px;
+             margin: 0 auto;
          }
 
-         .popup-category-btn {
+         .fullscreen-category-btn {
              background: rgba(255, 255, 255, 0.08);
              color: white;
              border: 1px solid rgba(255, 255, 255, 0.1);
-             padding: 16px 12px;
-             border-radius: 12px;
+             padding: 20px 16px;
+             border-radius: 16px;
              cursor: pointer;
              transition: all 0.3s ease;
              text-align: center;
-             font-size: 14px;
+             font-size: 16px;
              font-weight: 500;
-             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-             min-height: 60px;
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+             min-height: 80px;
              display: flex;
              align-items: center;
              justify-content: center;
@@ -624,32 +627,31 @@
              position: relative;
          }
 
-         .popup-category-btn::before {
+         .fullscreen-category-btn::before {
              content: '\f059';
              font-family: 'Font Awesome 6 Free';
              font-weight: 900;
-             margin-right: 8px;
+             margin-right: 12px;
              color: #ff4444;
-             font-size: 18px;
+             font-size: 20px;
          }
 
-         .popup-category-btn:hover {
+         .fullscreen-category-btn:hover {
              background: rgba(255, 255, 255, 0.12);
-             transform: translateY(-2px);
-             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+             transform: translateY(-3px);
+             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
          }
 
-         .popup-questions-container {
-             display: flex;
-             flex-direction: column;
-             gap: 8px;
+         .fullscreen-questions {
+             max-width: 800px;
+             margin: 0 auto;
          }
 
-         .popup-question-btn {
+         .fullscreen-question-btn {
              background: rgba(255, 255, 255, 0.05);
              color: white;
              border: 1px solid rgba(255, 255, 255, 0.08);
-             padding: 12px 16px;
+             padding: 16px 20px;
              border-radius: 12px;
              cursor: pointer;
              transition: all 0.3s ease;
@@ -657,23 +659,25 @@
              border-left: 4px solid #ff4444;
              display: flex;
              align-items: center;
-             gap: 12px;
-             font-size: 14px;
+             gap: 16px;
+             font-size: 16px;
              line-height: 1.4;
              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-             min-height: 52px;
+             min-height: 60px;
              backdrop-filter: blur(10px);
              -webkit-backdrop-filter: blur(10px);
+             margin-bottom: 12px;
+             width: 100%;
          }
 
-         .popup-question-btn:hover {
+         .fullscreen-question-btn:hover {
              background: rgba(255, 255, 255, 0.08);
              transform: translateY(-2px);
              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
          }
 
-         .popup-question-btn i {
-             font-size: 16px;
+         .fullscreen-question-btn i {
+             font-size: 18px;
              color: #ff4444;
              flex-shrink: 0;
          }
@@ -1278,30 +1282,40 @@
                  font-size: 13px;
              }
 
-             .popup-categories-container {
-                 grid-template-columns: repeat(2, 1fr);
-                 gap: 8px;
+             .fullscreen-categories {
+                 grid-template-columns: 1fr;
+                 gap: 12px;
+                 padding: 0 10px;
              }
 
-             .popup-category-btn {
-                 min-height: 50px;
-                 font-size: 13px;
-                 padding: 12px 8px;
+             .fullscreen-category-btn {
+                 min-height: 60px;
+                 font-size: 15px;
+                 padding: 16px 12px;
              }
 
-             .popup-question-btn {
-                 font-size: 13px;
-                 padding: 10px 12px;
-                 min-height: 48px;
+             .fullscreen-question-btn {
+                 font-size: 14px;
+                 padding: 14px 16px;
+                 min-height: 56px;
              }
 
-             .popup-header {
+             .fullscreen-header {
                  padding: 12px 16px;
              }
 
-             .popup-content {
+             .fullscreen-content {
                  padding: 16px;
-                 max-height: 65vh;
+             }
+
+             .back-button, .close-button {
+                 padding: 8px 12px;
+                 font-size: 14px;
+             }
+
+             .close-button {
+                 width: 40px;
+                 height: 40px;
              }
          }
 
@@ -1339,28 +1353,29 @@
                  font-size: 14px;
              }
 
-             .quick-questions-popup {
-                 max-width: 95vw;
-                 max-height: 90vh;
-             }
-
-             .popup-categories-container {
+             .fullscreen-categories {
                  grid-template-columns: repeat(3, 1fr);
+                 max-width: 900px;
              }
 
-             .popup-category-btn {
+             .fullscreen-category-btn {
+                 min-height: 90px;
+                 font-size: 17px;
+                 padding: 24px 16px;
+             }
+
+             .fullscreen-question-btn {
                  min-height: 70px;
-                 font-size: 15px;
+                 font-size: 16px;
+                 padding: 18px 24px;
              }
 
-             .popup-question-btn {
-                 min-height: 60px;
-                 font-size: 15px;
-                 padding: 14px 18px;
+             .fullscreen-header {
+                 padding: 20px 24px;
              }
 
-             .popup-content {
-                 max-height: 70vh;
+             .fullscreen-content {
+                 padding: 24px;
              }
          }
     </style>
@@ -1427,17 +1442,9 @@
              <div id="quickQuestionsSection" class="quick-questions-section">
                  <div class="quick-questions-header">
                      <h3>Quick Ask Questions</h3>
-                     <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="toggleQuickQuestions()">
-                         <i class="fas fa-chevron-down"></i> Show More
+                     <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="openQuickQuestionsFullscreen()">
+                         <i class="fas fa-question-circle"></i> Browse Questions
                      </button>
-                 </div>
-                 <div id="quickQuestionsContent" class="quick-questions-content" style="display: none;">
-                     <div id="categoriesContainer" class="categories-container">
-                         <!-- Categories will be loaded here -->
-                     </div>
-                     <div id="questionsContainer" class="questions-container" style="display: none;">
-                         <!-- Questions will be loaded here -->
-                     </div>
                  </div>
              </div>
              
@@ -1626,25 +1633,23 @@
          </div>
      </div>
 
-     <!-- Quick Questions Popup Modal -->
-     <div id="quickQuestionsModal" class="modal">
-         <div class="modal-content quick-questions-popup">
-             <div class="popup-header">
-                 <button id="backToCategoriesBtn" class="back-btn" onclick="showCategoriesInPopup()" style="display: none;">
-                     <i class="fas fa-arrow-left"></i> Back
-                 </button>
-                 <h3 id="popupTitle">Quick Ask Questions</h3>
-                 <button class="close-popup-btn" onclick="closeQuickQuestionsPopup()">
-                     <i class="fas fa-times"></i>
-                 </button>
+     <!-- Full Screen Quick Questions Popup -->
+     <div id="quickQuestionsFullscreen" class="fullscreen-popup" style="display: none;">
+         <div class="fullscreen-header">
+             <button id="backToCategories" class="back-button" onclick="showCategoriesFullscreen()" style="display: none;">
+                 <i class="fas fa-arrow-left"></i> Back
+             </button>
+             <h2 id="fullscreenTitle">Quick Ask Questions</h2>
+             <button class="close-button" onclick="closeQuickQuestionsFullscreen()">
+                 <i class="fas fa-times"></i>
+             </button>
+         </div>
+         <div class="fullscreen-content">
+             <div id="fullscreenCategories" class="fullscreen-categories">
+                 <!-- Categories will be loaded here -->
              </div>
-             <div class="popup-content">
-                 <div id="popupCategoriesContainer" class="popup-categories-container">
-                     <!-- Categories will be loaded here -->
-                 </div>
-                 <div id="popupQuestionsContainer" class="popup-questions-container" style="display: none;">
-                     <!-- Questions will be loaded here -->
-                 </div>
+             <div id="fullscreenQuestions" class="fullscreen-questions" style="display: none;">
+                 <!-- Questions will be loaded here -->
              </div>
          </div>
      </div>
@@ -2177,87 +2182,74 @@
             }
         }
 
-                 function toggleQuickQuestions() {
-             const content = document.getElementById('quickQuestionsContent');
-             const toggle = document.getElementById('quickQuestionsToggle');
-             
-             if (content.style.display === 'none') {
-                 // Show popup instead of inline content
-                 openQuickQuestionsPopup();
-             } else {
-                 content.style.display = 'none';
-                 toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
-             }
+                 function openQuickQuestionsFullscreen() {
+             document.getElementById('quickQuestionsFullscreen').style.display = 'flex';
+             loadCategoriesFullscreen();
+             showCategoriesFullscreen();
          }
 
-         function openQuickQuestionsPopup() {
-             document.getElementById('quickQuestionsModal').style.display = 'flex';
-             loadCategoriesInPopup();
-             showCategoriesInPopup();
+         function closeQuickQuestionsFullscreen() {
+             document.getElementById('quickQuestionsFullscreen').style.display = 'none';
          }
 
-         function closeQuickQuestionsPopup() {
-             document.getElementById('quickQuestionsModal').style.display = 'none';
-         }
-
-         function loadCategoriesInPopup() {
+         function loadCategoriesFullscreen() {
              database.ref('quickQuestions').once('value')
                  .then(snapshot => {
                      const data = snapshot.val() || {};
-                     displayCategoriesInPopup(Object.keys(data), data);
+                     displayCategoriesFullscreen(Object.keys(data), data);
                  })
                  .catch(error => {
-                     console.error('Error loading categories in popup:', error);
+                     console.error('Error loading categories:', error);
                  });
          }
 
-         function displayCategoriesInPopup(categories, data) {
-             const container = document.getElementById('popupCategoriesContainer');
+         function displayCategoriesFullscreen(categories, data) {
+             const container = document.getElementById('fullscreenCategories');
              container.innerHTML = '';
 
              categories.forEach(category => {
                  const btn = document.createElement('button');
-                 btn.className = 'popup-category-btn';
+                 btn.className = 'fullscreen-category-btn';
                  btn.textContent = category;
-                 btn.onclick = () => selectCategoryInPopup(category, data[category]);
+                 btn.onclick = () => selectCategoryFullscreen(category, data[category]);
                  container.appendChild(btn);
              });
          }
 
-         function selectCategoryInPopup(category, questions) {
-             document.getElementById('popupTitle').textContent = category;
-             document.getElementById('backToCategoriesBtn').style.display = 'flex';
-             document.getElementById('popupCategoriesContainer').style.display = 'none';
-             document.getElementById('popupQuestionsContainer').style.display = 'flex';
+         function selectCategoryFullscreen(category, questions) {
+             document.getElementById('fullscreenTitle').textContent = category;
+             document.getElementById('backToCategories').style.display = 'flex';
+             document.getElementById('fullscreenCategories').style.display = 'none';
+             document.getElementById('fullscreenQuestions').style.display = 'block';
              
-             displayQuestionsInPopup(questions);
+             displayQuestionsFullscreen(questions);
          }
 
-         function displayQuestionsInPopup(questions) {
-             const container = document.getElementById('popupQuestionsContainer');
+         function displayQuestionsFullscreen(questions) {
+             const container = document.getElementById('fullscreenQuestions');
              container.innerHTML = '';
 
              Object.keys(questions).forEach(questionId => {
                  const question = questions[questionId];
                  const btn = document.createElement('button');
-                 btn.className = 'popup-question-btn';
+                 btn.className = 'fullscreen-question-btn';
                  btn.innerHTML = `
                      <i class="${question.icon}"></i>
                      <span>${question.question}</span>
                  `;
                  btn.onclick = () => {
                      sendQuickResponse(question.question, question.response);
-                     closeQuickQuestionsPopup();
+                     closeQuickQuestionsFullscreen();
                  };
                  container.appendChild(btn);
              });
          }
 
-         function showCategoriesInPopup() {
-             document.getElementById('popupTitle').textContent = 'Quick Ask Questions';
-             document.getElementById('backToCategoriesBtn').style.display = 'none';
-             document.getElementById('popupCategoriesContainer').style.display = 'grid';
-             document.getElementById('popupQuestionsContainer').style.display = 'none';
+         function showCategoriesFullscreen() {
+             document.getElementById('fullscreenTitle').textContent = 'Quick Ask Questions';
+             document.getElementById('backToCategories').style.display = 'none';
+             document.getElementById('fullscreenCategories').style.display = 'grid';
+             document.getElementById('fullscreenQuestions').style.display = 'none';
          }
 
         function showAdminPanel() {
