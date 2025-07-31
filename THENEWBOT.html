@@ -76,7 +76,7 @@
         .registration-form h2 {
             text-align: center;
             margin-bottom: 24px;
-            color: var(--primary-color);
+            color: #ff4444;
             font-size: 24px;
             font-weight: 700;
             letter-spacing: -0.5px;
@@ -111,7 +111,7 @@
 
         .form-group input:focus {
             outline: none;
-            border-color: var(--primary-color);
+            border-color: #ff4444;
             background: rgba(255, 255, 255, 0.08);
             box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
         }
@@ -119,7 +119,7 @@
         .submit-btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, var(--primary-color), #ff6666);
+            background: linear-gradient(135deg, #ff4444, #ff6666);
             color: white;
             border: none;
             border-radius: 12px;
@@ -169,7 +169,7 @@
 
         .header-top h2 {
             font-size: 16px;
-            color: var(--primary-color);
+            color: #ff4444;
             margin: 0;
             font-weight: 600;
         }
@@ -203,7 +203,7 @@
         }
 
         .tab.active {
-            background: var(--primary-color);
+            background: #ff4444;
             color: white;
             box-shadow: 0 2px 4px rgba(255, 68, 68, 0.3);
         }
@@ -228,7 +228,7 @@
         }
 
         .admin-panel-btn:hover {
-            background: var(--primary-color);
+            background: #ff4444;
             transform: translateY(-1px);
         }
 
@@ -274,7 +274,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--primary-color);
+            background: #ff4444;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -295,7 +295,7 @@
         }
 
         .message.user .message-content {
-            background: var(--primary-color);
+            background: #ff4444;
             text-align: right;
         }
 
@@ -320,18 +320,13 @@
             position: sticky;
             bottom: 0;
             z-index: 50;
-            min-height: 60px;
+            min-height: 120px;
             max-height: 60vh;
             overflow-y: auto;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 20px 20px 0 0;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .quick-questions-section.collapsed {
-            max-height: 60px;
-            overflow: hidden;
         }
 
         .quick-questions-section::-webkit-scrollbar {
@@ -385,40 +380,6 @@
         .quick-questions-toggle:hover {
             background: rgba(255, 68, 68, 0.2);
             transform: translateY(-1px);
-        }
-
-        .quick-questions-content {
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-
-        .quick-questions-section.collapsed .quick-questions-content {
-            display: none;
-        }
-
-        /* Chat with Us button always visible */
-        .chat-with-us-btn {
-            background: linear-gradient(135deg, #ff4444, #ff6666);
-            color: white;
-            border: none;
-            padding: 14px 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
-            margin-top: 12px;
-            width: 100%;
-            min-height: 48px;
-            letter-spacing: 0.3px;
-            display: block;
-        }
-
-        .chat-with-us-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
         }
 
         .categories-container {
@@ -542,7 +503,6 @@
             width: 100%;
             min-height: 48px;
             letter-spacing: 0.3px;
-            display: block;
         }
 
         .chat-with-us-btn:hover {
@@ -1078,22 +1038,6 @@
             font-size: 14px;
         }
 
-        .category-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .category-input-group select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            font-size: 14px;
-        }
-
         .modal-content textarea {
             min-height: 80px;
             resize: vertical;
@@ -1291,7 +1235,7 @@
             }
 
             .message-content {
-                max-height: 80%;
+                max-width: 80%;
             }
 
             .quick-questions-section {
@@ -1316,34 +1260,6 @@
 
             .question-btn {
                 min-height: 52px;
-                font-size: 14px;
-            }
-
-            .chat-with-us-btn {
-                min-height: 48px;
-                font-size: 14px;
-            }
-        }
-
-        /* Android display optimization */
-        @media (max-width: 720px) and (max-height: 1280px) {
-            .quick-questions-section {
-                max-height: 40vh;
-                min-height: 80px;
-            }
-
-            .categories-container {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-
-            .question-btn {
-                min-height: 48px;
-                font-size: 13px;
-            }
-
-            .chat-with-us-btn {
-                min-height: 48px;
                 font-size: 14px;
             }
         }
@@ -1408,16 +1324,14 @@
                 <div class="quick-questions-header">
                     <h3>Quick Questions</h3>
                     <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="toggleQuickQuestions()">
-                        <i class="fas fa-chevron-down"></i> Show More
+                        <i class="fas fa-chevron-up"></i> Hide
                     </button>
                 </div>
-                <div class="quick-questions-content">
-                    <div id="categoriesContainer" class="categories-container">
-                        <!-- Categories will be loaded here -->
-                    </div>
-                    <div id="questionsContainer" class="questions-container">
-                        <!-- Questions will be loaded here -->
-                    </div>
+                <div id="categoriesContainer" class="categories-container">
+                    <!-- Categories will be loaded here -->
+                </div>
+                <div id="questionsContainer" class="questions-container">
+                    <!-- Questions will be loaded here -->
                 </div>
                 <button class="chat-with-us-btn" onclick="showChatInput()">
                     <i class="fas fa-comment"></i> Chat with Us
@@ -1566,42 +1480,7 @@
             <form id="faqForm">
                 <div class="form-group">
                     <label>Category</label>
-                    <div class="category-input-group">
-                        <select id="faqCategorySelect" onchange="handleFaqCategoryChange()">
-                            <option value="">Select Category</option>
-                            <option value="new">Create New Category</option>
-                        </select>
-                        <input type="text" id="faqCategory" placeholder="Enter category name" style="display: none;">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Icon</label>
-                    <div class="icon-selector">
-                        <i class="fas fa-home icon-option" data-icon="fas fa-home"></i>
-                        <i class="fas fa-user icon-option" data-icon="fas fa-user"></i>
-                        <i class="fas fa-cog icon-option" data-icon="fas fa-cog"></i>
-                        <i class="fas fa-heart icon-option" data-icon="fas fa-heart"></i>
-                        <i class="fas fa-star icon-option" data-icon="fas fa-star"></i>
-                        <i class="fas fa-bell icon-option" data-icon="fas fa-bell"></i>
-                        <i class="fas fa-envelope icon-option" data-icon="fas fa-envelope"></i>
-                        <i class="fas fa-phone icon-option" data-icon="fas fa-phone"></i>
-                        <i class="fas fa-money-bill icon-option" data-icon="fas fa-money-bill"></i>
-                        <i class="fas fa-credit-card icon-option" data-icon="fas fa-credit-card"></i>
-                        <i class="fas fa-gamepad icon-option" data-icon="fas fa-gamepad"></i>
-                        <i class="fas fa-exclamation-triangle icon-option" data-icon="fas fa-exclamation-triangle"></i>
-                        <i class="fas fa-clock icon-option" data-icon="fas fa-clock"></i>
-                        <i class="fas fa-check-circle icon-option" data-icon="fas fa-check-circle"></i>
-                        <i class="fas fa-times-circle icon-option" data-icon="fas fa-times-circle"></i>
-                        <i class="fas fa-question-circle icon-option" data-icon="fas fa-question-circle"></i>
-                        <i class="fas fa-info-circle icon-option" data-icon="fas fa-info-circle"></i>
-                        <i class="fas fa-shield-alt icon-option" data-icon="fas fa-shield-alt"></i>
-                        <i class="fas fa-tools icon-option" data-icon="fas fa-tools"></i>
-                        <i class="fas fa-book icon-option" data-icon="fas fa-book"></i>
-                        <i class="fas fa-graduation-cap icon-option" data-icon="fas fa-graduation-cap"></i>
-                        <i class="fas fa-lightbulb icon-option" data-icon="fas fa-lightbulb"></i>
-                        <i class="fas fa-rocket icon-option" data-icon="fas fa-rocket"></i>
-                    </div>
-                    <input type="hidden" id="faqSelectedIcon" value="fas fa-question-circle">
+                    <input type="text" id="faqCategory" required>
                 </div>
                 <div class="form-group">
                     <label>Question</label>
@@ -1625,13 +1504,7 @@
             <form id="quickForm">
                 <div class="form-group">
                     <label>Category</label>
-                    <div class="category-input-group">
-                        <select id="quickCategorySelect" onchange="handleQuickCategoryChange()">
-                            <option value="">Select Category</option>
-                            <option value="new">Create New Category</option>
-                        </select>
-                        <input type="text" id="quickCategory" placeholder="Enter category name" style="display: none;">
-                    </div>
+                    <input type="text" id="quickCategory" required>
                 </div>
                 <div class="form-group">
                     <label>Question</label>
@@ -1659,14 +1532,6 @@
                         <i class="fas fa-clock icon-option" data-icon="fas fa-clock"></i>
                         <i class="fas fa-check-circle icon-option" data-icon="fas fa-check-circle"></i>
                         <i class="fas fa-times-circle icon-option" data-icon="fas fa-times-circle"></i>
-                        <i class="fas fa-question-circle icon-option" data-icon="fas fa-question-circle"></i>
-                        <i class="fas fa-info-circle icon-option" data-icon="fas fa-info-circle"></i>
-                        <i class="fas fa-shield-alt icon-option" data-icon="fas fa-shield-alt"></i>
-                        <i class="fas fa-tools icon-option" data-icon="fas fa-tools"></i>
-                        <i class="fas fa-book icon-option" data-icon="fas fa-book"></i>
-                        <i class="fas fa-graduation-cap icon-option" data-icon="fas fa-graduation-cap"></i>
-                        <i class="fas fa-lightbulb icon-option" data-icon="fas fa-lightbulb"></i>
-                        <i class="fas fa-rocket icon-option" data-icon="fas fa-rocket"></i>
                     </div>
                     <input type="hidden" id="selectedIcon" value="fas fa-home">
                 </div>
@@ -1825,11 +1690,7 @@
             document.getElementById('chatTabSection').style.display = 'flex';
             document.getElementById('faqTabSection').style.display = 'none';
             
-            // Ensure quick questions section is visible and starts collapsed
-            const quickQuestionsSection = document.getElementById('quickQuestionsSection');
-            quickQuestionsSection.style.display = 'block';
-            quickQuestionsSection.classList.add('collapsed');
-            
+            document.getElementById('quickQuestionsSection').style.display = 'block';
             document.getElementById('chatInputArea').style.display = 'none';
             
             // Ensure "Chat with Us" button is visible
@@ -1838,10 +1699,8 @@
                 chatWithUsBtn.style.display = 'block';
             }
             
-            // Load quick questions immediately and show categories when expanded
-            loadQuickQuestions();
-            
             setTimeout(() => {
+                loadQuickQuestions();
                 sendWelcomeMessage();
             }, 100);
         }
@@ -1871,12 +1730,7 @@
                 chatSection.style.display = 'flex';
                 faqSection.style.display = 'none';
                 document.getElementById('messagesArea').style.display = 'block';
-                
-                // Ensure quick questions section is visible and starts collapsed
-                const quickQuestionsSection = document.getElementById('quickQuestionsSection');
-                quickQuestionsSection.style.display = 'block';
-                quickQuestionsSection.classList.add('collapsed');
-                
+                document.getElementById('quickQuestionsSection').style.display = 'block';
                 loadQuickQuestions();
             } else if (tabName === 'faq') {
                 chatSection.style.display = 'none';
@@ -1886,34 +1740,10 @@
         }
 
         function loadQuickQuestions() {
-            console.log('Loading quick questions...');
             database.ref('quickQuestions').once('value')
                 .then(snapshot => {
                     const data = snapshot.val() || {};
-                    console.log('Quick questions data:', data);
-                    const categories = Object.keys(data);
-                    console.log('Categories found:', categories);
-                    
-                    // Always show categories, even if empty
-                    if (categories.length > 0) {
-                        displayCategories(categories);
-                    } else {
-                        console.log('No categories found, using defaults');
-                        displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
-                    }
-                    
-                    // Ensure categories container is visible when expanded
-                    const categoriesContainer = document.getElementById('categoriesContainer');
-                    if (categoriesContainer) {
-                        categoriesContainer.style.display = 'grid';
-                        console.log('Categories container display set to grid');
-                    }
-                    
-                    // Ensure "Chat with Us" button is always visible
-                    const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
-                    if (chatWithUsBtn) {
-                        chatWithUsBtn.style.display = 'block';
-                    }
+                    displayCategories(Object.keys(data));
                 })
                 .catch(error => {
                     console.error('Error loading quick questions:', error);
@@ -1921,21 +1751,9 @@
                 });
         }
 
-        // Also load quick questions for admin panel
-        function loadQuickQuestionsForAdmin() {
-            database.ref('quickQuestions').once('value')
-                .then(snapshot => {
-                    const quickQuestions = snapshot.val() || {};
-                    displayQuickQuestions(quickQuestions);
-                });
-        }
-
         function displayCategories(categories) {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
-
-            console.log('Displaying categories:', categories);
-            console.log('Container found:', container);
 
             categories.forEach(category => {
                 const btn = document.createElement('button');
@@ -1944,12 +1762,6 @@
                 btn.onclick = () => selectCategory(category);
                 container.appendChild(btn);
             });
-
-            // Ensure the container is visible
-            if (container) {
-                container.style.display = 'grid';
-                console.log('Categories container display set to grid');
-            }
         }
 
         function selectCategory(category) {
@@ -1965,7 +1777,7 @@
             
             const backBtn = document.createElement('button');
             backBtn.className = 'back-to-categories-btn';
-            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Categories';
             backBtn.onclick = showCategories;
             
             const questionsContainer = document.getElementById('questionsContainer');
@@ -1988,11 +1800,6 @@
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
-            // Ensure quick questions section is expanded
-            const section = document.getElementById('quickQuestionsSection');
-            section.classList.remove('collapsed');
-            document.getElementById('quickQuestionsToggle').innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
         }
 
         function displayQuestions(questions) {
@@ -2007,21 +1814,17 @@
             container.innerHTML = '';
             container.appendChild(backBtn);
 
-            // Display all questions in the category
             Object.keys(questions).forEach(questionId => {
                 const question = questions[questionId];
                 const btn = document.createElement('button');
                 btn.className = 'question-btn';
                 btn.innerHTML = `
-                    <i class="${question.icon || 'fas fa-question-circle'}"></i>
+                    <i class="${question.icon}"></i>
                     <span>${question.question}</span>
                 `;
                 btn.onclick = () => sendQuickResponse(question.question, question.response);
                 container.appendChild(btn);
             });
-
-            // Ensure questions container is visible
-            container.style.display = 'flex';
         }
 
         function sendQuickResponse(question, response) {
@@ -2079,7 +1882,6 @@
             
             // Keep quick questions section visible but collapsed
             document.getElementById('quickQuestionsSection').style.display = 'block';
-            document.getElementById('quickQuestionsSection').classList.add('collapsed');
             
             setTimeout(() => {
                 document.getElementById('messageInput').focus();
@@ -2106,7 +1908,7 @@
                 setTimeout(() => {
                     const adminResponse = {
                         id: (Date.now() + 1).toString(),
-                        text: "🔐 Admin access granted! Opening admin panel...",
+                        text: "🔐 Admin access granted! Admin panel is now available.",
                         sender: 'admin',
                         timestamp: Date.now()
                     };
@@ -2115,11 +1917,6 @@
                     
                     isAdmin = true;
                     document.getElementById('adminPanelBtn').style.display = 'block';
-                    
-                    // Automatically open admin panel after 1 second
-                    setTimeout(() => {
-                        showAdminPanel();
-                    }, 1000);
                 }, 500);
                 return;
             }
@@ -2144,9 +1941,8 @@
                 chatWithUsBtn.style.display = 'block';
             }
             
-            // Keep quick questions section visible and collapsed
+            // Keep quick questions section visible
             document.getElementById('quickQuestionsSection').style.display = 'block';
-            document.getElementById('quickQuestionsSection').classList.add('collapsed');
 
             setTimeout(() => {
                 const adminResponse = {
@@ -2268,7 +2064,7 @@
                             faqDiv.className = 'faq-item';
                             faqDiv.innerHTML = `
                                 <div class="faq-question" onclick="toggleFAQ(this)">
-                                    <span><i class="${faq.icon || 'fas fa-question-circle'}"></i> ${faq.question}</span>
+                                    <span>${faq.question}</span>
                                     <i class="fas fa-chevron-down"></i>
                                 </div>
                                 <div class="faq-answer">
@@ -2299,27 +2095,23 @@
         function toggleQuickQuestions() {
             const section = document.getElementById('quickQuestionsSection');
             const toggle = document.getElementById('quickQuestionsToggle');
+            const categoriesContainer = document.getElementById('categoriesContainer');
+            const questionsContainer = document.getElementById('questionsContainer');
             
-            if (section.classList.contains('collapsed')) {
+            if (section.style.maxHeight === '60px' || section.style.maxHeight === '') {
                 // Expand
-                section.classList.remove('collapsed');
-                toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
-                
-                // Ensure categories are visible
-                const categoriesContainer = document.getElementById('categoriesContainer');
-                if (categoriesContainer) {
-                    categoriesContainer.style.display = 'grid';
-                }
+                section.style.maxHeight = '60vh';
+                section.style.overflowY = 'auto';
+                categoriesContainer.style.display = 'grid';
+                questionsContainer.style.display = 'none';
+                toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Hide';
             } else {
                 // Collapse
-                section.classList.add('collapsed');
-                toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
-            }
-            
-            // Ensure "Chat with Us" button is always visible
-            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
-            if (chatWithUsBtn) {
-                chatWithUsBtn.style.display = 'block';
+                section.style.maxHeight = '60px';
+                section.style.overflowY = 'hidden';
+                categoriesContainer.style.display = 'none';
+                questionsContainer.style.display = 'none';
+                toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show Quick Questions';
             }
         }
 
@@ -2336,7 +2128,7 @@
             console.log('Loading admin data...');
             loadUsers();
             loadFAQs();
-            loadQuickQuestionsForAdmin();
+            loadQuickQuestions();
             loadAnalytics();
             setupAdminEventListeners();
         }
@@ -2370,7 +2162,7 @@
             document.getElementById('userSearch').addEventListener('input', filterUsers);
             document.getElementById('userFilter').addEventListener('change', filterUsers);
 
-            // Icon selector for both modals
+            // Icon selector
             document.querySelectorAll('.icon-option').forEach(icon => {
                 icon.addEventListener('click', function() {
                     selectIcon(this);
@@ -2515,10 +2307,10 @@
                             </button>
                         </div>
                     </div>
-                                    <div class="item-content">
-                    <h4><i class="${faq.icon || 'fas fa-question-circle'}"></i> ${faq.question}</h4>
-                    <p>${faq.answer}</p>
-                </div>
+                    <div class="item-content">
+                        <h4>${faq.question}</h4>
+                        <p>${faq.answer}</p>
+                    </div>
                 `;
                 container.appendChild(faqItem);
             });
@@ -2526,133 +2318,26 @@
 
         function openFaqModal(faqId = null) {
             document.getElementById('faqModal').style.display = 'flex';
-            loadFaqCategories();
             if (faqId) {
                 // Load existing FAQ data
                 loadFAQData(faqId);
             } else {
                 // Clear form for new FAQ
                 document.getElementById('faqForm').reset();
-                document.getElementById('faqSelectedIcon').value = 'fas fa-question-circle';
-                updateFaqIconSelection();
-                // Ensure category input is hidden initially
-                document.getElementById('faqCategory').style.display = 'none';
             }
-        }
-
-        function handleFaqCategoryChange() {
-            const select = document.getElementById('faqCategorySelect');
-            const input = document.getElementById('faqCategory');
-            
-            if (select.value === 'new') {
-                input.style.display = 'block';
-                input.required = true;
-                input.focus();
-                input.value = '';
-            } else if (select.value) {
-                input.style.display = 'none';
-                input.required = false;
-                input.value = select.value;
-            } else {
-                input.style.display = 'none';
-                input.required = false;
-                input.value = '';
-            }
-        }
-
-        function handleQuickCategoryChange() {
-            const select = document.getElementById('quickCategorySelect');
-            const input = document.getElementById('quickCategory');
-            
-            if (select.value === 'new') {
-                input.style.display = 'block';
-                input.required = true;
-                input.focus();
-                input.value = '';
-            } else if (select.value) {
-                input.style.display = 'none';
-                input.required = false;
-                input.value = select.value;
-            } else {
-                input.style.display = 'none';
-                input.required = false;
-                input.value = '';
-            }
-        }
-
-        function loadFaqCategories() {
-            database.ref('faqs').once('value')
-                .then(snapshot => {
-                    const faqs = snapshot.val() || {};
-                    const categories = [...new Set(Object.values(faqs).map(faq => faq.category))];
-                    
-                    const select = document.getElementById('faqCategorySelect');
-                    select.innerHTML = '<option value="">Select Category</option><option value="new">Create New Category</option>';
-                    
-                    categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category;
-                        option.textContent = category;
-                        select.appendChild(option);
-                    });
-                });
-        }
-
-        function loadQuickCategories() {
-            database.ref('quickQuestions').once('value')
-                .then(snapshot => {
-                    const quickQuestions = snapshot.val() || {};
-                    const categories = Object.keys(quickQuestions);
-                    
-                    const select = document.getElementById('quickCategorySelect');
-                    select.innerHTML = '<option value="">Select Category</option><option value="new">Create New Category</option>';
-                    
-                    categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category;
-                        option.textContent = category;
-                        select.appendChild(option);
-                    });
-                });
-        }
-
-        function updateFaqIconSelection() {
-            const selectedIcon = document.getElementById('faqSelectedIcon').value;
-            document.querySelectorAll('#faqModal .icon-option').forEach(icon => {
-                icon.classList.remove('selected');
-                if (icon.dataset.icon === selectedIcon) {
-                    icon.classList.add('selected');
-                }
-            });
         }
 
         function handleFaqSubmit(e) {
             e.preventDefault();
             
-            const categorySelect = document.getElementById('faqCategorySelect');
-            const categoryInput = document.getElementById('faqCategory');
+            const category = document.getElementById('faqCategory').value;
             const question = document.getElementById('faqQuestion').value;
             const answer = document.getElementById('faqAnswer').value;
-            const icon = document.getElementById('faqSelectedIcon').value;
-
-            // Determine the category
-            let category;
-            if (categorySelect.value === 'new') {
-                category = categoryInput.value.trim();
-            } else {
-                category = categorySelect.value;
-            }
-
-            if (!category || !question || !answer) {
-                alert('Please fill in all required fields');
-                return;
-            }
 
             const faqData = {
                 category: category,
                 question: question,
                 answer: answer,
-                icon: icon,
                 timestamp: Date.now()
             };
 
@@ -2720,7 +2405,6 @@
 
         function openQuickModal(category = null, questionId = null) {
             document.getElementById('quickModal').style.display = 'flex';
-            loadQuickCategories();
             if (category && questionId) {
                 // Load existing question data
                 loadQuickQuestionData(category, questionId);
@@ -2729,69 +2413,16 @@
                 document.getElementById('quickForm').reset();
                 document.getElementById('selectedIcon').value = 'fas fa-home';
                 updateIconSelection();
-                // Ensure category input is hidden initially
-                document.getElementById('quickCategory').style.display = 'none';
             }
-        }
-
-        function handleQuickCategoryChange() {
-            const select = document.getElementById('quickCategorySelect');
-            const input = document.getElementById('quickCategory');
-            
-            if (select.value === 'new') {
-                input.style.display = 'block';
-                input.required = true;
-                input.focus();
-            } else if (select.value) {
-                input.style.display = 'none';
-                input.required = false;
-                input.value = select.value;
-            } else {
-                input.style.display = 'none';
-                input.required = false;
-                input.value = '';
-            }
-        }
-
-        function loadQuickCategories() {
-            database.ref('quickQuestions').once('value')
-                .then(snapshot => {
-                    const quickQuestions = snapshot.val() || {};
-                    const categories = Object.keys(quickQuestions);
-                    
-                    const select = document.getElementById('quickCategorySelect');
-                    select.innerHTML = '<option value="">Select Category</option><option value="new">Create New Category</option>';
-                    
-                    categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category;
-                        option.textContent = category;
-                        select.appendChild(option);
-                    });
-                });
         }
 
         function handleQuickSubmit(e) {
             e.preventDefault();
             
-            const categorySelect = document.getElementById('quickCategorySelect');
-            const categoryInput = document.getElementById('quickCategory');
+            const category = document.getElementById('quickCategory').value;
             const question = document.getElementById('quickQuestion').value;
             const response = document.getElementById('quickResponse').value;
             const icon = document.getElementById('selectedIcon').value;
-
-            // Determine the category
-            let category;
-            if (categorySelect.value === 'new') {
-                category = categoryInput.value.trim();
-            } else {
-                category = categorySelect.value;
-            }
-
-            if (!category || !question || !response) {
-                alert('Please fill in all required fields');
-                return;
-            }
 
             const questionData = {
                 category: category,
@@ -2804,22 +2435,14 @@
             database.ref(`quickQuestions/${category}`).push(questionData)
                 .then(() => {
                     closeModal('quickModal');
-                    loadQuickQuestionsForAdmin();
+                    loadQuickQuestions();
                 });
         }
 
         function selectIcon(iconElement) {
-            // Remove selection from all icons in the same modal
-            const modal = iconElement.closest('.modal');
-            modal.querySelectorAll('.icon-option').forEach(icon => icon.classList.remove('selected'));
+            document.querySelectorAll('.icon-option').forEach(icon => icon.classList.remove('selected'));
             iconElement.classList.add('selected');
-            
-            // Update the appropriate hidden input
-            if (modal.id === 'faqModal') {
-                document.getElementById('faqSelectedIcon').value = iconElement.dataset.icon;
-            } else if (modal.id === 'quickModal') {
-                document.getElementById('selectedIcon').value = iconElement.dataset.icon;
-            }
+            document.getElementById('selectedIcon').value = iconElement.dataset.icon;
         }
 
         function updateIconSelection() {
@@ -2878,11 +2501,6 @@
             const selectedTheme = themes[theme];
             if (selectedTheme) {
                 applyCustomColors(selectedTheme);
-                // Update color inputs to match the theme
-                document.getElementById('primaryColor').value = selectedTheme.primary;
-                document.getElementById('bgColor').value = selectedTheme.background;
-                document.getElementById('surfaceColor').value = selectedTheme.surface;
-                document.getElementById('textColor').value = selectedTheme.text;
             }
         }
 
@@ -2904,9 +2522,6 @@
 
             // Save theme to Firebase
             database.ref('theme').set(colors);
-            
-            // Show success message
-            alert('Theme applied successfully!');
         }
 
         // Analytics

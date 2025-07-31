@@ -320,7 +320,7 @@
             position: sticky;
             bottom: 0;
             z-index: 50;
-            min-height: 60px;
+            min-height: 120px;
             max-height: 60vh;
             overflow-y: auto;
             backdrop-filter: blur(20px);
@@ -330,7 +330,7 @@
         }
 
         .quick-questions-section.collapsed {
-            max-height: 60px;
+            max-height: 120px;
             overflow: hidden;
         }
 
@@ -401,19 +401,21 @@
             background: linear-gradient(135deg, #ff4444, #ff6666);
             color: white;
             border: none;
-            padding: 14px 16px;
+            padding: 16px 20px;
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 16px;
             box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
-            margin-top: 12px;
+            margin-top: 16px;
             width: 100%;
-            min-height: 48px;
+            min-height: 56px;
             letter-spacing: 0.3px;
             display: block;
+            position: relative;
+            z-index: 10;
         }
 
         .chat-with-us-btn:hover {
@@ -1173,6 +1175,49 @@
             border-radius: 8px;
         }
 
+        .user-chat-messages h4 {
+            color: #ff4444;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .user-chat-messages .message {
+            margin-bottom: 12px;
+            display: flex;
+        }
+
+        .user-chat-messages .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .user-chat-messages .message.admin {
+            flex-direction: row;
+        }
+
+        .user-chat-messages .message-content {
+            background: #2a2a2a;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .user-chat-messages .message.user .message-content {
+            background: #ff4444;
+            text-align: right;
+        }
+
+        .user-chat-messages .message.admin .message-content {
+            background: #444;
+        }
+
+        .user-chat-messages .message-time {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+        }
+
         .user-chat-input {
             display: flex;
             gap: 8px;
@@ -1347,6 +1392,14 @@
                 font-size: 14px;
             }
         }
+
+        .theme-mode-select { display: flex; gap: 12px; margin-bottom: 16px; }
+        .theme-mode-btn { padding: 10px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; background: #eee; color: #222; transition: 0.2s; }
+        .theme-mode-btn.active, .theme-mode-btn:focus { background: #ff4444; color: #fff; }
+        .theme-color-pickers { display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+        .color-input { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+        .color-input label { color: #888; font-size: 13px; }
+        .color-input input[type="color"] { width: 48px; height: 48px; border: none; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -1408,7 +1461,7 @@
                 <div class="quick-questions-header">
                     <h3>Quick Questions</h3>
                     <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="toggleQuickQuestions()">
-                        <i class="fas fa-chevron-down"></i> Show More
+                        <i class="fas fa-chevron-up"></i> Show Less
                     </button>
                 </div>
                 <div class="quick-questions-content">
@@ -1471,37 +1524,35 @@
             <!-- Theme Section -->
             <div id="themeSection" class="admin-section">
                 <h2><i class="fas fa-palette"></i> Theme Editor</h2>
-                <div class="theme-presets">
-                    <h3>Preset Themes</h3>
-                    <div class="theme-buttons">
-                        <button class="theme-btn" data-theme="dark">Dark</button>
-                        <button class="theme-btn" data-theme="light">Light</button>
-                        <button class="theme-btn" data-theme="material-dark">Material Dark</button>
-                        <button class="theme-btn" data-theme="material-light">Material Light</button>
+                <div class="theme-mode-select">
+                    <button class="theme-mode-btn" data-mode="light">Light</button>
+                    <button class="theme-mode-btn" data-mode="dark">Dark</button>
+                </div>
+                <div class="theme-color-pickers">
+                    <div class="color-input">
+                        <label>Primary Color</label>
+                        <input type="color" id="primaryColorPicker">
+                    </div>
+                    <div class="color-input">
+                        <label>Background Color</label>
+                        <input type="color" id="backgroundColorPicker">
+                    </div>
+                    <div class="color-input">
+                        <label>Surface Color</label>
+                        <input type="color" id="surfaceColorPicker">
+                    </div>
+                    <div class="color-input">
+                        <label>Text Color</label>
+                        <input type="color" id="textColorPicker">
                     </div>
                 </div>
-                <div class="custom-colors">
-                    <h3>Custom Colors</h3>
-                    <div class="color-inputs">
-                        <div class="color-input">
-                            <label>Primary Color</label>
-                            <input type="color" id="primaryColor" value="#ff4444">
-                        </div>
-                        <div class="color-input">
-                            <label>Background</label>
-                            <input type="color" id="bgColor" value="#1a1a1a">
-                        </div>
-                        <div class="color-input">
-                            <label>Surface</label>
-                            <input type="color" id="surfaceColor" value="#2a2a2a">
-                        </div>
-                        <div class="color-input">
-                            <label>Text</label>
-                            <input type="color" id="textColor" value="#ffffff">
-                        </div>
-                    </div>
-                    <button id="applyTheme" class="apply-btn">Apply Theme</button>
-                </div>
+                <button id="applyThemeV3" class="apply-btn">Apply Theme</button>
+            </div>
+            <!-- Bot Welcome Message Section -->
+            <div id="welcomeMessageSection" class="admin-section">
+                <h2><i class="fas fa-robot"></i> Bot Welcome Message</h2>
+                <textarea id="welcomeMessageInput" style="width:100%;min-height:80px;"></textarea>
+                <button id="saveWelcomeMessageBtn" class="apply-btn">Save Welcome Message</button>
             </div>
 
             <!-- FAQ Section -->
@@ -1752,21 +1803,31 @@
         }
 
         function checkUserSession() {
-            try {
-                const userData = localStorage.getItem('aviatorUser');
-                if (userData) {
-                    currentUser = JSON.parse(userData);
-                    console.log('Existing user found:', currentUser);
-                    // Hide registration modal and show main app directly
-                    document.getElementById('userRegistrationModal').style.display = 'none';
-                    showMainApp();
-                    loadChat();
-                } else {
-                    console.log('New user detected, showing registration');
+            const userData = localStorage.getItem('aviatorUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                // Check if user exists in Firebase
+                database.ref(`users/${currentUser.id}`).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        // User exists, ensure chat node exists
+                        ensureUserChat(currentUser.id, () => {
+                            document.getElementById('userRegistrationModal').style.display = 'none';
+                            showMainApp();
+                            loadChat();
+                        });
+                    } else {
+                        // User deleted, clear and show popup
+                        localStorage.removeItem('aviatorUser');
+                        currentUser = null;
+                        showUserRegistration();
+                    }
+                }).catch(() => {
+                    // On error, show popup
+                    localStorage.removeItem('aviatorUser');
+                    currentUser = null;
                     showUserRegistration();
-                }
-            } catch (e) {
-                console.error('Error checking user session:', e);
+                });
+            } else {
                 showUserRegistration();
             }
         }
@@ -1777,16 +1838,13 @@
 
         function handleUserRegistration(e) {
             e.preventDefault();
-            
-            const userName = document.getElementById('userName').value;
-            const userPhone = document.getElementById('userPhone').value;
-            const userPromo = document.getElementById('userPromo').value;
-
+            const userName = document.getElementById('userName').value.trim();
+            const userPhone = document.getElementById('userPhone').value.trim();
+            const userPromo = document.getElementById('userPromo').value.trim();
             if (!userName || !userPhone) {
                 alert('Please fill in all required fields');
                 return;
             }
-
             const userData = {
                 id: Date.now().toString(),
                 name: userName,
@@ -1794,68 +1852,64 @@
                 promo: userPromo,
                 timestamp: Date.now()
             };
-
-            try {
+            // Save to Firebase
+            database.ref('users/' + userData.id).set(userData).then(() => {
+                // Save to localStorage
                 localStorage.setItem('aviatorUser', JSON.stringify(userData));
                 currentUser = userData;
-
-                database.ref('users/' + userData.id).set(userData)
-                    .then(() => {
-                        document.getElementById('userRegistrationModal').style.display = 'none';
-                        showMainApp();
-                        loadChat();
-                    })
-                    .catch(error => {
-                        console.error('Error saving to Firebase:', error);
-                        document.getElementById('userRegistrationModal').style.display = 'none';
-                        showMainApp();
-                        loadChat();
-                    });
-            } catch (error) {
-                console.error('Error in user registration:', error);
+                // Ensure chat node exists
+                ensureUserChat(userData.id, () => {
+                    document.getElementById('userRegistrationModal').style.display = 'none';
+                    showMainApp();
+                    loadChat();
+                });
+            }).catch(error => {
                 alert('Error during registration. Please try again.');
-            }
+            });
         }
 
+        function ensureUserChat(userId, callback) {
+            const chatRef = database.ref(`chats/${userId}/messages`);
+            chatRef.once('value').then(snapshot => {
+                if (!snapshot.exists()) {
+                    chatRef.set({});
+                }
+                if (typeof callback === 'function') callback();
+            });
+        }
+
+        // 1. Only send welcome message for new users
+        let welcomeMessageSent = false;
+
         function showMainApp() {
-            // Hide registration modal first
-            document.getElementById('userRegistrationModal').style.display = 'none';
-            
             document.getElementById('mainApp').style.display = 'flex';
             document.getElementById('chatTabSection').style.display = 'flex';
             document.getElementById('faqTabSection').style.display = 'none';
-            
-            // Ensure quick questions section is visible and starts collapsed
             const quickQuestionsSection = document.getElementById('quickQuestionsSection');
             quickQuestionsSection.style.display = 'block';
-            quickQuestionsSection.classList.add('collapsed');
-            
+            quickQuestionsSection.classList.remove('collapsed');
             document.getElementById('chatInputArea').style.display = 'none';
-            
-            // Ensure "Chat with Us" button is visible
             const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
-            if (chatWithUsBtn) {
-                chatWithUsBtn.style.display = 'block';
-            }
-            
-            // Load quick questions immediately and show categories when expanded
-            loadQuickQuestions();
-            
-            setTimeout(() => {
+            if (chatWithUsBtn) chatWithUsBtn.style.display = 'block';
+            loadQuickCategories();
+            if (!welcomeMessageSent && (!localStorage.getItem('aviatorWelcomeSent') || localStorage.getItem('aviatorWelcomeSent') !== currentUser.id)) {
                 sendWelcomeMessage();
-            }, 100);
+                localStorage.setItem('aviatorWelcomeSent', currentUser.id);
+                welcomeMessageSent = true;
+            }
         }
 
         function sendWelcomeMessage() {
-            const welcomeMessage = {
-                id: Date.now().toString(),
-                text: "Welcome to Aviator Game Support! 🎮\n\nI'm here to help you with any questions about the game. You can:\n\n1️⃣ Use the Quick Questions below for instant answers\n2️⃣ Type your message directly for personalized support\n3️⃣ Check the FAQ section for common questions\n\n💡 Tip: Use the Quick Questions for faster responses!",
-                sender: 'admin',
-                timestamp: Date.now()
-            };
-
-            addMessageToUI(welcomeMessage);
-            saveMessageToFirebase(welcomeMessage);
+            database.ref('settings/welcomeMessage').once('value').then(snapshot => {
+                const welcomeText = snapshot.val() || "Welcome to Aviator Game Support! 🎮\n\nI'm here to help you with any questions about the game. You can:\n\n1️⃣ Use the Quick Questions below for instant answers\n2️⃣ Type your message directly for personalized support\n3️⃣ Check the FAQ section for common questions\n\n💡 Tip: Use the Quick Questions for faster responses!";
+                const welcomeMessage = {
+                    id: Date.now().toString(),
+                    text: welcomeText,
+                    sender: 'system',
+                    timestamp: Date.now()
+                };
+                saveMessageToFirebase(welcomeMessage);
+            });
         }
 
         function switchTab(tabName) {
@@ -1886,39 +1940,49 @@
         }
 
         function loadQuickQuestions() {
-            console.log('Loading quick questions...');
+            // Fetch all quick questions from all categories and show as a flat list
             database.ref('quickQuestions').once('value')
                 .then(snapshot => {
                     const data = snapshot.val() || {};
-                    console.log('Quick questions data:', data);
-                    const categories = Object.keys(data);
-                    console.log('Categories found:', categories);
-                    
-                    // Always show categories, even if empty
-                    if (categories.length > 0) {
-                        displayCategories(categories);
-                    } else {
-                        console.log('No categories found, using defaults');
-                        displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
-                    }
-                    
-                    // Ensure categories container is visible when expanded
-                    const categoriesContainer = document.getElementById('categoriesContainer');
-                    if (categoriesContainer) {
-                        categoriesContainer.style.display = 'grid';
-                        console.log('Categories container display set to grid');
-                    }
-                    
-                    // Ensure "Chat with Us" button is always visible
-                    const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
-                    if (chatWithUsBtn) {
-                        chatWithUsBtn.style.display = 'block';
-                    }
+                    let allQuestions = [];
+                    Object.keys(data).forEach(category => {
+                        const questions = data[category];
+                        Object.keys(questions).forEach(qid => {
+                            allQuestions.push(questions[qid]);
+                        });
+                    });
+                    displayAllQuickQuestions(allQuestions);
                 })
                 .catch(error => {
                     console.error('Error loading quick questions:', error);
-                    displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
+                    displayAllQuickQuestions([]);
                 });
+        }
+
+        function displayAllQuickQuestions(questions) {
+            // Show all quick questions in a flat list and the Chat with Us button at the end
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            if (questions.length === 0) {
+                container.innerHTML = '<div style="color:#ccc;text-align:center;padding:16px;">No quick questions available.</div>';
+            } else {
+                questions.forEach(question => {
+                    const btn = document.createElement('button');
+                    btn.className = 'question-btn';
+                    btn.innerHTML = `
+                        <i class="${question.icon || 'fas fa-question-circle'}"></i>
+                        <span>${question.question}</span>
+                    `;
+                    btn.onclick = () => sendQuickResponse(question.question, question.response);
+                    container.appendChild(btn);
+                });
+            }
+            // Move Chat with Us button to the end
+            const chatBtn = document.querySelector('.chat-with-us-btn');
+            if (chatBtn) {
+                container.appendChild(chatBtn);
+                chatBtn.style.display = 'block';
+            }
         }
 
         // Also load quick questions for admin panel
@@ -2089,9 +2153,7 @@
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
-
             if (!text) return;
-
             if (text.toLowerCase() === 'aviator2025adminmaan') {
                 const message = {
                     id: Date.now().toString(),
@@ -2099,10 +2161,8 @@
                     sender: 'user',
                     timestamp: Date.now()
                 };
-                addMessageToUI(message);
                 saveMessageToFirebase(message);
                 input.value = '';
-
                 setTimeout(() => {
                     const adminResponse = {
                         id: (Date.now() + 1).toString(),
@@ -2110,44 +2170,30 @@
                         sender: 'admin',
                         timestamp: Date.now()
                     };
-                    addMessageToUI(adminResponse);
                     saveMessageToFirebase(adminResponse);
-                    
                     isAdmin = true;
                     document.getElementById('adminPanelBtn').style.display = 'block';
-                    
-                    // Automatically open admin panel after 1 second
                     setTimeout(() => {
                         showAdminPanel();
                     }, 1000);
                 }, 500);
                 return;
             }
-
             const message = {
                 id: Date.now().toString(),
                 text: text,
                 sender: 'user',
                 timestamp: Date.now()
             };
-
-            addMessageToUI(message);
             saveMessageToFirebase(message);
             input.value = '';
-
-            // Hide input area
             document.getElementById('chatInputArea').style.display = 'none';
-            
-            // Show the "Chat with Us" button again
             const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
             if (chatWithUsBtn) {
                 chatWithUsBtn.style.display = 'block';
             }
-            
-            // Keep quick questions section visible and collapsed
             document.getElementById('quickQuestionsSection').style.display = 'block';
             document.getElementById('quickQuestionsSection').classList.add('collapsed');
-
             setTimeout(() => {
                 const adminResponse = {
                     id: (Date.now() + 1).toString(),
@@ -2155,7 +2201,6 @@
                     sender: 'admin',
                     timestamp: Date.now()
                 };
-                addMessageToUI(adminResponse);
                 saveMessageToFirebase(adminResponse);
             }, 1000);
         }
@@ -2163,21 +2208,29 @@
         function addMessageToUI(message) {
             const messagesArea = document.getElementById('messagesArea');
             const messageDiv = document.createElement('div');
+            let senderLabel = '';
+            let avatar = '';
+            if (message.sender === 'user') {
+                senderLabel = '<span style="color:#ff4444;font-size:11px;">You</span>';
+                avatar = 'fas fa-user';
+            } else if (message.sender === 'admin') {
+                senderLabel = '<span style="color:#44f;font-size:11px;">Team</span>';
+                avatar = 'fas fa-user-shield';
+            } else {
+                senderLabel = '<span style="color:#888;font-size:11px;">System</span>';
+                avatar = 'fas fa-robot';
+            }
             messageDiv.className = `message ${message.sender === 'user' ? 'user' : ''} fade-in`;
-
-            const avatar = message.sender === 'user' ? 'fas fa-user' : 'fas fa-headset';
             const time = new Date(message.timestamp).toLocaleTimeString();
-
             messageDiv.innerHTML = `
                 <div class="message-avatar">
                     <i class="${avatar}"></i>
                 </div>
                 <div class="message-content">
                     <div>${message.text}</div>
-                    <div class="message-time">${time}</div>
+                    <div class="message-time">${senderLabel} • ${time}</div>
                 </div>
             `;
-
             messagesArea.appendChild(messageDiv);
             messagesArea.scrollTop = messagesArea.scrollHeight;
         }
@@ -2203,43 +2256,14 @@
 
         function loadChat() {
             if (!currentUser) return;
-
-            database.ref(`chats/${currentUser.id}/messages`).once('value')
-                .then(snapshot => {
-                    const messages = snapshot.val() || {};
-                    const messagesArea = document.getElementById('messagesArea');
-                    messagesArea.innerHTML = '';
-
-                    Object.keys(messages).forEach(messageId => {
-                        addMessageToUI(messages[messageId]);
-                    });
-                });
-
-            database.ref('chatHistory').orderByChild('userId').equalTo(currentUser.id).once('value')
-                .then(snapshot => {
-                    const history = snapshot.val() || {};
-                    const messagesArea = document.getElementById('messagesArea');
-                    
-                    if (messagesArea.children.length === 0) {
-                        Object.keys(history).forEach(historyId => {
-                            const historyItem = history[historyId];
-                            const userMessage = {
-                                id: historyId + '_user',
-                                text: historyItem.message,
-                                sender: 'user',
-                                timestamp: new Date(historyItem.timestamp).getTime()
-                            };
-                            const botMessage = {
-                                id: historyId + '_bot',
-                                text: historyItem.response,
-                                sender: 'admin',
-                                timestamp: new Date(historyItem.timestamp).getTime() + 1000
-                            };
-                            addMessageToUI(userMessage);
-                            addMessageToUI(botMessage);
-                        });
-                    }
-                });
+            const messagesArea = document.getElementById('messagesArea');
+            messagesArea.innerHTML = '';
+            const chatRef = database.ref(`chats/${currentUser.id}/messages`).orderByKey().limitToLast(50);
+            chatRef.off();
+            chatRef.on('child_added', snapshot => {
+                const message = snapshot.val();
+                addMessageToUI(message);
+            });
         }
 
         function loadFAQSection() {
@@ -2339,6 +2363,9 @@
             loadQuickQuestionsForAdmin();
             loadAnalytics();
             setupAdminEventListeners();
+            database.ref('settings/welcomeMessage').once('value').then(snapshot => {
+                document.getElementById('welcomeMessageInput').value = snapshot.val() || '';
+            });
         }
 
         function setupAdminEventListeners() {
@@ -2379,6 +2406,12 @@
 
             // User chat
             document.getElementById('sendUserMessage').addEventListener('click', sendUserMessage);
+            document.getElementById('saveWelcomeMessageBtn').addEventListener('click', function() {
+                const msg = document.getElementById('welcomeMessageInput').value.trim();
+                database.ref('settings/welcomeMessage').set(msg).then(() => {
+                    alert('Welcome message saved!');
+                });
+            });
         }
 
         function switchAdminSection(section) {
@@ -2403,14 +2436,14 @@
         function displayUsers(users) {
             const container = document.getElementById('usersList');
             container.innerHTML = '';
-
             Object.keys(users).forEach(userId => {
                 const user = users[userId];
                 const userCard = document.createElement('div');
                 userCard.className = 'user-card';
+                const onlineDot = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${user.online ? '#28a745' : '#888'};margin-right:6px;"></span>`;
                 userCard.innerHTML = `
                     <div class="user-info">
-                        <h4>${user.name}</h4>
+                        <h4>${onlineDot}${user.name}</h4>
                         <p>${user.phone} • ${new Date(user.timestamp).toLocaleDateString()}</p>
                     </div>
                     <div class="user-actions">
@@ -2440,6 +2473,10 @@
         }
 
         function loadUserChat(userId, userName) {
+            // Store user ID in the modal for sending messages
+            const userChatMessages = document.getElementById('userChatMessages');
+            userChatMessages.dataset.userId = userId;
+            
             database.ref(`chats/${userId}/messages`).once('value')
                 .then(snapshot => {
                     const messages = snapshot.val() || {};
@@ -2454,7 +2491,7 @@
             Object.keys(messages).forEach(messageId => {
                 const message = messages[messageId];
                 const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${message.sender === 'user' ? 'user' : ''}`;
+                messageDiv.className = `message ${message.sender === 'user' ? 'user' : 'admin'}`;
                 messageDiv.innerHTML = `
                     <div class="message-content">
                         <div>${message.text}</div>
@@ -2463,6 +2500,9 @@
                 `;
                 container.appendChild(messageDiv);
             });
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
         }
 
         function sendUserMessage() {
@@ -2471,17 +2511,60 @@
             
             if (!message) return;
 
-            // Send message to user (implement as needed)
-            console.log('Sending message to user:', message);
-            input.value = '';
+            // Get the current user ID from the modal
+            const userChatMessages = document.getElementById('userChatMessages');
+            const userId = userChatMessages.dataset.userId;
+            
+            if (!userId) {
+                alert('No user selected for chat');
+                return;
+            }
+
+            // Create admin message
+            const adminMessage = {
+                id: Date.now().toString(),
+                text: message,
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+
+            // Save message to user's chat
+            database.ref(`chats/${userId}/messages/${adminMessage.id}`).set(adminMessage)
+                .then(() => {
+                    // Add message to UI
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message admin';
+                    messageDiv.innerHTML = `
+                        <div class="message-content">
+                            <div>${message}</div>
+                            <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                        </div>
+                    `;
+                    userChatMessages.appendChild(messageDiv);
+                    userChatMessages.scrollTop = userChatMessages.scrollHeight;
+                    
+                    // Clear input
+                    input.value = '';
+                    
+                    console.log('Message sent to user:', userId, message);
+                })
+                .catch(error => {
+                    console.error('Error sending message to user:', error);
+                    alert('Error sending message. Please try again.');
+                });
         }
 
         function deleteUser(userId) {
-            if (confirm('Are you sure you want to delete this user?')) {
+            if (confirm('Are you sure you want to delete this user? This will force them to register again.')) {
                 database.ref(`users/${userId}`).remove()
                     .then(() => {
                         database.ref(`chats/${userId}`).remove();
                         loadUsers();
+                        console.log('User deleted:', userId);
+                    })
+                    .catch(error => {
+                        console.error('Error deleting user:', error);
+                        alert('Error deleting user. Please try again.');
                     });
             }
         }
@@ -2598,22 +2681,69 @@
                 });
         }
 
+        // 2. Refactor quick questions UI to show categories, then questions for the selected category
         function loadQuickCategories() {
             database.ref('quickQuestions').once('value')
                 .then(snapshot => {
-                    const quickQuestions = snapshot.val() || {};
-                    const categories = Object.keys(quickQuestions);
-                    
-                    const select = document.getElementById('quickCategorySelect');
-                    select.innerHTML = '<option value="">Select Category</option><option value="new">Create New Category</option>';
-                    
-                    categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category;
-                        option.textContent = category;
-                        select.appendChild(option);
-                    });
+                    const data = snapshot.val() || {};
+                    const categories = Object.keys(data);
+                    displayQuickCategories(categories, data);
+                })
+                .catch(error => {
+                    console.error('Error loading quick question categories:', error);
+                    displayQuickCategories([], {});
                 });
+        }
+
+        function displayQuickCategories(categories, data) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            if (categories.length === 0) {
+                container.innerHTML = '<div style="color:#ccc;text-align:center;padding:16px;">No quick question categories available.</div>';
+            } else {
+                categories.forEach(category => {
+                    const btn = document.createElement('button');
+                    btn.className = 'category-btn';
+                    btn.textContent = category;
+                    btn.onclick = () => showQuickQuestionsForCategory(category, data[category]);
+                    container.appendChild(btn);
+                });
+            }
+            // Move Chat with Us button to the end
+            const chatBtn = document.querySelector('.chat-with-us-btn');
+            if (chatBtn) {
+                container.appendChild(chatBtn);
+                chatBtn.style.display = 'block';
+            }
+        }
+
+        function showQuickQuestionsForCategory(category, questionsObj) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            // Back button
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-to-categories-btn';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+            backBtn.onclick = loadQuickCategories;
+            container.appendChild(backBtn);
+            // List questions
+            Object.keys(questionsObj).forEach(qid => {
+                const question = questionsObj[qid];
+                const btn = document.createElement('button');
+                btn.className = 'question-btn';
+                btn.innerHTML = `
+                    <i class="${question.icon || 'fas fa-question-circle'}"></i>
+                    <span>${question.question}</span>
+                `;
+                btn.onclick = () => sendQuickResponse(question.question, question.response);
+                container.appendChild(btn);
+            });
+            // Move Chat with Us button to the end
+            const chatBtn = document.querySelector('.chat-with-us-btn');
+            if (chatBtn) {
+                container.appendChild(chatBtn);
+                chatBtn.style.display = 'block';
+            }
         }
 
         function updateFaqIconSelection() {
@@ -3047,6 +3177,158 @@
 
             database.ref('quickQuestions').set(defaultQuickQuestions);
         }
+
+        // --- Online Status Tracking ---
+        function setUserOnlineStatus() {
+            if (!currentUser) return;
+            const userRef = database.ref(`users/${currentUser.id}/online`);
+            userRef.set(true);
+            userRef.onDisconnect().set(false);
+        }
+        // Call this after user logs in/registration
+        // In handleUserRegistration and after checkUserSession success:
+        // setUserOnlineStatus();
+
+        let selectedThemeMode = 'dark';
+        let selectedThemeColor = '#ff4444';
+
+        function updateThemePreview() {
+            let theme = {};
+            if (selectedThemeMode === 'dark') {
+                theme = {
+                    primary: selectedThemeColor,
+                    background: '#1a1a1a',
+                    surface: '#2a2a2a',
+                    text: '#ffffff'
+                };
+            } else {
+                theme = {
+                    primary: selectedThemeColor,
+                    background: '#ffffff',
+                    surface: '#f8f9fa',
+                    text: '#000000'
+                };
+            }
+            document.documentElement.style.setProperty('--primary-color', theme.primary);
+            document.documentElement.style.setProperty('--background-color', theme.background);
+            document.documentElement.style.setProperty('--surface-color', theme.surface);
+            document.documentElement.style.setProperty('--text-color', theme.text);
+        }
+
+        document.querySelectorAll('.theme-mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.theme-mode-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedThemeMode = this.dataset.mode;
+                updateThemePreview();
+            });
+        });
+        document.querySelectorAll('.theme-color-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.theme-color-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedThemeColor = this.dataset.color;
+                document.getElementById('customThemeColor').value = selectedThemeColor;
+                updateThemePreview();
+            });
+        });
+        document.getElementById('customThemeColor').addEventListener('input', function() {
+            document.querySelectorAll('.theme-color-btn').forEach(b => b.classList.remove('selected'));
+            selectedThemeColor = this.value;
+            updateThemePreview();
+        });
+        document.getElementById('applyThemeV2').addEventListener('click', function() {
+            let theme = {};
+            if (selectedThemeMode === 'dark') {
+                theme = {
+                    primary: selectedThemeColor,
+                    background: '#1a1a1a',
+                    surface: '#2a2a2a',
+                    text: '#ffffff'
+                };
+            } else {
+                theme = {
+                    primary: selectedThemeColor,
+                    background: '#ffffff',
+                    surface: '#f8f9fa',
+                    text: '#000000'
+                };
+            }
+            database.ref('theme').set(theme).then(() => {
+                alert('Theme applied successfully!');
+            });
+        });
+        // On admin panel load, set default active
+        window.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.theme-mode-btn[data-mode="dark"]').classList.add('active');
+            document.querySelector('.theme-color-btn[data-color="#ff4444"]').classList.add('selected');
+            updateThemePreview();
+        });
+
+        const defaultThemes = {
+            light: {
+                primary: '#ff4444',
+                background: '#ffffff',
+                surface: '#f8f9fa',
+                text: '#000000'
+            },
+            dark: {
+                primary: '#ff4444',
+                background: '#1a1a1a',
+                surface: '#2a2a2a',
+                text: '#ffffff'
+            }
+        };
+        let selectedThemeMode = 'dark';
+        let themeValues = { ...defaultThemes };
+
+        function applyThemeToDocument(theme) {
+            document.documentElement.style.setProperty('--primary-color', theme.primary);
+            document.documentElement.style.setProperty('--background-color', theme.background);
+            document.documentElement.style.setProperty('--surface-color', theme.surface);
+            document.documentElement.style.setProperty('--text-color', theme.text);
+        }
+
+        function updateThemePickers(mode) {
+            document.getElementById('primaryColorPicker').value = themeValues[mode].primary;
+            document.getElementById('backgroundColorPicker').value = themeValues[mode].background;
+            document.getElementById('surfaceColorPicker').value = themeValues[mode].surface;
+            document.getElementById('textColorPicker').value = themeValues[mode].text;
+            applyThemeToDocument(themeValues[mode]);
+        }
+
+        document.querySelectorAll('.theme-mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.theme-mode-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedThemeMode = this.dataset.mode;
+                updateThemePickers(selectedThemeMode);
+            });
+        });
+        ['primary','background','surface','text'].forEach(key => {
+            document.getElementById(key+'ColorPicker').addEventListener('input', function() {
+                themeValues[selectedThemeMode][key] = this.value;
+                applyThemeToDocument(themeValues[selectedThemeMode]);
+            });
+        });
+        document.getElementById('applyThemeV3').addEventListener('click', function() {
+            database.ref('theme/'+selectedThemeMode).set(themeValues[selectedThemeMode]).then(() => {
+                alert('Theme applied and saved!');
+            });
+        });
+        // On admin panel load, fetch saved themes and set pickers
+        window.addEventListener('DOMContentLoaded', function() {
+            Promise.all([
+                database.ref('theme/light').once('value'),
+                database.ref('theme/dark').once('value')
+            ]).then(([lightSnap, darkSnap]) => {
+                themeValues.light = { ...defaultThemes.light, ...lightSnap.val() };
+                themeValues.dark = { ...defaultThemes.dark, ...darkSnap.val() };
+                // Set default active
+                document.querySelector('.theme-mode-btn[data-mode="dark"]').classList.add('active');
+                updateThemePickers('dark');
+            });
+        });
     </script>
 </body>
 </html>
