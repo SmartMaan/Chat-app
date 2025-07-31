@@ -1755,13 +1755,24 @@
             document.getElementById('chatTabSection').style.display = 'flex';
             document.getElementById('faqTabSection').style.display = 'none';
             
-            document.getElementById('quickQuestionsSection').style.display = 'block';
+            // Ensure quick questions section is visible and properly sized
+            const quickQuestionsSection = document.getElementById('quickQuestionsSection');
+            quickQuestionsSection.style.display = 'block';
+            quickQuestionsSection.style.maxHeight = '60vh';
+            quickQuestionsSection.style.overflowY = 'auto';
+            
             document.getElementById('chatInputArea').style.display = 'none';
             
             // Ensure "Chat with Us" button is visible
             const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
             if (chatWithUsBtn) {
                 chatWithUsBtn.style.display = 'block';
+            }
+            
+            // Ensure categories container is visible
+            const categoriesContainer = document.getElementById('categoriesContainer');
+            if (categoriesContainer) {
+                categoriesContainer.style.display = 'grid';
             }
             
             setTimeout(() => {
@@ -1822,6 +1833,15 @@
                 .catch(error => {
                     console.error('Error loading quick questions:', error);
                     displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
+                });
+        }
+
+        // Also load quick questions for admin panel
+        function loadQuickQuestionsForAdmin() {
+            database.ref('quickQuestions').once('value')
+                .then(snapshot => {
+                    const quickQuestions = snapshot.val() || {};
+                    displayQuickQuestions(quickQuestions);
                 });
         }
 
@@ -2202,7 +2222,7 @@
             console.log('Loading admin data...');
             loadUsers();
             loadFAQs();
-            loadQuickQuestions();
+            loadQuickQuestionsForAdmin();
             loadAnalytics();
             setupAdminEventListeners();
         }
@@ -2401,6 +2421,8 @@
                 document.getElementById('faqForm').reset();
                 document.getElementById('faqSelectedIcon').value = 'fas fa-question-circle';
                 updateFaqIconSelection();
+                // Ensure category input is hidden initially
+                document.getElementById('faqCategory').style.display = 'none';
             }
         }
 
@@ -2412,6 +2434,27 @@
                 input.style.display = 'block';
                 input.required = true;
                 input.focus();
+                input.value = '';
+            } else if (select.value) {
+                input.style.display = 'none';
+                input.required = false;
+                input.value = select.value;
+            } else {
+                input.style.display = 'none';
+                input.required = false;
+                input.value = '';
+            }
+        }
+
+        function handleQuickCategoryChange() {
+            const select = document.getElementById('quickCategorySelect');
+            const input = document.getElementById('quickCategory');
+            
+            if (select.value === 'new') {
+                input.style.display = 'block';
+                input.required = true;
+                input.focus();
+                input.value = '';
             } else if (select.value) {
                 input.style.display = 'none';
                 input.required = false;
@@ -2430,6 +2473,24 @@
                     const categories = [...new Set(Object.values(faqs).map(faq => faq.category))];
                     
                     const select = document.getElementById('faqCategorySelect');
+                    select.innerHTML = '<option value="">Select Category</option><option value="new">Create New Category</option>';
+                    
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        select.appendChild(option);
+                    });
+                });
+        }
+
+        function loadQuickCategories() {
+            database.ref('quickQuestions').once('value')
+                .then(snapshot => {
+                    const quickQuestions = snapshot.val() || {};
+                    const categories = Object.keys(quickQuestions);
+                    
+                    const select = document.getElementById('quickCategorySelect');
                     select.innerHTML = '<option value="">Select Category</option><option value="new">Create New Category</option>';
                     
                     categories.forEach(category => {
@@ -2545,6 +2606,8 @@
                 document.getElementById('quickForm').reset();
                 document.getElementById('selectedIcon').value = 'fas fa-home';
                 updateIconSelection();
+                // Ensure category input is hidden initially
+                document.getElementById('quickCategory').style.display = 'none';
             }
         }
 
@@ -2678,6 +2741,11 @@
             const selectedTheme = themes[theme];
             if (selectedTheme) {
                 applyCustomColors(selectedTheme);
+                // Update color inputs to match the theme
+                document.getElementById('primaryColor').value = selectedTheme.primary;
+                document.getElementById('bgColor').value = selectedTheme.background;
+                document.getElementById('surfaceColor').value = selectedTheme.surface;
+                document.getElementById('textColor').value = selectedTheme.text;
             }
         }
 
@@ -2699,6 +2767,9 @@
 
             // Save theme to Firebase
             database.ref('theme').set(colors);
+            
+            // Show success message
+            alert('Theme applied successfully!');
         }
 
         // Analytics
