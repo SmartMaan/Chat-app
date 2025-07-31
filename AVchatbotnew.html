@@ -1396,9 +1396,10 @@
         .theme-mode-select { display: flex; gap: 12px; margin-bottom: 16px; }
         .theme-mode-btn { padding: 10px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; background: #eee; color: #222; transition: 0.2s; }
         .theme-mode-btn.active, .theme-mode-btn:focus { background: #ff4444; color: #fff; }
-        .theme-color-select { display: flex; gap: 12px; margin-bottom: 16px; }
-        .theme-color-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; outline: none; transition: 0.2s; }
-        .theme-color-btn.selected { border: 3px solid #ff4444; }
+        .theme-color-pickers { display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+        .color-input { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+        .color-input label { color: #888; font-size: 13px; }
+        .color-input input[type="color"] { width: 48px; height: 48px; border: none; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -1527,14 +1528,25 @@
                     <button class="theme-mode-btn" data-mode="light">Light</button>
                     <button class="theme-mode-btn" data-mode="dark">Dark</button>
                 </div>
-                <div class="theme-color-select">
-                    <button class="theme-color-btn" data-color="#ff4444" style="background:#ff4444;"></button>
-                    <button class="theme-color-btn" data-color="#ffc107" style="background:#ffc107;"></button>
-                    <button class="theme-color-btn" data-color="#4caf50" style="background:#4caf50;"></button>
-                    <button class="theme-color-btn" data-color="#2196f3" style="background:#2196f3;"></button>
-                    <input type="color" id="customThemeColor" value="#ff4444" style="width:40px;height:40px;border:none;outline:none;cursor:pointer;vertical-align:middle;">
+                <div class="theme-color-pickers">
+                    <div class="color-input">
+                        <label>Primary Color</label>
+                        <input type="color" id="primaryColorPicker">
+                    </div>
+                    <div class="color-input">
+                        <label>Background Color</label>
+                        <input type="color" id="backgroundColorPicker">
+                    </div>
+                    <div class="color-input">
+                        <label>Surface Color</label>
+                        <input type="color" id="surfaceColorPicker">
+                    </div>
+                    <div class="color-input">
+                        <label>Text Color</label>
+                        <input type="color" id="textColorPicker">
+                    </div>
                 </div>
-                <button id="applyThemeV2" class="apply-btn">Apply Theme</button>
+                <button id="applyThemeV3" class="apply-btn">Apply Theme</button>
             </div>
             <!-- Bot Welcome Message Section -->
             <div id="welcomeMessageSection" class="admin-section">
@@ -3261,6 +3273,71 @@
             document.querySelector('.theme-mode-btn[data-mode="dark"]').classList.add('active');
             document.querySelector('.theme-color-btn[data-color="#ff4444"]').classList.add('selected');
             updateThemePreview();
+        });
+
+        const defaultThemes = {
+            light: {
+                primary: '#ff4444',
+                background: '#ffffff',
+                surface: '#f8f9fa',
+                text: '#000000'
+            },
+            dark: {
+                primary: '#ff4444',
+                background: '#1a1a1a',
+                surface: '#2a2a2a',
+                text: '#ffffff'
+            }
+        };
+        let selectedThemeMode = 'dark';
+        let themeValues = { ...defaultThemes };
+
+        function applyThemeToDocument(theme) {
+            document.documentElement.style.setProperty('--primary-color', theme.primary);
+            document.documentElement.style.setProperty('--background-color', theme.background);
+            document.documentElement.style.setProperty('--surface-color', theme.surface);
+            document.documentElement.style.setProperty('--text-color', theme.text);
+        }
+
+        function updateThemePickers(mode) {
+            document.getElementById('primaryColorPicker').value = themeValues[mode].primary;
+            document.getElementById('backgroundColorPicker').value = themeValues[mode].background;
+            document.getElementById('surfaceColorPicker').value = themeValues[mode].surface;
+            document.getElementById('textColorPicker').value = themeValues[mode].text;
+            applyThemeToDocument(themeValues[mode]);
+        }
+
+        document.querySelectorAll('.theme-mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.theme-mode-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedThemeMode = this.dataset.mode;
+                updateThemePickers(selectedThemeMode);
+            });
+        });
+        ['primary','background','surface','text'].forEach(key => {
+            document.getElementById(key+'ColorPicker').addEventListener('input', function() {
+                themeValues[selectedThemeMode][key] = this.value;
+                applyThemeToDocument(themeValues[selectedThemeMode]);
+            });
+        });
+        document.getElementById('applyThemeV3').addEventListener('click', function() {
+            database.ref('theme/'+selectedThemeMode).set(themeValues[selectedThemeMode]).then(() => {
+                alert('Theme applied and saved!');
+            });
+        });
+        // On admin panel load, fetch saved themes and set pickers
+        window.addEventListener('DOMContentLoaded', function() {
+            Promise.all([
+                database.ref('theme/light').once('value'),
+                database.ref('theme/dark').once('value')
+            ]).then(([lightSnap, darkSnap]) => {
+                themeValues.light = { ...defaultThemes.light, ...lightSnap.val() };
+                themeValues.dark = { ...defaultThemes.dark, ...darkSnap.val() };
+                // Set default active
+                document.querySelector('.theme-mode-btn[data-mode="dark"]').classList.add('active');
+                updateThemePickers('dark');
+            });
         });
     </script>
 </body>
