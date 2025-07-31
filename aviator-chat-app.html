@@ -320,13 +320,18 @@
             position: sticky;
             bottom: 0;
             z-index: 50;
-            min-height: 120px;
+            min-height: 60px;
             max-height: 60vh;
             overflow-y: auto;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 20px 20px 0 0;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .quick-questions-section.collapsed {
+            max-height: 60px;
+            overflow: hidden;
         }
 
         .quick-questions-section::-webkit-scrollbar {
@@ -380,6 +385,15 @@
         .quick-questions-toggle:hover {
             background: rgba(255, 68, 68, 0.2);
             transform: translateY(-1px);
+        }
+
+        .quick-questions-content {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .quick-questions-section.collapsed .quick-questions-content {
+            display: none;
         }
 
         .categories-container {
@@ -1340,18 +1354,20 @@
                 <div class="quick-questions-header">
                     <h3>Quick Questions</h3>
                     <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="toggleQuickQuestions()">
-                        <i class="fas fa-chevron-up"></i> Hide
+                        <i class="fas fa-chevron-down"></i> Show More
                     </button>
                 </div>
-                <div id="categoriesContainer" class="categories-container">
-                    <!-- Categories will be loaded here -->
+                <div class="quick-questions-content">
+                    <div id="categoriesContainer" class="categories-container">
+                        <!-- Categories will be loaded here -->
+                    </div>
+                    <div id="questionsContainer" class="questions-container">
+                        <!-- Questions will be loaded here -->
+                    </div>
+                    <button class="chat-with-us-btn" onclick="showChatInput()">
+                        <i class="fas fa-comment"></i> Chat with Us
+                    </button>
                 </div>
-                <div id="questionsContainer" class="questions-container">
-                    <!-- Questions will be loaded here -->
-                </div>
-                <button class="chat-with-us-btn" onclick="showChatInput()">
-                    <i class="fas fa-comment"></i> Chat with Us
-                </button>
             </div>
 
             <!-- Input Area -->
@@ -1501,7 +1517,7 @@
                             <option value="">Select Category</option>
                             <option value="new">Create New Category</option>
                         </select>
-                        <input type="text" id="faqCategory" placeholder="Enter category name" style="display: none;" required>
+                        <input type="text" id="faqCategory" placeholder="Enter category name" style="display: none;">
                     </div>
                 </div>
                 <div class="form-group">
@@ -1560,7 +1576,7 @@
                             <option value="">Select Category</option>
                             <option value="new">Create New Category</option>
                         </select>
-                        <input type="text" id="quickCategory" placeholder="Enter category name" style="display: none;" required>
+                        <input type="text" id="quickCategory" placeholder="Enter category name" style="display: none;">
                     </div>
                 </div>
                 <div class="form-group">
@@ -1755,11 +1771,10 @@
             document.getElementById('chatTabSection').style.display = 'flex';
             document.getElementById('faqTabSection').style.display = 'none';
             
-            // Ensure quick questions section is visible and properly sized
+            // Ensure quick questions section is visible and starts collapsed
             const quickQuestionsSection = document.getElementById('quickQuestionsSection');
             quickQuestionsSection.style.display = 'block';
-            quickQuestionsSection.style.maxHeight = '60vh';
-            quickQuestionsSection.style.overflowY = 'auto';
+            quickQuestionsSection.classList.add('collapsed');
             
             document.getElementById('chatInputArea').style.display = 'none';
             
@@ -1767,12 +1782,6 @@
             const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
             if (chatWithUsBtn) {
                 chatWithUsBtn.style.display = 'block';
-            }
-            
-            // Ensure categories container is visible
-            const categoriesContainer = document.getElementById('categoriesContainer');
-            if (categoriesContainer) {
-                categoriesContainer.style.display = 'grid';
             }
             
             // Load quick questions immediately
@@ -1809,17 +1818,10 @@
                 faqSection.style.display = 'none';
                 document.getElementById('messagesArea').style.display = 'block';
                 
-                // Ensure quick questions section is visible and properly sized
+                // Ensure quick questions section is visible and starts collapsed
                 const quickQuestionsSection = document.getElementById('quickQuestionsSection');
                 quickQuestionsSection.style.display = 'block';
-                quickQuestionsSection.style.maxHeight = '60vh';
-                quickQuestionsSection.style.overflowY = 'auto';
-                
-                // Ensure categories container is visible
-                const categoriesContainer = document.getElementById('categoriesContainer');
-                if (categoriesContainer) {
-                    categoriesContainer.style.display = 'grid';
-                }
+                quickQuestionsSection.classList.add('collapsed');
                 
                 loadQuickQuestions();
             } else if (tabName === 'faq') {
@@ -1846,15 +1848,7 @@
                         displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
                     }
                     
-                    // Ensure quick questions section is visible
-                    const quickSection = document.getElementById('quickQuestionsSection');
-                    if (quickSection) {
-                        quickSection.style.display = 'block';
-                        quickSection.style.maxHeight = '60vh';
-                        quickSection.style.overflowY = 'auto';
-                    }
-                    
-                    // Ensure categories container is visible
+                    // Ensure categories container is visible when expanded
                     const categoriesContainer = document.getElementById('categoriesContainer');
                     if (categoriesContainer) {
                         categoriesContainer.style.display = 'grid';
@@ -1911,7 +1905,7 @@
             
             const backBtn = document.createElement('button');
             backBtn.className = 'back-to-categories-btn';
-            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Categories';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
             backBtn.onclick = showCategories;
             
             const questionsContainer = document.getElementById('questionsContainer');
@@ -1934,6 +1928,11 @@
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
+            
+            // Ensure quick questions section is expanded
+            const section = document.getElementById('quickQuestionsSection');
+            section.classList.remove('collapsed');
+            document.getElementById('quickQuestionsToggle').innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
         }
 
         function displayQuestions(questions) {
@@ -2234,23 +2233,15 @@
         function toggleQuickQuestions() {
             const section = document.getElementById('quickQuestionsSection');
             const toggle = document.getElementById('quickQuestionsToggle');
-            const categoriesContainer = document.getElementById('categoriesContainer');
-            const questionsContainer = document.getElementById('questionsContainer');
             
-            if (section.style.maxHeight === '60px' || section.style.maxHeight === '') {
+            if (section.classList.contains('collapsed')) {
                 // Expand
-                section.style.maxHeight = '60vh';
-                section.style.overflowY = 'auto';
-                categoriesContainer.style.display = 'grid';
-                questionsContainer.style.display = 'none';
-                toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Hide';
+                section.classList.remove('collapsed');
+                toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
             } else {
                 // Collapse
-                section.style.maxHeight = '60px';
-                section.style.overflowY = 'hidden';
-                categoriesContainer.style.display = 'none';
-                questionsContainer.style.display = 'none';
-                toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show Quick Questions';
+                section.classList.add('collapsed');
+                toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
             }
         }
 
@@ -2560,10 +2551,19 @@
         function handleFaqSubmit(e) {
             e.preventDefault();
             
-            const category = document.getElementById('faqCategory').value;
+            const categorySelect = document.getElementById('faqCategorySelect');
+            const categoryInput = document.getElementById('faqCategory');
             const question = document.getElementById('faqQuestion').value;
             const answer = document.getElementById('faqAnswer').value;
             const icon = document.getElementById('faqSelectedIcon').value;
+
+            // Determine the category
+            let category;
+            if (categorySelect.value === 'new') {
+                category = categoryInput.value.trim();
+            } else {
+                category = categorySelect.value;
+            }
 
             if (!category || !question || !answer) {
                 alert('Please fill in all required fields');
@@ -2696,10 +2696,24 @@
         function handleQuickSubmit(e) {
             e.preventDefault();
             
-            const category = document.getElementById('quickCategory').value;
+            const categorySelect = document.getElementById('quickCategorySelect');
+            const categoryInput = document.getElementById('quickCategory');
             const question = document.getElementById('quickQuestion').value;
             const response = document.getElementById('quickResponse').value;
             const icon = document.getElementById('selectedIcon').value;
+
+            // Determine the category
+            let category;
+            if (categorySelect.value === 'new') {
+                category = categoryInput.value.trim();
+            } else {
+                category = categorySelect.value;
+            }
+
+            if (!category || !question || !response) {
+                alert('Please fill in all required fields');
+                return;
+            }
 
             const questionData = {
                 category: category,
@@ -2712,7 +2726,7 @@
             database.ref(`quickQuestions/${category}`).push(questionData)
                 .then(() => {
                     closeModal('quickModal');
-                    loadQuickQuestions();
+                    loadQuickQuestionsForAdmin();
                 });
         }
 
