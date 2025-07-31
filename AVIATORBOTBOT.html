@@ -1733,7 +1733,7 @@
             <button class="admin-sidebar-btn" data-section="faq">FAQ</button>
             <button class="admin-sidebar-btn" data-section="quick">Quick Q</button>
             <button class="admin-sidebar-btn" data-section="categories">Categories</button>
-            <button id="closeAdminBtn" class="admin-sidebar-btn" style="background:#ff4444;color:#fff;">Close</button>
+            <button id="closeAdminBtn" class="admin-sidebar-btn" onclick="hideAdminPanel()" style="background:#ff4444;color:#fff;">Close</button>
         </div>
         <div class="admin-content">
             <!-- Users Section -->
@@ -2037,7 +2037,20 @@
         // Update user activity
         function updateUserActivity() {
             if (currentUser && currentUser.id) {
+                currentUser.lastActivity = Date.now();
+                // Update in Firebase
                 database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
+                // Update in localStorage to maintain session
+                localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
+            }
+        }
+
+        // Ensure user session is maintained
+        function maintainUserSession() {
+            if (currentUser && currentUser.id) {
+                // Re-save to localStorage to prevent data loss
+                localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
+                console.log('User session maintained for:', currentUser.name);
             }
         }
 
@@ -2051,9 +2064,24 @@
             // Update user activity every 30 seconds
             setInterval(updateUserActivity, 30000);
             
+            // Maintain user session every 60 seconds
+            setInterval(maintainUserSession, 60000);
+            
             // Update activity on user interaction
             document.addEventListener('click', updateUserActivity);
             document.addEventListener('keypress', updateUserActivity);
+            
+            // Maintain session on page visibility change
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    maintainUserSession();
+                }
+            });
+            
+            // Save session before page unload
+            window.addEventListener('beforeunload', function() {
+                maintainUserSession();
+            });
         });
 
         function setupEventListeners() {
@@ -2087,17 +2115,35 @@
         function checkUserSession() {
             try {
                 const userData = localStorage.getItem('aviatorUser');
+                console.log('Checking user session. LocalStorage data:', userData);
+                
                 if (userData) {
                     currentUser = JSON.parse(userData);
-                    console.log('Existing user found:', currentUser);
+                    console.log('Existing user found in localStorage:', currentUser);
+                    
+                    // Validate required user fields
+                    if (!currentUser.id || !currentUser.name || !currentUser.email) {
+                        console.log('Invalid user data found, clearing localStorage');
+                        localStorage.removeItem('aviatorUser');
+                        currentUser = null;
+                        showUserRegistration();
+                        return;
+                    }
                     
                     // Check if user data exists in Firebase
+                    console.log('Checking Firebase for user:', currentUser.id);
                     database.ref('users/' + currentUser.id).once('value')
                         .then(snapshot => {
+                            console.log('Firebase check result:', snapshot.exists());
                             if (snapshot.exists()) {
                                 // User exists in Firebase, proceed normally
+                                console.log('User verified in Firebase, proceeding to main app');
                                 // Update last activity
                                 database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
+                                // Mark as existing user
+                                currentUser.isNewUser = false;
+                                localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
+                                
                                 document.getElementById('userRegistrationModal').style.display = 'none';
                                 showMainApp();
                                 loadChat();
@@ -2111,14 +2157,23 @@
                         })
                         .catch(error => {
                             console.error('Error checking Firebase user:', error);
-                            showUserRegistration();
+                            // On error, still try to proceed if user data looks valid
+                            if (currentUser.id && currentUser.name) {
+                                console.log('Firebase error, but user data valid, proceeding');
+                                document.getElementById('userRegistrationModal').style.display = 'none';
+                                showMainApp();
+                                loadChat();
+                            } else {
+                                showUserRegistration();
+                            }
                         });
                 } else {
-                    console.log('New user detected, showing registration');
+                    console.log('No user data in localStorage, showing registration');
                     showUserRegistration();
                 }
             } catch (e) {
                 console.error('Error checking user session:', e);
+                localStorage.removeItem('aviatorUser');
                 showUserRegistration();
             }
         }
@@ -2140,34 +2195,39 @@
                  return;
              }
 
-             const userData = {
-                 id: Date.now().toString(),
-                 name: userName,
-                 email: userEmail,
-                 phone: userPhone,
-                 promo: userPromo,
-                 timestamp: Date.now(),
-                 isNewUser: true
-             };
+                         const userData = {
+                id: Date.now().toString(),
+                name: userName,
+                email: userEmail,
+                phone: userPhone,
+                promo: userPromo,
+                timestamp: Date.now(),
+                lastActivity: Date.now(),
+                isNewUser: true
+            };
 
-            try {
-                localStorage.setItem('aviatorUser', JSON.stringify(userData));
-                currentUser = userData;
+           try {
+               console.log('Saving new user data:', userData);
+               localStorage.setItem('aviatorUser', JSON.stringify(userData));
+               currentUser = userData;
+               console.log('User data saved to localStorage');
 
-                database.ref('users/' + userData.id).set(userData)
-                    .then(() => {
-                        document.getElementById('userRegistrationModal').style.display = 'none';
-                        showMainApp();
-                        loadChat();
-                        sendNewUserWelcome();
-                    })
-                    .catch(error => {
-                        console.error('Error saving to Firebase:', error);
-                        document.getElementById('userRegistrationModal').style.display = 'none';
-                        showMainApp();
-                        loadChat();
-                        sendNewUserWelcome();
-                    });
+               database.ref('users/' + userData.id).set(userData)
+                   .then(() => {
+                       console.log('User data saved to Firebase successfully');
+                       document.getElementById('userRegistrationModal').style.display = 'none';
+                       showMainApp();
+                       loadChat();
+                       sendNewUserWelcome();
+                   })
+                   .catch(error => {
+                       console.error('Error saving to Firebase:', error);
+                       // Still proceed even if Firebase fails
+                       document.getElementById('userRegistrationModal').style.display = 'none';
+                       showMainApp();
+                       loadChat();
+                       sendNewUserWelcome();
+                   });
             } catch (error) {
                 console.error('Error in user registration:', error);
                 alert('Error during registration. Please try again.');
@@ -2725,7 +2785,14 @@
         }
 
         function hideAdminPanel() {
-            document.getElementById('adminPanel').style.display = 'none';
+            console.log('Hiding admin panel...');
+            const adminPanel = document.getElementById('adminPanel');
+            if (adminPanel) {
+                adminPanel.style.display = 'none';
+                console.log('Admin panel hidden successfully');
+            } else {
+                console.error('Admin panel element not found');
+            }
         }
 
         function loadAdminData() {
