@@ -310,6 +310,45 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Real-time message animations */
+        .message.new-message {
+            animation: slideInAndGlow 0.5s ease-out;
+            border-left: 3px solid #ff4444;
+        }
+
+        @keyframes slideInAndGlow {
+            0% { 
+                opacity: 0; 
+                transform: translateX(-20px) scale(0.95);
+                box-shadow: 0 0 0 rgba(255, 68, 68, 0);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateX(0) scale(1);
+                box-shadow: 0 0 0 rgba(255, 68, 68, 0);
+            }
+        }
+
+        /* Online status indicator */
+        .user-online-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
         /* Quick Questions Section - Material 3 Design */
         .quick-questions-section {
             background: rgba(42, 42, 42, 0.95);
@@ -2136,20 +2175,30 @@
                         .then(snapshot => {
                             console.log('Firebase check result:', snapshot.exists());
                             if (snapshot.exists()) {
-                                // User exists in Firebase, proceed normally
-                                console.log('User verified in Firebase, proceeding to main app');
+                                // User exists in Firebase - OLD USER
+                                console.log('✅ OLD USER verified in Firebase, proceeding to main app with history');
+                                const firebaseUserData = snapshot.val();
+                                
+                                // Merge Firebase data with localStorage data
+                                currentUser = {
+                                    ...currentUser,
+                                    ...firebaseUserData,
+                                    isNewUser: false
+                                };
+                                
                                 // Update last activity
                                 database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
-                                // Mark as existing user
-                                currentUser.isNewUser = false;
+                                
+                                // Save updated user data
                                 localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
                                 
+                                console.log('Old user data loaded:', currentUser);
                                 document.getElementById('userRegistrationModal').style.display = 'none';
                                 showMainApp();
                                 loadChat();
                             } else {
-                                // User not in Firebase, treat as new user
-                                console.log('User not found in Firebase, treating as new user');
+                                // User not in Firebase - NEW USER
+                                console.log('🆕 NEW USER detected, user not found in Firebase');
                                 localStorage.removeItem('aviatorUser');
                                 currentUser = null;
                                 showUserRegistration();
@@ -2261,13 +2310,20 @@
             
                                      setTimeout(() => {
                 loadQuickQuestions();
+                
+                // Request notification permission
+                requestNotificationPermission();
+                
                 if (!currentUser.isNewUser) {
                     // Load chat history for existing users
+                    console.log('Loading chat history for existing user:', currentUser.name);
                     loadUserChatHistory();
                     sendWelcomeMessage();
                 } else {
-                    // For new users, just send welcome message
+                    // For new users, just send welcome message and set up real-time
+                    console.log('Setting up new user experience for:', currentUser.name);
                     sendNewUserWelcome();
+                    setupRealTimeMessaging();
                 }
             }, 100);
         }
@@ -2517,8 +2573,18 @@
 
         function addMessageToUI(message) {
             const messagesArea = document.getElementById('messagesArea');
+            
+            // Check if message already exists
+            if (message.id) {
+                const existingMessage = messagesArea.querySelector(`[data-message-id="${message.id}"]`);
+                if (existingMessage) {
+                    return; // Message already displayed
+                }
+            }
+            
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${message.sender === 'user' ? 'user' : ''} fade-in`;
+            messageDiv.dataset.messageId = message.id || Date.now();
 
             const avatar = message.sender === 'user' ? 'fas fa-user' : 'fas fa-headset';
             const time = new Date(message.timestamp).toLocaleTimeString();
@@ -2535,6 +2601,9 @@
 
             messagesArea.appendChild(messageDiv);
             messagesArea.scrollTop = messagesArea.scrollHeight;
+            
+            // Add smooth scroll animation for new messages
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
 
         function saveMessageToFirebase(message) {
@@ -2650,9 +2719,82 @@
                 messagesArea.scrollTop = messagesArea.scrollHeight;
                 
                 console.log(`Loaded ${uniqueMessages.length} chat history messages for user ${currentUser.name}`);
+                
+                // Set up real-time listeners after loading history
+                setupRealTimeMessaging();
             }).catch(error => {
                 console.error('Error loading chat history:', error);
             });
+        }
+
+        // Real-time messaging system
+        function setupRealTimeMessaging() {
+            if (!currentUser || !currentUser.id) return;
+
+            console.log('Setting up real-time messaging for user:', currentUser.name);
+
+            // Listen for new messages in user's chat
+            database.ref(`chats/${currentUser.id}/messages`).on('child_added', function(snapshot) {
+                const message = snapshot.val();
+                if (message && message.timestamp > Date.now() - 10000) { // Only new messages (last 10 seconds)
+                    // Check if message is not already displayed
+                    const messagesArea = document.getElementById('messagesArea');
+                    const existingMessages = messagesArea.querySelectorAll('.message');
+                    let messageExists = false;
+                    
+                    existingMessages.forEach(msgEl => {
+                        if (msgEl.dataset.messageId === message.id) {
+                            messageExists = true;
+                        }
+                    });
+                    
+                    if (!messageExists) {
+                        console.log('New real-time message received:', message);
+                        addMessageToUI(message);
+                        
+                        // Show notification if page is not visible
+                        if (document.hidden) {
+                            showNotification('New message received', message.text);
+                        }
+                    }
+                }
+            });
+
+            // Listen for admin messages from the general messages node
+            database.ref('messages').orderByChild('userId').equalTo(currentUser.id).on('child_added', function(snapshot) {
+                const message = snapshot.val();
+                if (message && message.sender === 'admin' && message.timestamp > Date.now() - 10000) {
+                    console.log('New admin message received:', message);
+                    addMessageToUI({
+                        id: snapshot.key,
+                        text: message.text,
+                        sender: 'admin',
+                        timestamp: message.timestamp
+                    });
+                    
+                    // Show notification for admin messages
+                    if (document.hidden) {
+                        showNotification('Admin replied', message.text);
+                    }
+                }
+            });
+        }
+
+        // Show browser notification
+        function showNotification(title, message) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message.substring(0, 100) + (message.length > 100 ? '...' : ''),
+                    icon: '/favicon.ico'
+                });
+            }
+        }
+
+        // Request notification permission
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                Notification.requestPermission();
+            }
         }
 
         function loadFAQSection() {
@@ -3541,27 +3683,44 @@
                 isAdminMessage: true
             };
 
-            // Save to messages
-            database.ref('messages').push(message)
-                .then(() => {
-                    // Save to chat history
-                    const historyData = {
-                        userId: currentChatUserId,
-                        message: messageText,
-                        timestamp: new Date().toISOString(),
-                        sender: 'admin',
-                        type: 'admin_message'
-                    };
-                    return database.ref('chatHistory').push(historyData);
+            console.log('Admin sending message to user:', currentChatUserId, messageText);
+            
+            // Save to multiple locations for real-time delivery
+            Promise.all([
+                // Save to general messages node
+                database.ref('messages').push(message),
+                // Save to user's specific chat node for real-time delivery
+                database.ref(`chats/${currentChatUserId}/messages/${message.id}`).set(message),
+                // Save to chat history for admin panel
+                database.ref('chatHistory').push({
+                    userId: currentChatUserId,
+                    message: messageText,
+                    timestamp: new Date().toISOString(),
+                    sender: 'admin',
+                    type: 'admin_message'
                 })
-                .then(() => {
-                    input.value = '';
-                    loadUserChatHistory(currentChatUserId);
-                })
-                .catch(error => {
-                    console.error('Error sending message:', error);
-                    alert('Error sending message');
-                });
+            ]).then(() => {
+                console.log('Admin message sent successfully');
+                input.value = '';
+                // Add message to admin chat view immediately
+                const adminChatMessages = document.getElementById('userChatMessages');
+                if (adminChatMessages) {
+                    const messageEl = document.createElement('div');
+                    messageEl.className = 'chat-message admin-message';
+                    messageEl.innerHTML = `
+                        <div class="message-content">
+                            <div class="message-text">${messageText}</div>
+                            <div class="message-time">${new Date().toLocaleString()}</div>
+                            <div class="message-type">admin_message</div>
+                        </div>
+                    `;
+                    adminChatMessages.appendChild(messageEl);
+                    adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
+                }
+            }).catch(error => {
+                console.error('Error sending admin message:', error);
+                alert('Error sending message: ' + error.message);
+            });
         }
 
         function setupIconSelector(selectorId, hiddenInputId) {
