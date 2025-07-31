@@ -320,7 +320,7 @@
             position: sticky;
             bottom: 0;
             z-index: 50;
-            min-height: 60px;
+            min-height: 120px;
             max-height: 60vh;
             overflow-y: auto;
             backdrop-filter: blur(20px);
@@ -330,7 +330,7 @@
         }
 
         .quick-questions-section.collapsed {
-            max-height: 60px;
+            max-height: 120px;
             overflow: hidden;
         }
 
@@ -401,19 +401,21 @@
             background: linear-gradient(135deg, #ff4444, #ff6666);
             color: white;
             border: none;
-            padding: 14px 16px;
+            padding: 16px 20px;
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 16px;
             box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
-            margin-top: 12px;
+            margin-top: 16px;
             width: 100%;
-            min-height: 48px;
+            min-height: 56px;
             letter-spacing: 0.3px;
             display: block;
+            position: relative;
+            z-index: 10;
         }
 
         .chat-with-us-btn:hover {
@@ -1408,7 +1410,7 @@
                 <div class="quick-questions-header">
                     <h3>Quick Questions</h3>
                     <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="toggleQuickQuestions()">
-                        <i class="fas fa-chevron-down"></i> Show More
+                        <i class="fas fa-chevron-up"></i> Show Less
                     </button>
                 </div>
                 <div class="quick-questions-content">
@@ -1825,10 +1827,10 @@
             document.getElementById('chatTabSection').style.display = 'flex';
             document.getElementById('faqTabSection').style.display = 'none';
             
-            // Ensure quick questions section is visible and starts collapsed
+            // Ensure quick questions section is visible and starts expanded
             const quickQuestionsSection = document.getElementById('quickQuestionsSection');
             quickQuestionsSection.style.display = 'block';
-            quickQuestionsSection.classList.add('collapsed');
+            quickQuestionsSection.classList.remove('collapsed');
             
             document.getElementById('chatInputArea').style.display = 'none';
             
@@ -1902,17 +1904,25 @@
                         displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
                     }
                     
-                    // Ensure categories container is visible when expanded
+                    // Ensure categories container is visible
                     const categoriesContainer = document.getElementById('categoriesContainer');
                     if (categoriesContainer) {
                         categoriesContainer.style.display = 'grid';
                         console.log('Categories container display set to grid');
                     }
                     
+                    // Ensure quick questions section is expanded
+                    const quickSection = document.getElementById('quickQuestionsSection');
+                    if (quickSection) {
+                        quickSection.classList.remove('collapsed');
+                        console.log('Quick questions section expanded');
+                    }
+                    
                     // Ensure "Chat with Us" button is always visible
                     const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
                     if (chatWithUsBtn) {
                         chatWithUsBtn.style.display = 'block';
+                        console.log('Chat with Us button made visible');
                     }
                 })
                 .catch(error => {
