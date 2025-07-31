@@ -1951,47 +1951,49 @@
         }
 
         function loadQuickQuestions() {
-            console.log('Loading quick questions...');
+            // Fetch all quick questions from all categories and show as a flat list
             database.ref('quickQuestions').once('value')
                 .then(snapshot => {
                     const data = snapshot.val() || {};
-                    console.log('Quick questions data:', data);
-                    const categories = Object.keys(data);
-                    console.log('Categories found:', categories);
-                    
-                    // Always show categories, even if empty
-                    if (categories.length > 0) {
-                        displayCategories(categories);
-                    } else {
-                        console.log('No categories found, using defaults');
-                        displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
-                    }
-                    
-                    // Ensure categories container is visible
-                    const categoriesContainer = document.getElementById('categoriesContainer');
-                    if (categoriesContainer) {
-                        categoriesContainer.style.display = 'grid';
-                        console.log('Categories container display set to grid');
-                    }
-                    
-                    // Ensure quick questions section is expanded
-                    const quickSection = document.getElementById('quickQuestionsSection');
-                    if (quickSection) {
-                        quickSection.classList.remove('collapsed');
-                        console.log('Quick questions section expanded');
-                    }
-                    
-                    // Ensure "Chat with Us" button is always visible
-                    const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
-                    if (chatWithUsBtn) {
-                        chatWithUsBtn.style.display = 'block';
-                        console.log('Chat with Us button made visible');
-                    }
+                    let allQuestions = [];
+                    Object.keys(data).forEach(category => {
+                        const questions = data[category];
+                        Object.keys(questions).forEach(qid => {
+                            allQuestions.push(questions[qid]);
+                        });
+                    });
+                    displayAllQuickQuestions(allQuestions);
                 })
                 .catch(error => {
                     console.error('Error loading quick questions:', error);
-                    displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
+                    displayAllQuickQuestions([]);
                 });
+        }
+
+        function displayAllQuickQuestions(questions) {
+            // Show all quick questions in a flat list and the Chat with Us button at the end
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            if (questions.length === 0) {
+                container.innerHTML = '<div style="color:#ccc;text-align:center;padding:16px;">No quick questions available.</div>';
+            } else {
+                questions.forEach(question => {
+                    const btn = document.createElement('button');
+                    btn.className = 'question-btn';
+                    btn.innerHTML = `
+                        <i class="${question.icon || 'fas fa-question-circle'}"></i>
+                        <span>${question.question}</span>
+                    `;
+                    btn.onclick = () => sendQuickResponse(question.question, question.response);
+                    container.appendChild(btn);
+                });
+            }
+            // Move Chat with Us button to the end
+            const chatBtn = document.querySelector('.chat-with-us-btn');
+            if (chatBtn) {
+                container.appendChild(chatBtn);
+                chatBtn.style.display = 'block';
+            }
         }
 
         // Also load quick questions for admin panel
