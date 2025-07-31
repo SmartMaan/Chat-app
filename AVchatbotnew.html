@@ -1807,37 +1807,31 @@
                 const userData = localStorage.getItem('aviatorUser');
                 if (userData) {
                     currentUser = JSON.parse(userData);
-                    console.log('Existing user found:', currentUser);
-                    
                     // Check if user still exists in database
                     database.ref(`users/${currentUser.id}`).once('value')
                         .then(snapshot => {
                             if (snapshot.exists()) {
-                                // User exists, proceed normally
                                 document.getElementById('userRegistrationModal').style.display = 'none';
                                 showMainApp();
                                 loadChat();
                             } else {
                                 // User was deleted from admin panel, ask for new details
-                                console.log('User was deleted from admin panel, asking for new details');
                                 localStorage.removeItem('aviatorUser');
                                 currentUser = null;
                                 showUserRegistration();
                             }
                         })
                         .catch(error => {
-                            console.error('Error checking user in database:', error);
-                            // If error, proceed with existing user
-                            document.getElementById('userRegistrationModal').style.display = 'none';
-                            showMainApp();
-                            loadChat();
+                            // If error, show registration modal as fallback
+                            localStorage.removeItem('aviatorUser');
+                            currentUser = null;
+                            showUserRegistration();
                         });
                 } else {
-                    console.log('New user detected, showing registration');
+                    // No user in localStorage, show registration
                     showUserRegistration();
                 }
             } catch (e) {
-                console.error('Error checking user session:', e);
                 showUserRegistration();
             }
         }
@@ -2268,8 +2262,8 @@
             if (!currentUser) return;
             const messagesArea = document.getElementById('messagesArea');
             messagesArea.innerHTML = '';
-            const chatRef = database.ref(`chats/${currentUser.id}/messages`);
-            chatRef.off(); // Remove previous listeners
+            const chatRef = database.ref(`chats/${currentUser.id}/messages`).orderByKey().limitToLast(50);
+            chatRef.off();
             chatRef.on('child_added', snapshot => {
                 const message = snapshot.val();
                 addMessageToUI(message);
