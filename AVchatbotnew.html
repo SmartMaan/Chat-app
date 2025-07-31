@@ -1548,6 +1548,12 @@
                     <button id="applyTheme" class="apply-btn">Apply Theme</button>
                 </div>
             </div>
+            <!-- Bot Welcome Message Section -->
+            <div id="welcomeMessageSection" class="admin-section">
+                <h2><i class="fas fa-robot"></i> Bot Welcome Message</h2>
+                <textarea id="welcomeMessageInput" style="width:100%;min-height:80px;"></textarea>
+                <button id="saveWelcomeMessageBtn" class="apply-btn">Save Welcome Message</button>
+            </div>
 
             <!-- FAQ Section -->
             <div id="faqSection" class="admin-section">
@@ -1904,15 +1910,16 @@
         }
 
         function sendWelcomeMessage() {
-            const welcomeMessage = {
-                id: Date.now().toString(),
-                text: "Welcome to Aviator Game Support! 🎮\n\nI'm here to help you with any questions about the game. You can:\n\n1️⃣ Use the Quick Questions below for instant answers\n2️⃣ Type your message directly for personalized support\n3️⃣ Check the FAQ section for common questions\n\n💡 Tip: Use the Quick Questions for faster responses!",
-                sender: 'admin',
-                timestamp: Date.now()
-            };
-
-            addMessageToUI(welcomeMessage);
-            saveMessageToFirebase(welcomeMessage);
+            database.ref('settings/welcomeMessage').once('value').then(snapshot => {
+                const welcomeText = snapshot.val() || "Welcome to Aviator Game Support! 🎮\n\nI'm here to help you with any questions about the game. You can:\n\n1️⃣ Use the Quick Questions below for instant answers\n2️⃣ Type your message directly for personalized support\n3️⃣ Check the FAQ section for common questions\n\n💡 Tip: Use the Quick Questions for faster responses!";
+                const welcomeMessage = {
+                    id: Date.now().toString(),
+                    text: welcomeText,
+                    sender: 'system',
+                    timestamp: Date.now()
+                };
+                saveMessageToFirebase(welcomeMessage);
+            });
         }
 
         function switchTab(tabName) {
@@ -2366,6 +2373,9 @@
             loadQuickQuestionsForAdmin();
             loadAnalytics();
             setupAdminEventListeners();
+            database.ref('settings/welcomeMessage').once('value').then(snapshot => {
+                document.getElementById('welcomeMessageInput').value = snapshot.val() || '';
+            });
         }
 
         function setupAdminEventListeners() {
@@ -2406,6 +2416,12 @@
 
             // User chat
             document.getElementById('sendUserMessage').addEventListener('click', sendUserMessage);
+            document.getElementById('saveWelcomeMessageBtn').addEventListener('click', function() {
+                const msg = document.getElementById('welcomeMessageInput').value.trim();
+                database.ref('settings/welcomeMessage').set(msg).then(() => {
+                    alert('Welcome message saved!');
+                });
+            });
         }
 
         function switchAdminSection(section) {
