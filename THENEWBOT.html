@@ -1,0 +1,2667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Aviator Support Chat</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="description" content="Aviator Game Support Chat with Admin Panel">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary-color: #ff4444;
+            --background-color: #1a1a1a;
+            --surface-color: #2a2a2a;
+            --text-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* User Registration Modal - Apple Design */
+        .user-registration-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .registration-form {
+            background: rgba(42, 42, 42, 0.95);
+            border-radius: 20px;
+            padding: 32px 24px;
+            width: 90%;
+            max-width: 360px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .registration-form h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #ff4444;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 16px;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff4444;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ff4444, #ff6666);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+            letter-spacing: 0.3px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Main App Container */
+        .main-app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: #1a1a1a;
+        }
+
+        /* Header - Top Toggle Design */
+        .header {
+            background: #2a2a2a;
+            padding: 8px 12px;
+            border-bottom: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-top h2 {
+            font-size: 16px;
+            color: #ff4444;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .header-tabs {
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            width: 100%;
+            background: #333;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            flex: 1;
+            justify-content: center;
+            text-align: center;
+            min-height: 36px;
+        }
+
+        .tab.active {
+            background: #ff4444;
+            color: white;
+            box-shadow: 0 2px 4px rgba(255, 68, 68, 0.3);
+        }
+
+        .tab:not(.active):hover {
+            background: #444;
+        }
+
+        .tab i {
+            font-size: 14px;
+        }
+
+        .admin-panel-btn {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .admin-panel-btn:hover {
+            background: #ff4444;
+            transform: translateY(-1px);
+        }
+
+        /* Chat Container - Mobile Optimized */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+            height: calc(100vh - 80px);
+        }
+
+        /* FAQ Container - Mobile Optimized */
+        .faq-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+            height: calc(100vh - 80px);
+        }
+
+        /* Messages Area - Mobile Optimized */
+        .messages-area {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: #1a1a1a;
+            min-height: 150px;
+            max-height: 65vh;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ff4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 8px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: #444;
+        }
+
+        .message-content {
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 12px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #ff4444;
+            text-align: right;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Quick Questions Section - Material 3 Design */
+        .quick-questions-section {
+            background: rgba(42, 42, 42, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 12px;
+            display: block;
+            transition: all 0.3s ease;
+            position: sticky;
+            bottom: 0;
+            z-index: 50;
+            min-height: 120px;
+            max-height: 60vh;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .quick-questions-section::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .quick-questions-section::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .quick-questions-section::-webkit-scrollbar-thumb {
+            background: rgba(255, 68, 68, 0.3);
+            border-radius: 2px;
+        }
+
+        .quick-questions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            position: sticky;
+            top: 0;
+            background: rgba(42, 42, 42, 0.95);
+            padding: 8px 0;
+            z-index: 10;
+        }
+
+        .quick-questions-header h3 {
+            color: #ff4444;
+            font-size: 16px;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .quick-questions-toggle {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .quick-questions-toggle:hover {
+            background: rgba(255, 68, 68, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .categories-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .category-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .category-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #ff4444, #ff6666);
+            border-color: #ff4444;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+        }
+
+        .questions-container {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .back-to-categories-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .back-to-categories-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .question-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            border-left: 4px solid #ff4444;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 52px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .question-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-btn i {
+            font-size: 16px;
+            color: #ff4444;
+            flex-shrink: 0;
+        }
+
+        .chat-with-us-btn {
+            background: linear-gradient(135deg, #ff4444, #ff6666);
+            color: white;
+            border: none;
+            padding: 14px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+            margin-top: 12px;
+            width: 100%;
+            min-height: 48px;
+            letter-spacing: 0.3px;
+        }
+
+        .chat-with-us-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+        }
+
+        /* Input Area */
+        .input-area {
+            background: #2a2a2a;
+            padding: 12px;
+            border-top: 2px solid #444;
+            display: none;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: #333;
+            color: white;
+            font-size: 14px;
+            resize: none;
+            min-height: 40px;
+            max-height: 120px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #ff4444;
+        }
+
+        .send-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 40px;
+            min-width: 40px;
+        }
+
+        .send-btn:hover {
+            background: #ff6666;
+            transform: translateY(-1px);
+        }
+
+        /* FAQ Content - Material 3 Design */
+        .faq-content {
+            padding: 20px 16px;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .faq-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .faq-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .faq-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 68, 68, 0.3);
+            border-radius: 2px;
+        }
+
+        .faq-category {
+            margin-bottom: 24px;
+        }
+
+        .faq-category h3 {
+            color: #ff4444;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            padding: 0 4px;
+        }
+
+        .faq-item {
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .faq-question {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .faq-question i {
+            color: #ff4444;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-question.active i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 20px;
+            display: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+
+        .faq-answer.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .admin-sidebar {
+            background: #222;
+            padding: 12px;
+            border-bottom: 2px solid #444;
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            gap: 8px;
+        }
+
+        .admin-sidebar-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 12px;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+
+        .admin-sidebar-btn:hover {
+            background: #444;
+        }
+
+        .admin-sidebar-btn.active {
+            background: #ff4444;
+        }
+
+        .admin-content {
+            background: #1a1a1a;
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .admin-section h2 {
+            color: #ff4444;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        /* Admin Panel Components */
+        .search-filter {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-input, .filter-select {
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 14px;
+        }
+
+        .search-input {
+            flex: 1;
+        }
+
+        .users-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .user-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .user-info h4 {
+            margin: 0 0 4px 0;
+            color: #ff4444;
+        }
+
+        .user-info p {
+            margin: 0;
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-btn {
+            background: #ff4444;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* Theme Editor */
+        .theme-presets, .custom-colors {
+            margin-bottom: 24px;
+        }
+
+        .theme-presets h3, .custom-colors h3 {
+            color: #ff4444;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .theme-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+        }
+
+        .theme-btn {
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .color-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .color-input {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .color-input label {
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .color-input input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .apply-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        /* FAQ & Quick Management */
+        .faq-controls, .quick-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .add-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .category-select {
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            min-width: 150px;
+        }
+
+        .faq-list, .quick-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .faq-item-admin, .quick-item-admin {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item-admin:hover, .quick-item-admin:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .item-category {
+            background: #ff4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .edit-btn {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .item-content h4 {
+            margin: 0 0 8px 0;
+            color: white;
+            font-size: 14px;
+        }
+
+        .item-content p {
+            margin: 0;
+            color: #ccc;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* Analytics */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .analytics-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .analytics-card h3 {
+            color: #ccc;
+            margin: 0 0 12px 0;
+            font-size: 14px;
+        }
+
+        .analytics-number {
+            color: #ff4444;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 20000;
+        }
+
+        .modal-content {
+            background: rgba(42, 42, 42, 0.95);
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-content.large {
+            max-width: 800px;
+            max-height: 90vh;
+        }
+
+        .modal-content h3 {
+            color: #ff4444;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .modal-content .form-group {
+            margin-bottom: 16px;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 6px;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .modal-content input, .modal-content textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 14px;
+        }
+
+        .modal-content textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .save-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .close-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
+        /* Icon Selector */
+        .icon-selector {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .icon-option {
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            color: #ccc;
+        }
+
+        .icon-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ff4444;
+        }
+
+        .icon-option.selected {
+            background: #ff4444;
+            color: white;
+            border-color: #ff4444;
+        }
+
+        /* User Chat Modal */
+        .user-chat-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .user-chat-input {
+            display: flex;
+            gap: 8px;
+        }
+
+        .user-chat-input textarea {
+            flex: 1;
+            min-height: 60px;
+        }
+
+        /* Mobile Responsive - Optimized for 1080×720 */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+
+            .header {
+                padding: 8px 12px;
+            }
+
+            .header-top h2 {
+                font-size: 16px;
+            }
+
+            .tab {
+                font-size: 13px;
+                padding: 8px 10px;
+                min-height: 36px;
+            }
+
+            .messages-area {
+                padding: 10px;
+                max-height: 55vh;
+                min-height: 200px;
+            }
+
+            .message-content {
+                max-width: 75%;
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .quick-questions-section {
+                padding: 12px;
+                min-height: 100px;
+                max-height: 50vh;
+            }
+
+            .categories-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+
+            .category-btn {
+                font-size: 12px;
+                padding: 10px 8px;
+                min-height: 40px;
+            }
+
+            .question-btn {
+                font-size: 13px;
+                padding: 10px 12px;
+                min-height: 44px;
+            }
+
+            .back-to-categories-btn {
+                font-size: 13px;
+                padding: 10px 12px;
+                min-height: 44px;
+            }
+
+            .chat-with-us-btn {
+                font-size: 13px;
+                padding: 12px;
+                min-height: 44px;
+            }
+
+            .input-area {
+                padding: 10px;
+            }
+
+            .message-input {
+                font-size: 16px;
+                padding: 10px;
+                min-height: 44px;
+            }
+
+            .send-btn {
+                padding: 10px;
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            .faq-content {
+                padding: 16px 12px;
+            }
+
+            .faq-category h3 {
+                font-size: 16px;
+            }
+
+            .faq-question {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+            .faq-answer {
+                padding: 16px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .categories-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .message-content {
+                max-width: 80%;
+            }
+
+            .quick-questions-section {
+                max-height: 45vh;
+            }
+        }
+
+        /* Specific optimization for 1080×720 */
+        @media (width: 1080px) and (height: 720px) {
+            .messages-area {
+                max-height: 60vh;
+            }
+
+            .quick-questions-section {
+                max-height: 35vh;
+            }
+
+            .category-btn {
+                min-height: 48px;
+                font-size: 13px;
+            }
+
+            .question-btn {
+                min-height: 52px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- User Registration Modal -->
+    <div id="userRegistrationModal" class="user-registration-modal">
+        <div class="registration-form">
+            <h2><i class="fas fa-user-plus"></i> Welcome to Aviator Support</h2>
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="userName">Full Name</label>
+                    <input type="text" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPhone">Phone Number</label>
+                    <input type="tel" id="userPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPromo">Promo Code (Optional)</label>
+                    <input type="text" id="userPromo">
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Start Chat
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="mainApp" class="main-app" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <h2>Aviator Support</h2>
+                <button id="adminPanelBtn" class="admin-panel-btn" style="display: none;">
+                    <i class="fas fa-cog"></i> Admin
+                </button>
+            </div>
+            <div class="header-tabs">
+                <div class="tab active" data-tab="chat">
+                    <i class="fas fa-comments"></i>
+                    Chat
+                </div>
+                <div class="tab" data-tab="faq">
+                    <i class="fas fa-question-circle"></i>
+                    FAQ
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Tab Section -->
+        <div id="chatTabSection" class="chat-container">
+            <!-- Messages Area -->
+            <div id="messagesArea" class="messages-area">
+                <!-- Messages will be added here -->
+            </div>
+
+            <!-- Quick Questions Section -->
+            <div id="quickQuestionsSection" class="quick-questions-section">
+                <div class="quick-questions-header">
+                    <h3>Quick Questions</h3>
+                    <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="toggleQuickQuestions()">
+                        <i class="fas fa-chevron-up"></i> Hide
+                    </button>
+                </div>
+                <div id="categoriesContainer" class="categories-container">
+                    <!-- Categories will be loaded here -->
+                </div>
+                <div id="questionsContainer" class="questions-container">
+                    <!-- Questions will be loaded here -->
+                </div>
+                <button class="chat-with-us-btn" onclick="showChatInput()">
+                    <i class="fas fa-comment"></i> Chat with Us
+                </button>
+            </div>
+
+            <!-- Input Area -->
+            <div id="chatInputArea" class="input-area">
+                <textarea id="messageInput" class="message-input" placeholder="Type your message..." rows="1"></textarea>
+                <button id="sendBtn" class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- FAQ Tab Section -->
+        <div id="faqTabSection" class="faq-container" style="display: none;">
+            <div id="faqContent" class="faq-content">
+                <!-- FAQ content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="admin-sidebar">
+            <button class="admin-sidebar-btn active" data-section="users">Users</button>
+            <button class="admin-sidebar-btn" data-section="theme">Theme</button>
+            <button class="admin-sidebar-btn" data-section="faq">FAQ</button>
+            <button class="admin-sidebar-btn" data-section="quick">Quick Q</button>
+            <button class="admin-sidebar-btn" data-section="analytics">Analytics</button>
+            <button id="closeAdminBtn" class="admin-sidebar-btn" style="background:#ff4444;color:#fff;">Close</button>
+        </div>
+        <div class="admin-content">
+            <!-- Users Section -->
+            <div id="usersSection" class="admin-section active">
+                <h2><i class="fas fa-users"></i> User Management</h2>
+                <div class="search-filter">
+                    <input type="text" id="userSearch" placeholder="Search users..." class="search-input">
+                    <select id="userFilter" class="filter-select">
+                        <option value="all">All Users</option>
+                        <option value="active">Active Users</option>
+                        <option value="recent">Recent Users</option>
+                    </select>
+                </div>
+                <div id="usersList" class="users-list">
+                    <!-- Users will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Theme Section -->
+            <div id="themeSection" class="admin-section">
+                <h2><i class="fas fa-palette"></i> Theme Editor</h2>
+                <div class="theme-presets">
+                    <h3>Preset Themes</h3>
+                    <div class="theme-buttons">
+                        <button class="theme-btn" data-theme="dark">Dark</button>
+                        <button class="theme-btn" data-theme="light">Light</button>
+                        <button class="theme-btn" data-theme="material-dark">Material Dark</button>
+                        <button class="theme-btn" data-theme="material-light">Material Light</button>
+                    </div>
+                </div>
+                <div class="custom-colors">
+                    <h3>Custom Colors</h3>
+                    <div class="color-inputs">
+                        <div class="color-input">
+                            <label>Primary Color</label>
+                            <input type="color" id="primaryColor" value="#ff4444">
+                        </div>
+                        <div class="color-input">
+                            <label>Background</label>
+                            <input type="color" id="bgColor" value="#1a1a1a">
+                        </div>
+                        <div class="color-input">
+                            <label>Surface</label>
+                            <input type="color" id="surfaceColor" value="#2a2a2a">
+                        </div>
+                        <div class="color-input">
+                            <label>Text</label>
+                            <input type="color" id="textColor" value="#ffffff">
+                        </div>
+                    </div>
+                    <button id="applyTheme" class="apply-btn">Apply Theme</button>
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <div id="faqSection" class="admin-section">
+                <h2><i class="fas fa-question-circle"></i> FAQ Management</h2>
+                <div class="faq-controls">
+                    <button id="addFaqBtn" class="add-btn">Add New FAQ</button>
+                    <select id="faqCategorySelect" class="category-select">
+                        <option value="">Select Category</option>
+                        <option value="new">Create New Category</option>
+                    </select>
+                </div>
+                <div id="faqList" class="faq-list">
+                    <!-- FAQs will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Quick Questions Section -->
+            <div id="quickSection" class="admin-section">
+                <h2><i class="fas fa-bolt"></i> Quick Questions Management</h2>
+                <div class="quick-controls">
+                    <button id="addQuickBtn" class="add-btn">Add New Question</button>
+                    <select id="quickCategorySelect" class="category-select">
+                        <option value="">Select Category</option>
+                        <option value="new">Create New Category</option>
+                    </select>
+                </div>
+                <div id="quickList" class="quick-list">
+                    <!-- Quick questions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analyticsSection" class="admin-section">
+                <h2><i class="fas fa-chart-bar"></i> Analytics</h2>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Total Users</h3>
+                        <div id="totalUsers" class="analytics-number">0</div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Active Chats</h3>
+                        <div id="activeChats" class="analytics-number">0</div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Total Messages</h3>
+                        <div id="totalMessages" class="analytics-number">0</div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Quick Questions Used</h3>
+                        <div id="quickQuestionsUsed" class="analytics-number">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="faqModal" class="modal">
+        <div class="modal-content">
+            <h3>Add/Edit FAQ</h3>
+            <form id="faqForm">
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="faqCategory" required>
+                </div>
+                <div class="form-group">
+                    <label>Question</label>
+                    <textarea id="faqQuestion" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Answer</label>
+                    <textarea id="faqAnswer" required></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="save-btn">Save</button>
+                    <button type="button" class="cancel-btn" onclick="closeModal('faqModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="quickModal" class="modal">
+        <div class="modal-content">
+            <h3>Add/Edit Quick Question</h3>
+            <form id="quickForm">
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="quickCategory" required>
+                </div>
+                <div class="form-group">
+                    <label>Question</label>
+                    <textarea id="quickQuestion" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Response</label>
+                    <textarea id="quickResponse" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <div class="icon-selector">
+                        <i class="fas fa-home icon-option" data-icon="fas fa-home"></i>
+                        <i class="fas fa-user icon-option" data-icon="fas fa-user"></i>
+                        <i class="fas fa-cog icon-option" data-icon="fas fa-cog"></i>
+                        <i class="fas fa-heart icon-option" data-icon="fas fa-heart"></i>
+                        <i class="fas fa-star icon-option" data-icon="fas fa-star"></i>
+                        <i class="fas fa-bell icon-option" data-icon="fas fa-bell"></i>
+                        <i class="fas fa-envelope icon-option" data-icon="fas fa-envelope"></i>
+                        <i class="fas fa-phone icon-option" data-icon="fas fa-phone"></i>
+                        <i class="fas fa-money-bill icon-option" data-icon="fas fa-money-bill"></i>
+                        <i class="fas fa-credit-card icon-option" data-icon="fas fa-credit-card"></i>
+                        <i class="fas fa-gamepad icon-option" data-icon="fas fa-gamepad"></i>
+                        <i class="fas fa-exclamation-triangle icon-option" data-icon="fas fa-exclamation-triangle"></i>
+                        <i class="fas fa-clock icon-option" data-icon="fas fa-clock"></i>
+                        <i class="fas fa-check-circle icon-option" data-icon="fas fa-check-circle"></i>
+                        <i class="fas fa-times-circle icon-option" data-icon="fas fa-times-circle"></i>
+                    </div>
+                    <input type="hidden" id="selectedIcon" value="fas fa-home">
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="save-btn">Save</button>
+                    <button type="button" class="cancel-btn" onclick="closeModal('quickModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="userChatModal" class="modal">
+        <div class="modal-content large">
+            <h3>Chat with User</h3>
+            <div id="userChatMessages" class="user-chat-messages">
+                <!-- User chat messages will be loaded here -->
+            </div>
+            <div class="user-chat-input">
+                <textarea id="userChatInput" placeholder="Type your message..."></textarea>
+                <button id="sendUserMessage" class="send-btn">Send</button>
+            </div>
+            <button class="close-btn" onclick="closeModal('userChatModal')">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqXqXqXqXqXqXqXqXqXqXqXqXqXqXqXqXq",
+            authDomain: "aviator-pr01.firebaseapp.com",
+            databaseURL: "https://aviator-pr01-default-rtdb.firebaseio.com",
+            projectId: "aviator-pr01",
+            storageBucket: "aviator-pr01.firebasestorage.app",
+            messagingSenderId: "290788041297",
+            appId: "1:290788041297:web:168f99f1532997fb778e70",
+            measurementId: "G-ENCBTT4BL8"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Global variables
+        let currentUser = null;
+        let isAdmin = false;
+        let selectedCategory = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('App starting...');
+            setupEventListeners();
+            initializeDefaultData();
+            checkUserSession();
+        });
+
+        function setupEventListeners() {
+            // Registration form
+            document.getElementById('registrationForm').addEventListener('submit', handleUserRegistration);
+            
+            // Message sending
+            document.getElementById('sendBtn').addEventListener('click', sendMessage);
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+
+            // Quick questions
+            document.getElementById('quickQuestionsToggle').addEventListener('click', toggleQuickQuestions);
+            
+            // Admin panel
+            document.getElementById('adminPanelBtn').addEventListener('click', showAdminPanel);
+            document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
+        }
+
+        function checkUserSession() {
+            try {
+                const userData = localStorage.getItem('aviatorUser');
+                if (userData) {
+                    currentUser = JSON.parse(userData);
+                    console.log('Existing user found:', currentUser);
+                    // Hide registration modal and show main app directly
+                    document.getElementById('userRegistrationModal').style.display = 'none';
+                    showMainApp();
+                    loadChat();
+                } else {
+                    console.log('New user detected, showing registration');
+                    showUserRegistration();
+                }
+            } catch (e) {
+                console.error('Error checking user session:', e);
+                showUserRegistration();
+            }
+        }
+
+        function showUserRegistration() {
+            document.getElementById('userRegistrationModal').style.display = 'flex';
+        }
+
+        function handleUserRegistration(e) {
+            e.preventDefault();
+            
+            const userName = document.getElementById('userName').value;
+            const userPhone = document.getElementById('userPhone').value;
+            const userPromo = document.getElementById('userPromo').value;
+
+            if (!userName || !userPhone) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const userData = {
+                id: Date.now().toString(),
+                name: userName,
+                phone: userPhone,
+                promo: userPromo,
+                timestamp: Date.now()
+            };
+
+            try {
+                localStorage.setItem('aviatorUser', JSON.stringify(userData));
+                currentUser = userData;
+
+                database.ref('users/' + userData.id).set(userData)
+                    .then(() => {
+                        document.getElementById('userRegistrationModal').style.display = 'none';
+                        showMainApp();
+                        loadChat();
+                    })
+                    .catch(error => {
+                        console.error('Error saving to Firebase:', error);
+                        document.getElementById('userRegistrationModal').style.display = 'none';
+                        showMainApp();
+                        loadChat();
+                    });
+            } catch (error) {
+                console.error('Error in user registration:', error);
+                alert('Error during registration. Please try again.');
+            }
+        }
+
+        function showMainApp() {
+            // Hide registration modal first
+            document.getElementById('userRegistrationModal').style.display = 'none';
+            
+            document.getElementById('mainApp').style.display = 'flex';
+            document.getElementById('chatTabSection').style.display = 'flex';
+            document.getElementById('faqTabSection').style.display = 'none';
+            
+            document.getElementById('quickQuestionsSection').style.display = 'block';
+            document.getElementById('chatInputArea').style.display = 'none';
+            
+            // Ensure "Chat with Us" button is visible
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'block';
+            }
+            
+            setTimeout(() => {
+                loadQuickQuestions();
+                sendWelcomeMessage();
+            }, 100);
+        }
+
+        function sendWelcomeMessage() {
+            const welcomeMessage = {
+                id: Date.now().toString(),
+                text: "Welcome to Aviator Game Support! 🎮\n\nI'm here to help you with any questions about the game. You can:\n\n1️⃣ Use the Quick Questions below for instant answers\n2️⃣ Type your message directly for personalized support\n3️⃣ Check the FAQ section for common questions\n\n💡 Tip: Use the Quick Questions for faster responses!",
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+
+            addMessageToUI(welcomeMessage);
+            saveMessageToFirebase(welcomeMessage);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            const chatSection = document.getElementById('chatTabSection');
+            const faqSection = document.getElementById('faqTabSection');
+            
+            if (tabName === 'chat') {
+                chatSection.style.display = 'flex';
+                faqSection.style.display = 'none';
+                document.getElementById('messagesArea').style.display = 'block';
+                document.getElementById('quickQuestionsSection').style.display = 'block';
+                loadQuickQuestions();
+            } else if (tabName === 'faq') {
+                chatSection.style.display = 'none';
+                faqSection.style.display = 'flex';
+                loadFAQSection();
+            }
+        }
+
+        function loadQuickQuestions() {
+            database.ref('quickQuestions').once('value')
+                .then(snapshot => {
+                    const data = snapshot.val() || {};
+                    displayCategories(Object.keys(data));
+                })
+                .catch(error => {
+                    console.error('Error loading quick questions:', error);
+                    displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
+                });
+        }
+
+        function displayCategories(categories) {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = category;
+                btn.onclick = () => selectCategory(category);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectCategory(category) {
+            selectedCategory = category;
+            
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            document.getElementById('categoriesContainer').style.display = 'none';
+            document.getElementById('questionsContainer').style.display = 'flex';
+            
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-to-categories-btn';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Categories';
+            backBtn.onclick = showCategories;
+            
+            const questionsContainer = document.getElementById('questionsContainer');
+            questionsContainer.innerHTML = '';
+            questionsContainer.appendChild(backBtn);
+
+            database.ref(`quickQuestions/${category}`).once('value')
+                .then(snapshot => {
+                    const questions = snapshot.val() || {};
+                    displayQuestions(questions);
+                });
+        }
+
+        function showCategories() {
+            document.getElementById('categoriesContainer').style.display = 'grid';
+            document.getElementById('questionsContainer').style.display = 'none';
+            document.getElementById('questionsContainer').innerHTML = '';
+            
+            // Reset active category
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+
+        function displayQuestions(questions) {
+            const container = document.getElementById('questionsContainer');
+            
+            // Keep the back button
+            const backBtn = container.querySelector('.back-to-categories-btn');
+            
+            // Clear container but preserve back button
+            const tempContainer = document.createElement('div');
+            tempContainer.appendChild(backBtn);
+            container.innerHTML = '';
+            container.appendChild(backBtn);
+
+            Object.keys(questions).forEach(questionId => {
+                const question = questions[questionId];
+                const btn = document.createElement('button');
+                btn.className = 'question-btn';
+                btn.innerHTML = `
+                    <i class="${question.icon}"></i>
+                    <span>${question.question}</span>
+                `;
+                btn.onclick = () => sendQuickResponse(question.question, question.response);
+                container.appendChild(btn);
+            });
+        }
+
+        function sendQuickResponse(question, response) {
+            const userMessage = {
+                id: Date.now().toString(),
+                text: question,
+                sender: 'user',
+                timestamp: Date.now()
+            };
+            addMessageToUI(userMessage);
+            saveMessageToFirebase(userMessage);
+
+            if (currentUser) {
+                const historyData = {
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userPhone: currentUser.phone,
+                    message: question,
+                    response: response,
+                    timestamp: new Date().toISOString(),
+                    type: 'quick_question'
+                };
+                database.ref('chatHistory').push(historyData);
+            }
+
+            setTimeout(() => {
+                const adminMessage = {
+                    id: (Date.now() + 1).toString(),
+                    text: response,
+                    sender: 'admin',
+                    timestamp: Date.now()
+                };
+                addMessageToUI(adminMessage);
+                saveMessageToFirebase(adminMessage);
+            }, 500);
+
+            showCategories();
+            
+            // Ensure "Chat with Us" button is visible after quick question
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'block';
+            }
+        }
+
+        function showChatInput() {
+            // Show input area
+            document.getElementById('chatInputArea').style.display = 'flex';
+            
+            // Hide the "Chat with Us" button
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'none';
+            }
+            
+            // Keep quick questions section visible but collapsed
+            document.getElementById('quickQuestionsSection').style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('messageInput').focus();
+            }, 100);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            if (text.toLowerCase() === 'aviator2025adminmaan') {
+                const message = {
+                    id: Date.now().toString(),
+                    text: text,
+                    sender: 'user',
+                    timestamp: Date.now()
+                };
+                addMessageToUI(message);
+                saveMessageToFirebase(message);
+                input.value = '';
+
+                setTimeout(() => {
+                    const adminResponse = {
+                        id: (Date.now() + 1).toString(),
+                        text: "🔐 Admin access granted! Admin panel is now available.",
+                        sender: 'admin',
+                        timestamp: Date.now()
+                    };
+                    addMessageToUI(adminResponse);
+                    saveMessageToFirebase(adminResponse);
+                    
+                    isAdmin = true;
+                    document.getElementById('adminPanelBtn').style.display = 'block';
+                }, 500);
+                return;
+            }
+
+            const message = {
+                id: Date.now().toString(),
+                text: text,
+                sender: 'user',
+                timestamp: Date.now()
+            };
+
+            addMessageToUI(message);
+            saveMessageToFirebase(message);
+            input.value = '';
+
+            // Hide input area
+            document.getElementById('chatInputArea').style.display = 'none';
+            
+            // Show the "Chat with Us" button again
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'block';
+            }
+            
+            // Keep quick questions section visible
+            document.getElementById('quickQuestionsSection').style.display = 'block';
+
+            setTimeout(() => {
+                const adminResponse = {
+                    id: (Date.now() + 1).toString(),
+                    text: "Thank you for your message. Our support team will get back to you soon.",
+                    sender: 'admin',
+                    timestamp: Date.now()
+                };
+                addMessageToUI(adminResponse);
+                saveMessageToFirebase(adminResponse);
+            }, 1000);
+        }
+
+        function addMessageToUI(message) {
+            const messagesArea = document.getElementById('messagesArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.sender === 'user' ? 'user' : ''} fade-in`;
+
+            const avatar = message.sender === 'user' ? 'fas fa-user' : 'fas fa-headset';
+            const time = new Date(message.timestamp).toLocaleTimeString();
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="${avatar}"></i>
+                </div>
+                <div class="message-content">
+                    <div>${message.text}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function saveMessageToFirebase(message) {
+            if (!currentUser) return;
+
+            const chatRef = database.ref(`chats/${currentUser.id}/messages/${message.id}`);
+            chatRef.set(message);
+
+            if (message.sender === 'user') {
+                const historyData = {
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userPhone: currentUser.phone,
+                    message: message.text,
+                    timestamp: new Date(message.timestamp).toISOString(),
+                    type: 'chat_message'
+                };
+                database.ref('chatHistory').push(historyData);
+            }
+        }
+
+        function loadChat() {
+            if (!currentUser) return;
+
+            database.ref(`chats/${currentUser.id}/messages`).once('value')
+                .then(snapshot => {
+                    const messages = snapshot.val() || {};
+                    const messagesArea = document.getElementById('messagesArea');
+                    messagesArea.innerHTML = '';
+
+                    Object.keys(messages).forEach(messageId => {
+                        addMessageToUI(messages[messageId]);
+                    });
+                });
+
+            database.ref('chatHistory').orderByChild('userId').equalTo(currentUser.id).once('value')
+                .then(snapshot => {
+                    const history = snapshot.val() || {};
+                    const messagesArea = document.getElementById('messagesArea');
+                    
+                    if (messagesArea.children.length === 0) {
+                        Object.keys(history).forEach(historyId => {
+                            const historyItem = history[historyId];
+                            const userMessage = {
+                                id: historyId + '_user',
+                                text: historyItem.message,
+                                sender: 'user',
+                                timestamp: new Date(historyItem.timestamp).getTime()
+                            };
+                            const botMessage = {
+                                id: historyId + '_bot',
+                                text: historyItem.response,
+                                sender: 'admin',
+                                timestamp: new Date(historyItem.timestamp).getTime() + 1000
+                            };
+                            addMessageToUI(userMessage);
+                            addMessageToUI(botMessage);
+                        });
+                    }
+                });
+        }
+
+        function loadFAQSection() {
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    const faqs = snapshot.val() || {};
+                    const container = document.getElementById('faqContent');
+                    container.innerHTML = '';
+
+                    const categories = {};
+                    Object.keys(faqs).forEach(faqId => {
+                        const faq = faqs[faqId];
+                        if (!categories[faq.category]) {
+                            categories[faq.category] = [];
+                        }
+                        categories[faq.category].push(faq);
+                    });
+
+                    Object.keys(categories).forEach(category => {
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'faq-category';
+                        categoryDiv.innerHTML = `<h3>${category}</h3>`;
+
+                        categories[category].forEach(faq => {
+                            const faqDiv = document.createElement('div');
+                            faqDiv.className = 'faq-item';
+                            faqDiv.innerHTML = `
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    <span>${faq.question}</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer">
+                                    ${faq.answer}
+                                </div>
+                            `;
+                            categoryDiv.appendChild(faqDiv);
+                        });
+
+                        container.appendChild(categoryDiv);
+                    });
+                });
+        }
+
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('i');
+            
+            if (answer.classList.contains('show')) {
+                answer.classList.remove('show');
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                answer.classList.add('show');
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        function toggleQuickQuestions() {
+            const section = document.getElementById('quickQuestionsSection');
+            const toggle = document.getElementById('quickQuestionsToggle');
+            const categoriesContainer = document.getElementById('categoriesContainer');
+            const questionsContainer = document.getElementById('questionsContainer');
+            
+            if (section.style.maxHeight === '60px' || section.style.maxHeight === '') {
+                // Expand
+                section.style.maxHeight = '60vh';
+                section.style.overflowY = 'auto';
+                categoriesContainer.style.display = 'grid';
+                questionsContainer.style.display = 'none';
+                toggle.innerHTML = '<i class="fas fa-chevron-up"></i> Hide';
+            } else {
+                // Collapse
+                section.style.maxHeight = '60px';
+                section.style.overflowY = 'hidden';
+                categoriesContainer.style.display = 'none';
+                questionsContainer.style.display = 'none';
+                toggle.innerHTML = '<i class="fas fa-chevron-down"></i> Show Quick Questions';
+            }
+        }
+
+        function showAdminPanel() {
+            document.getElementById('adminPanel').style.display = 'flex';
+            loadAdminData();
+        }
+
+        function hideAdminPanel() {
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        function loadAdminData() {
+            console.log('Loading admin data...');
+            loadUsers();
+            loadFAQs();
+            loadQuickQuestions();
+            loadAnalytics();
+            setupAdminEventListeners();
+        }
+
+        function setupAdminEventListeners() {
+            // Admin sidebar navigation
+            document.querySelectorAll('.admin-sidebar-btn[data-section]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const section = this.dataset.section;
+                    switchAdminSection(section);
+                });
+            });
+
+            // FAQ management
+            document.getElementById('addFaqBtn').addEventListener('click', () => openFaqModal());
+            document.getElementById('faqForm').addEventListener('submit', handleFaqSubmit);
+
+            // Quick questions management
+            document.getElementById('addQuickBtn').addEventListener('click', () => openQuickModal());
+            document.getElementById('quickForm').addEventListener('submit', handleQuickSubmit);
+
+            // Theme management
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    applyTheme(this.dataset.theme);
+                });
+            });
+            document.getElementById('applyTheme').addEventListener('click', applyCustomTheme);
+
+            // User search and filter
+            document.getElementById('userSearch').addEventListener('input', filterUsers);
+            document.getElementById('userFilter').addEventListener('change', filterUsers);
+
+            // Icon selector
+            document.querySelectorAll('.icon-option').forEach(icon => {
+                icon.addEventListener('click', function() {
+                    selectIcon(this);
+                });
+            });
+
+            // User chat
+            document.getElementById('sendUserMessage').addEventListener('click', sendUserMessage);
+        }
+
+        function switchAdminSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.admin-sidebar-btn').forEach(b => b.classList.remove('active'));
+
+            // Show selected section
+            document.getElementById(section + 'Section').classList.add('active');
+            document.querySelector(`[data-section="${section}"]`).classList.add('active');
+        }
+
+        // User Management
+        function loadUsers() {
+            database.ref('users').once('value')
+                .then(snapshot => {
+                    const users = snapshot.val() || {};
+                    displayUsers(users);
+                });
+        }
+
+        function displayUsers(users) {
+            const container = document.getElementById('usersList');
+            container.innerHTML = '';
+
+            Object.keys(users).forEach(userId => {
+                const user = users[userId];
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                userCard.innerHTML = `
+                    <div class="user-info">
+                        <h4>${user.name}</h4>
+                        <p>${user.phone} • ${new Date(user.timestamp).toLocaleDateString()}</p>
+                    </div>
+                    <div class="user-actions">
+                        <button class="action-btn chat-btn" onclick="openUserChat('${userId}', '${user.name}')">
+                            <i class="fas fa-comment"></i> Chat
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteUser('${userId}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                container.appendChild(userCard);
+            });
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const filterValue = document.getElementById('userFilter').value;
+            
+            // Implement search and filter logic here
+            console.log('Filtering users:', searchTerm, filterValue);
+        }
+
+        function openUserChat(userId, userName) {
+            document.getElementById('userChatModal').style.display = 'flex';
+            loadUserChat(userId, userName);
+        }
+
+        function loadUserChat(userId, userName) {
+            database.ref(`chats/${userId}/messages`).once('value')
+                .then(snapshot => {
+                    const messages = snapshot.val() || {};
+                    displayUserChat(messages, userName);
+                });
+        }
+
+        function displayUserChat(messages, userName) {
+            const container = document.getElementById('userChatMessages');
+            container.innerHTML = `<h4>Chat with ${userName}</h4>`;
+
+            Object.keys(messages).forEach(messageId => {
+                const message = messages[messageId];
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${message.sender === 'user' ? 'user' : ''}`;
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div>${message.text}</div>
+                        <div class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</div>
+                    </div>
+                `;
+                container.appendChild(messageDiv);
+            });
+        }
+
+        function sendUserMessage() {
+            const input = document.getElementById('userChatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Send message to user (implement as needed)
+            console.log('Sending message to user:', message);
+            input.value = '';
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                database.ref(`users/${userId}`).remove()
+                    .then(() => {
+                        database.ref(`chats/${userId}`).remove();
+                        loadUsers();
+                    });
+            }
+        }
+
+        // FAQ Management
+        function loadFAQs() {
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    const faqs = snapshot.val() || {};
+                    displayFAQs(faqs);
+                });
+        }
+
+        function displayFAQs(faqs) {
+            const container = document.getElementById('faqList');
+            container.innerHTML = '';
+
+            Object.keys(faqs).forEach(faqId => {
+                const faq = faqs[faqId];
+                const faqItem = document.createElement('div');
+                faqItem.className = 'faq-item-admin';
+                faqItem.innerHTML = `
+                    <div class="item-header">
+                        <span class="item-category">${faq.category}</span>
+                        <div class="item-actions">
+                            <button class="action-btn edit-btn" onclick="editFAQ('${faqId}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteFAQ('${faqId}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="item-content">
+                        <h4>${faq.question}</h4>
+                        <p>${faq.answer}</p>
+                    </div>
+                `;
+                container.appendChild(faqItem);
+            });
+        }
+
+        function openFaqModal(faqId = null) {
+            document.getElementById('faqModal').style.display = 'flex';
+            if (faqId) {
+                // Load existing FAQ data
+                loadFAQData(faqId);
+            } else {
+                // Clear form for new FAQ
+                document.getElementById('faqForm').reset();
+            }
+        }
+
+        function handleFaqSubmit(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('faqCategory').value;
+            const question = document.getElementById('faqQuestion').value;
+            const answer = document.getElementById('faqAnswer').value;
+
+            const faqData = {
+                category: category,
+                question: question,
+                answer: answer,
+                timestamp: Date.now()
+            };
+
+            database.ref('faqs').push(faqData)
+                .then(() => {
+                    closeModal('faqModal');
+                    loadFAQs();
+                });
+        }
+
+        function editFAQ(faqId) {
+            // Implement edit functionality
+            console.log('Editing FAQ:', faqId);
+        }
+
+        function deleteFAQ(faqId) {
+            if (confirm('Are you sure you want to delete this FAQ?')) {
+                database.ref(`faqs/${faqId}`).remove()
+                    .then(() => {
+                        loadFAQs();
+                    });
+            }
+        }
+
+        // Quick Questions Management
+        function loadQuickQuestions() {
+            database.ref('quickQuestions').once('value')
+                .then(snapshot => {
+                    const quickQuestions = snapshot.val() || {};
+                    displayQuickQuestions(quickQuestions);
+                });
+        }
+
+        function displayQuickQuestions(quickQuestions) {
+            const container = document.getElementById('quickList');
+            container.innerHTML = '';
+
+            Object.keys(quickQuestions).forEach(category => {
+                const questions = quickQuestions[category];
+                Object.keys(questions).forEach(questionId => {
+                    const question = questions[questionId];
+                    const questionItem = document.createElement('div');
+                    questionItem.className = 'quick-item-admin';
+                    questionItem.innerHTML = `
+                        <div class="item-header">
+                            <span class="item-category">${category}</span>
+                            <div class="item-actions">
+                                <button class="action-btn edit-btn" onclick="editQuickQuestion('${category}', '${questionId}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete-btn" onclick="deleteQuickQuestion('${category}', '${questionId}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="item-content">
+                            <h4><i class="${question.icon}"></i> ${question.question}</h4>
+                            <p>${question.response}</p>
+                        </div>
+                    `;
+                    container.appendChild(questionItem);
+                });
+            });
+        }
+
+        function openQuickModal(category = null, questionId = null) {
+            document.getElementById('quickModal').style.display = 'flex';
+            if (category && questionId) {
+                // Load existing question data
+                loadQuickQuestionData(category, questionId);
+            } else {
+                // Clear form for new question
+                document.getElementById('quickForm').reset();
+                document.getElementById('selectedIcon').value = 'fas fa-home';
+                updateIconSelection();
+            }
+        }
+
+        function handleQuickSubmit(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('quickCategory').value;
+            const question = document.getElementById('quickQuestion').value;
+            const response = document.getElementById('quickResponse').value;
+            const icon = document.getElementById('selectedIcon').value;
+
+            const questionData = {
+                category: category,
+                question: question,
+                response: response,
+                icon: icon,
+                timestamp: Date.now()
+            };
+
+            database.ref(`quickQuestions/${category}`).push(questionData)
+                .then(() => {
+                    closeModal('quickModal');
+                    loadQuickQuestions();
+                });
+        }
+
+        function selectIcon(iconElement) {
+            document.querySelectorAll('.icon-option').forEach(icon => icon.classList.remove('selected'));
+            iconElement.classList.add('selected');
+            document.getElementById('selectedIcon').value = iconElement.dataset.icon;
+        }
+
+        function updateIconSelection() {
+            const selectedIcon = document.getElementById('selectedIcon').value;
+            document.querySelectorAll('.icon-option').forEach(icon => {
+                icon.classList.remove('selected');
+                if (icon.dataset.icon === selectedIcon) {
+                    icon.classList.add('selected');
+                }
+            });
+        }
+
+        function editQuickQuestion(category, questionId) {
+            // Implement edit functionality
+            console.log('Editing quick question:', category, questionId);
+        }
+
+        function deleteQuickQuestion(category, questionId) {
+            if (confirm('Are you sure you want to delete this question?')) {
+                database.ref(`quickQuestions/${category}/${questionId}`).remove()
+                    .then(() => {
+                        loadQuickQuestions();
+                    });
+            }
+        }
+
+        // Theme Management
+        function applyTheme(theme) {
+            const themes = {
+                'dark': {
+                    primary: '#ff4444',
+                    background: '#1a1a1a',
+                    surface: '#2a2a2a',
+                    text: '#ffffff'
+                },
+                'light': {
+                    primary: '#ff4444',
+                    background: '#ffffff',
+                    surface: '#f8f9fa',
+                    text: '#000000'
+                },
+                'material-dark': {
+                    primary: '#bb86fc',
+                    background: '#121212',
+                    surface: '#1e1e1e',
+                    text: '#ffffff'
+                },
+                'material-light': {
+                    primary: '#6200ee',
+                    background: '#ffffff',
+                    surface: '#f5f5f5',
+                    text: '#000000'
+                }
+            };
+
+            const selectedTheme = themes[theme];
+            if (selectedTheme) {
+                applyCustomColors(selectedTheme);
+            }
+        }
+
+        function applyCustomTheme() {
+            const primary = document.getElementById('primaryColor').value;
+            const background = document.getElementById('bgColor').value;
+            const surface = document.getElementById('surfaceColor').value;
+            const text = document.getElementById('textColor').value;
+
+            applyCustomColors({ primary, background, surface, text });
+        }
+
+        function applyCustomColors(colors) {
+            const root = document.documentElement;
+            root.style.setProperty('--primary-color', colors.primary);
+            root.style.setProperty('--background-color', colors.background);
+            root.style.setProperty('--surface-color', colors.surface);
+            root.style.setProperty('--text-color', colors.text);
+
+            // Save theme to Firebase
+            database.ref('theme').set(colors);
+        }
+
+        // Analytics
+        function loadAnalytics() {
+            // Load user count
+            database.ref('users').once('value')
+                .then(snapshot => {
+                    const userCount = Object.keys(snapshot.val() || {}).length;
+                    document.getElementById('totalUsers').textContent = userCount;
+                });
+
+            // Load message count
+            database.ref('chatHistory').once('value')
+                .then(snapshot => {
+                    const messageCount = Object.keys(snapshot.val() || {}).length;
+                    document.getElementById('totalMessages').textContent = messageCount;
+                });
+
+            // Load quick questions count
+            database.ref('chatHistory').orderByChild('type').equalTo('quick_question').once('value')
+                .then(snapshot => {
+                    const quickCount = Object.keys(snapshot.val() || {}).length;
+                    document.getElementById('quickQuestionsUsed').textContent = quickCount;
+                });
+        }
+
+        // Modal functions
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+
+        function initializeDefaultData() {
+            console.log('Initializing default data...');
+            
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        addDefaultFAQs();
+                    }
+                });
+
+            database.ref('quickQuestions').once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        addDefaultQuickQuestions();
+                    }
+                });
+        }
+
+        // Function to clear user data (for testing)
+        function clearUserData() {
+            localStorage.removeItem('aviatorUser');
+            location.reload();
+        }
+
+        // Function to hide admin button
+        function hideAdminButton() {
+            document.getElementById('adminPanelBtn').style.display = 'none';
+            isAdmin = false;
+        }
+
+        function addDefaultFAQs() {
+            const defaultFAQs = {
+                'faq1': {
+                    id: 'faq1',
+                    category: 'Game Rules',
+                    question: 'How does Aviator game work?',
+                    answer: 'Aviator is a crash game where you bet on when to cash out before the multiplier crashes. The longer you wait, the higher the potential payout, but also the higher the risk of losing your bet.',
+                    timestamp: Date.now()
+                },
+                'faq2': {
+                    id: 'faq2',
+                    category: 'Deposits',
+                    question: 'How long do deposits take?',
+                    answer: 'Most deposits are processed instantly. Bank transfers may take 1-3 business days. If your deposit is delayed, please contact support.',
+                    timestamp: Date.now()
+                },
+                'faq3': {
+                    id: 'faq3',
+                    category: 'Withdrawals',
+                    question: 'When will I receive my withdrawal?',
+                    answer: 'Withdrawals are typically processed within 24 hours. Bank transfers may take 3-5 business days to appear in your account.',
+                    timestamp: Date.now()
+                }
+            };
+
+            database.ref('faqs').set(defaultFAQs);
+        }
+
+        function addDefaultQuickQuestions() {
+            const defaultQuickQuestions = {
+                'Deposits': {
+                    'q1': {
+                        id: 'q1',
+                        category: 'Deposits',
+                        question: 'Deposit nahi aaya?',
+                        response: 'Aapka deposit process ho raha hai. Please wait 5-10 minutes. Agar 15 minutes ke baad bhi nahi aaya to contact karein.',
+                        icon: 'fas fa-money-bill-wave',
+                        timestamp: Date.now()
+                    },
+                    'q2': {
+                        id: 'q2',
+                        category: 'Deposits',
+                        question: 'Deposit error aa raha hai',
+                        response: 'Please check your payment method and try again. Agar problem persist karta hai to different payment method try karein.',
+                        icon: 'fas fa-exclamation-triangle',
+                        timestamp: Date.now()
+                    }
+                },
+                'Withdrawals': {
+                    'q1': {
+                        id: 'q1',
+                        category: 'Withdrawals',
+                        question: 'Withdrawal pending hai',
+                        response: 'Withdrawal process mein 24 hours lag sakte hain. Please wait. Agar 24 hours ke baad bhi pending hai to contact karein.',
+                        icon: 'fas fa-clock',
+                        timestamp: Date.now()
+                    }
+                },
+                'Game': {
+                    'q1': {
+                        id: 'q1',
+                        category: 'Game',
+                        question: 'Game crash ho raha hai',
+                        response: 'Please refresh the page or try after some time. Server maintenance ho sakta hai.',
+                        icon: 'fas fa-gamepad',
+                        timestamp: Date.now()
+                    }
+                }
+            };
+
+            database.ref('quickQuestions').set(defaultQuickQuestions);
+        }
+    </script>
+</body>
+</html>
