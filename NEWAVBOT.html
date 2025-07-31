@@ -1803,35 +1803,31 @@
         }
 
         function checkUserSession() {
-            try {
-                const userData = localStorage.getItem('aviatorUser');
-                if (userData) {
-                    currentUser = JSON.parse(userData);
-                    // Check if user still exists in database
-                    database.ref(`users/${currentUser.id}`).once('value')
-                        .then(snapshot => {
-                            if (snapshot.exists()) {
-                                document.getElementById('userRegistrationModal').style.display = 'none';
-                                showMainApp();
-                                loadChat();
-                            } else {
-                                // User was deleted from admin panel, ask for new details
-                                localStorage.removeItem('aviatorUser');
-                                currentUser = null;
-                                showUserRegistration();
-                            }
-                        })
-                        .catch(error => {
-                            // If error, show registration modal as fallback
-                            localStorage.removeItem('aviatorUser');
-                            currentUser = null;
-                            showUserRegistration();
+            const userData = localStorage.getItem('aviatorUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                // Check if user exists in Firebase
+                database.ref(`users/${currentUser.id}`).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        // User exists, ensure chat node exists
+                        ensureUserChat(currentUser.id, () => {
+                            document.getElementById('userRegistrationModal').style.display = 'none';
+                            showMainApp();
+                            loadChat();
                         });
-                } else {
-                    // No user in localStorage, show registration
+                    } else {
+                        // User deleted, clear and show popup
+                        localStorage.removeItem('aviatorUser');
+                        currentUser = null;
+                        showUserRegistration();
+                    }
+                }).catch(() => {
+                    // On error, show popup
+                    localStorage.removeItem('aviatorUser');
+                    currentUser = null;
                     showUserRegistration();
-                }
-            } catch (e) {
+                });
+            } else {
                 showUserRegistration();
             }
         }
@@ -1842,16 +1838,13 @@
 
         function handleUserRegistration(e) {
             e.preventDefault();
-            
-            const userName = document.getElementById('userName').value;
-            const userPhone = document.getElementById('userPhone').value;
-            const userPromo = document.getElementById('userPromo').value;
-
+            const userName = document.getElementById('userName').value.trim();
+            const userPhone = document.getElementById('userPhone').value.trim();
+            const userPromo = document.getElementById('userPromo').value.trim();
             if (!userName || !userPhone) {
                 alert('Please fill in all required fields');
                 return;
             }
-
             const userData = {
                 id: Date.now().toString(),
                 name: userName,
@@ -1859,27 +1852,32 @@
                 promo: userPromo,
                 timestamp: Date.now()
             };
-
-            try {
+            // Save to Firebase
+            database.ref('users/' + userData.id).set(userData).then(() => {
+                // Save to localStorage
                 localStorage.setItem('aviatorUser', JSON.stringify(userData));
                 currentUser = userData;
-
-                database.ref('users/' + userData.id).set(userData)
-                    .then(() => {
-                        document.getElementById('userRegistrationModal').style.display = 'none';
-                        showMainApp();
-                        loadChat();
-                    })
-                    .catch(error => {
-                        console.error('Error saving to Firebase:', error);
-                        document.getElementById('userRegistrationModal').style.display = 'none';
-                        showMainApp();
-                        loadChat();
-                    });
-            } catch (error) {
-                console.error('Error in user registration:', error);
+                // Ensure chat node exists
+                ensureUserChat(userData.id, () => {
+                    document.getElementById('userRegistrationModal').style.display = 'none';
+                    showMainApp();
+                    loadChat();
+                });
+            }).catch(error => {
                 alert('Error during registration. Please try again.');
-            }
+            });
+        }
+
+        // Ensure user chat node exists
+        function ensureUserChat(userId, callback) {
+            const chatRef = database.ref(`chats/${userId}/messages`);
+            chatRef.once('value').then(snapshot => {
+                if (!snapshot.exists()) {
+                    // Create empty chat node
+                    chatRef.set({});
+                }
+                if (typeof callback === 'function') callback();
+            });
         }
 
         // 1. Only send welcome message for new users
