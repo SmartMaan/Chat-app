@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEWNEWBOTBOT - AI Chatbot with Admin Panel</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+
+        .chat-header {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #3498db;
+            color: white;
+        }
+
+        .message.bot .message-content {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .chat-input input:focus {
+            border-color: #3498db;
+        }
+
+        .chat-input button {
+            padding: 12px 24px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .chat-input button:hover {
+            background: #2980b9;
+        }
+
+        .admin-panel {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            overflow-y: auto;
+        }
+
+        .admin-header {
+            background: #e74c3c;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .admin-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #34495e;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        .nav-tab.active {
+            background: #3498db;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .quick-questions-list, .faq-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .question-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+
+        .question-item h4 {
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .question-item p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .user-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-info h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .user-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .user-detail {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #3498db;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .success {
+            background: #27ae60;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .sidebar-nav {
+            margin-bottom: 30px;
+        }
+
+        .nav-item {
+            padding: 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .nav-item:hover {
+            background: #34495e;
+        }
+
+        .nav-item.active {
+            background: #3498db;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .quick-reply {
+            padding: 8px 16px;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .quick-reply:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: 100vh;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                height: calc(100vh - 200px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-nav">
+                <div class="nav-item active" onclick="showChat()">
+                    💬 Chat
+                </div>
+                <div class="nav-item" onclick="showAdmin()">
+                    ⚙️ Admin Panel
+                </div>
+            </div>
+            
+            <div class="user-info">
+                <h4>👤 User Info</h4>
+                <div id="userDetails">
+                    <div class="user-detail">
+                        <strong>Status:</strong> <span id="userStatus">Checking...</span>
+                    </div>
+                    <div class="user-detail">
+                        <strong>Name:</strong> <span id="userName">-</span>
+                    </div>
+                    <div class="user-detail">
+                        <strong>Email:</strong> <span id="userEmail">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Chat Interface -->
+            <div id="chatInterface" class="chat-container">
+                <div class="chat-header">
+                    🤖 NEWNEWBOTBOT - AI Assistant
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        <div class="message-content">
+                            👋 Hello! I'm NEWNEWBOTBOT, your AI assistant. How can I help you today?
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Type your message here..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+
+            <!-- Admin Panel -->
+            <div id="adminPanel" class="admin-panel">
+                <div class="admin-header">
+                    ⚙️ Admin Panel - NEWNEWBOTBOT
+                </div>
+                
+                <div class="nav-tabs">
+                    <div class="nav-tab active" onclick="showTab('quickQuestions')">Quick Questions</div>
+                    <div class="nav-tab" onclick="showTab('faq')">FAQ Categories</div>
+                    <div class="nav-tab" onclick="showTab('users')">User Management</div>
+                    <div class="nav-tab" onclick="showTab('settings')">Settings</div>
+                </div>
+
+                <!-- Quick Questions Tab -->
+                <div id="quickQuestions" class="tab-content active">
+                    <div class="admin-section">
+                        <h3>➕ Add Quick Question</h3>
+                        <div class="form-group">
+                            <label>Question:</label>
+                            <input type="text" id="quickQuestion" placeholder="Enter the question">
+                        </div>
+                        <div class="form-group">
+                            <label>Response:</label>
+                            <textarea id="quickResponse" rows="4" placeholder="Enter the bot's response"></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="addQuickQuestion()">Add Quick Question</button>
+                    </div>
+                    
+                    <div class="admin-section">
+                        <h3>📋 Quick Questions List</h3>
+                        <div id="quickQuestionsList" class="quick-questions-list">
+                            <div class="loading">Loading quick questions...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Categories Tab -->
+                <div id="faq" class="tab-content">
+                    <div class="admin-section">
+                        <h3>📂 Add FAQ Category</h3>
+                        <div class="form-group">
+                            <label>Category Name:</label>
+                            <input type="text" id="faqCategory" placeholder="Enter category name">
+                        </div>
+                        <button class="btn btn-primary" onclick="addFaqCategory()">Add Category</button>
+                    </div>
+                    
+                    <div class="admin-section">
+                        <h3>❓ Add FAQ Question</h3>
+                        <div class="form-group">
+                            <label>Category:</label>
+                            <select id="faqCategorySelect">
+                                <option value="">Select category</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Question:</label>
+                            <input type="text" id="faqQuestion" placeholder="Enter the question">
+                        </div>
+                        <div class="form-group">
+                            <label>Answer:</label>
+                            <textarea id="faqAnswer" rows="4" placeholder="Enter the answer"></textarea>
+                        </div>
+                        <button class="btn btn-success" onclick="addFaqQuestion()">Add FAQ Question</button>
+                    </div>
+                    
+                    <div class="admin-section">
+                        <h3>📚 FAQ Categories & Questions</h3>
+                        <div id="faqList" class="faq-list">
+                            <div class="loading">Loading FAQ data...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Tab -->
+                <div id="users" class="tab-content">
+                    <div class="admin-section">
+                        <h3>👥 User Management</h3>
+                        <div id="usersList">
+                            <div class="loading">Loading users...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settings" class="tab-content">
+                    <div class="admin-section">
+                        <h3>🔧 Bot Settings</h3>
+                        <div class="form-group">
+                            <label>Welcome Message:</label>
+                            <textarea id="welcomeMessage" rows="3" placeholder="Enter welcome message for new users"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Default Response:</label>
+                            <textarea id="defaultResponse" rows="3" placeholder="Enter default response for unknown queries"></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Global variables
+        let currentUser = null;
+        let isNewUser = false;
+        let userData = null;
+        let quickQuestions = [];
+        let faqCategories = [];
+        let faqQuestions = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            try {
+                // Check if user is authenticated
+                auth.onAuthStateChanged(async function(user) {
+                    if (user) {
+                        currentUser = user;
+                        await checkUserData(user.uid);
+                        updateUserInfo();
+                    } else {
+                        // Anonymous authentication for new users
+                        await auth.signInAnonymously();
+                    }
+                });
+
+                // Load admin data
+                await loadQuickQuestions();
+                await loadFaqData();
+                await loadSettings();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showError('Failed to initialize application');
+            }
+        }
+
+        async function checkUserData(userId) {
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                
+                if (!userDoc.exists) {
+                    // New user - ask for details
+                    isNewUser = true;
+                    userData = null;
+                    showNewUserForm();
+                } else {
+                    // Existing user
+                    isNewUser = false;
+                    userData = userDoc.data();
+                    updateUserInfo();
+                }
+            } catch (error) {
+                console.error('Error checking user data:', error);
+                isNewUser = true;
+                showNewUserForm();
+            }
+        }
+
+        function showNewUserForm() {
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.innerHTML = `
+                <div class="message bot">
+                    <div class="message-content">
+                        👋 Welcome! I'm NEWNEWBOTBOT. Since this is your first time here, I'd like to get to know you better.
+                        <br><br>
+                        Please tell me your name:
+                    </div>
+                </div>
+            `;
+            
+            // Add input field for name
+            const chatInput = document.querySelector('.chat-input');
+            chatInput.innerHTML = `
+                <input type="text" id="userNameInput" placeholder="Enter your name..." onkeypress="handleNameInput(event)">
+                <button onclick="submitUserName()">Submit</button>
+            `;
+        }
+
+        function handleNameInput(event) {
+            if (event.key === 'Enter') {
+                submitUserName();
+            }
+        }
+
+        async function submitUserName() {
+            const nameInput = document.getElementById('userNameInput');
+            const userName = nameInput.value.trim();
+            
+            if (!userName) {
+                showError('Please enter your name');
+                return;
+            }
+
+            // Add user message
+            addMessage(userName, 'user');
+            
+            // Update chat input
+            const chatInput = document.querySelector('.chat-input');
+            chatInput.innerHTML = `
+                <input type="text" id="messageInput" placeholder="Type your message here..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Send</button>
+            `;
+
+            // Save user data
+            try {
+                const userData = {
+                    name: userName,
+                    email: currentUser.email || '',
+                    createdAt: new Date(),
+                    lastActive: new Date(),
+                    isNewUser: false
+                };
+
+                await db.collection('users').doc(currentUser.uid).set(userData);
+                
+                // Update global variables
+                isNewUser = false;
+                userData = userData;
+                updateUserInfo();
+
+                // Bot response
+                addMessage(`Nice to meet you, ${userName}! 👋 I'm here to help you with any questions you might have. Feel free to ask me anything!`, 'bot');
+                
+                // Show quick replies
+                showQuickReplies();
+            } catch (error) {
+                console.error('Error saving user data:', error);
+                showError('Failed to save user data');
+            }
+        }
+
+        function updateUserInfo() {
+            const userStatus = document.getElementById('userStatus');
+            const userName = document.getElementById('userName');
+            const userEmail = document.getElementById('userEmail');
+
+            if (isNewUser) {
+                userStatus.textContent = 'New User';
+                userName.textContent = 'Not set';
+                userEmail.textContent = 'Not set';
+            } else if (userData) {
+                userStatus.textContent = 'Active';
+                userName.textContent = userData.name || 'Not set';
+                userEmail.textContent = userData.email || 'Not set';
+            }
+        }
+
+        function showChat() {
+            document.getElementById('chatInterface').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+            
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function showAdmin() {
+            document.getElementById('chatInterface').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Process message and get bot response
+            const response = await processMessage(message);
+            addMessage(response, 'bot');
+        }
+
+        function addMessage(message, sender) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const time = new Date().toLocaleTimeString();
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    ${message}
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Save message to Firebase
+            if (currentUser && !isNewUser) {
+                saveMessageToFirebase(message, sender);
+            }
+        }
+
+        async function processMessage(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Check quick questions first
+            const quickQuestion = quickQuestions.find(q => 
+                lowerMessage.includes(q.question.toLowerCase())
+            );
+            
+            if (quickQuestion) {
+                return quickQuestion.response;
+            }
+            
+            // Check FAQ questions
+            for (const category of faqCategories) {
+                for (const question of faqQuestions.filter(q => q.categoryId === category.id)) {
+                    if (lowerMessage.includes(question.question.toLowerCase())) {
+                        return question.answer;
+                    }
+                }
+            }
+            
+            // Default response
+            return "I'm sorry, I don't have a specific answer for that. Could you please rephrase your question or ask something else?";
+        }
+
+        async function saveMessageToFirebase(message, sender) {
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('messages').add({
+                        message: message,
+                        sender: sender,
+                        timestamp: new Date()
+                    });
+                
+                // Update last active
+                await db.collection('users').doc(currentUser.uid).update({
+                    lastActive: new Date()
+                });
+            } catch (error) {
+                console.error('Error saving message:', error);
+            }
+        }
+
+        // Admin Panel Functions
+
+        async function addQuickQuestion() {
+            const question = document.getElementById('quickQuestion').value.trim();
+            const response = document.getElementById('quickResponse').value.trim();
+            
+            if (!question || !response) {
+                showError('Please fill in both question and response');
+                return;
+            }
+            
+            try {
+                const docRef = await db.collection('quickQuestions').add({
+                    question: question,
+                    response: response,
+                    createdAt: new Date()
+                });
+                
+                // Clear form
+                document.getElementById('quickQuestion').value = '';
+                document.getElementById('quickResponse').value = '';
+                
+                // Reload quick questions
+                await loadQuickQuestions();
+                
+                showSuccess('Quick question added successfully!');
+            } catch (error) {
+                console.error('Error adding quick question:', error);
+                showError('Failed to add quick question');
+            }
+        }
+
+        async function loadQuickQuestions() {
+            try {
+                const snapshot = await db.collection('quickQuestions').orderBy('createdAt', 'desc').get();
+                quickQuestions = [];
+                
+                const listDiv = document.getElementById('quickQuestionsList');
+                listDiv.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    quickQuestions.push({
+                        id: doc.id,
+                        question: data.question,
+                        response: data.response
+                    });
+                    
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'question-item';
+                    questionDiv.innerHTML = `
+                        <h4>${data.question}</h4>
+                        <p>${data.response}</p>
+                        <button class="btn btn-danger" onclick="deleteQuickQuestion('${doc.id}')">Delete</button>
+                    `;
+                    listDiv.appendChild(questionDiv);
+                });
+                
+                if (snapshot.empty) {
+                    listDiv.innerHTML = '<div class="loading">No quick questions found</div>';
+                }
+            } catch (error) {
+                console.error('Error loading quick questions:', error);
+                showError('Failed to load quick questions');
+            }
+        }
+
+        async function deleteQuickQuestion(id) {
+            if (confirm('Are you sure you want to delete this quick question?')) {
+                try {
+                    await db.collection('quickQuestions').doc(id).delete();
+                    await loadQuickQuestions();
+                    showSuccess('Quick question deleted successfully!');
+                } catch (error) {
+                    console.error('Error deleting quick question:', error);
+                    showError('Failed to delete quick question');
+                }
+            }
+        }
+
+        async function addFaqCategory() {
+            const categoryName = document.getElementById('faqCategory').value.trim();
+            
+            if (!categoryName) {
+                showError('Please enter a category name');
+                return;
+            }
+            
+            try {
+                const docRef = await db.collection('faqCategories').add({
+                    name: categoryName,
+                    createdAt: new Date()
+                });
+                
+                // Clear form
+                document.getElementById('faqCategory').value = '';
+                
+                // Reload FAQ data
+                await loadFaqData();
+                
+                showSuccess('FAQ category added successfully!');
+            } catch (error) {
+                console.error('Error adding FAQ category:', error);
+                showError('Failed to add FAQ category');
+            }
+        }
+
+        async function addFaqQuestion() {
+            const categoryId = document.getElementById('faqCategorySelect').value;
+            const question = document.getElementById('faqQuestion').value.trim();
+            const answer = document.getElementById('faqAnswer').value.trim();
+            
+            if (!categoryId || !question || !answer) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            try {
+                const docRef = await db.collection('faqQuestions').add({
+                    categoryId: categoryId,
+                    question: question,
+                    answer: answer,
+                    createdAt: new Date()
+                });
+                
+                // Clear form
+                document.getElementById('faqQuestion').value = '';
+                document.getElementById('faqAnswer').value = '';
+                
+                // Reload FAQ data
+                await loadFaqData();
+                
+                showSuccess('FAQ question added successfully!');
+            } catch (error) {
+                console.error('Error adding FAQ question:', error);
+                showError('Failed to add FAQ question');
+            }
+        }
+
+        async function loadFaqData() {
+            try {
+                // Load categories
+                const categoriesSnapshot = await db.collection('faqCategories').orderBy('createdAt', 'desc').get();
+                faqCategories = [];
+                
+                const categorySelect = document.getElementById('faqCategorySelect');
+                categorySelect.innerHTML = '<option value="">Select category</option>';
+                
+                categoriesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    faqCategories.push({
+                        id: doc.id,
+                        name: data.name
+                    });
+                    
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = data.name;
+                    categorySelect.appendChild(option);
+                });
+                
+                // Load questions
+                const questionsSnapshot = await db.collection('faqQuestions').orderBy('createdAt', 'desc').get();
+                faqQuestions = [];
+                
+                const faqListDiv = document.getElementById('faqList');
+                faqListDiv.innerHTML = '';
+                
+                questionsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    faqQuestions.push({
+                        id: doc.id,
+                        categoryId: data.categoryId,
+                        question: data.question,
+                        answer: data.answer
+                    });
+                });
+                
+                // Display FAQ data grouped by category
+                faqCategories.forEach(category => {
+                    const categoryQuestions = faqQuestions.filter(q => q.categoryId === category.id);
+                    
+                    if (categoryQuestions.length > 0) {
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'question-item';
+                        categoryDiv.innerHTML = `<h4>📂 ${category.name}</h4>`;
+                        
+                        categoryQuestions.forEach(question => {
+                            const questionDiv = document.createElement('div');
+                            questionDiv.style.marginLeft = '20px';
+                            questionDiv.style.marginTop = '10px';
+                            questionDiv.innerHTML = `
+                                <strong>Q: ${question.question}</strong><br>
+                                <p>A: ${question.answer}</p>
+                                <button class="btn btn-danger" onclick="deleteFaqQuestion('${question.id}')">Delete</button>
+                            `;
+                            categoryDiv.appendChild(questionDiv);
+                        });
+                        
+                        faqListDiv.appendChild(categoryDiv);
+                    }
+                });
+                
+                if (faqCategories.length === 0) {
+                    faqListDiv.innerHTML = '<div class="loading">No FAQ categories found</div>';
+                }
+            } catch (error) {
+                console.error('Error loading FAQ data:', error);
+                showError('Failed to load FAQ data');
+            }
+        }
+
+        async function deleteFaqQuestion(id) {
+            if (confirm('Are you sure you want to delete this FAQ question?')) {
+                try {
+                    await db.collection('faqQuestions').doc(id).delete();
+                    await loadFaqData();
+                    showSuccess('FAQ question deleted successfully!');
+                } catch (error) {
+                    console.error('Error deleting FAQ question:', error);
+                    showError('Failed to delete FAQ question');
+                }
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const settingsDoc = await db.collection('settings').doc('bot').get();
+                if (settingsDoc.exists) {
+                    const data = settingsDoc.data();
+                    document.getElementById('welcomeMessage').value = data.welcomeMessage || '';
+                    document.getElementById('defaultResponse').value = data.defaultResponse || '';
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        async function saveSettings() {
+            const welcomeMessage = document.getElementById('welcomeMessage').value.trim();
+            const defaultResponse = document.getElementById('defaultResponse').value.trim();
+            
+            try {
+                await db.collection('settings').doc('bot').set({
+                    welcomeMessage: welcomeMessage,
+                    defaultResponse: defaultResponse,
+                    updatedAt: new Date()
+                });
+                
+                showSuccess('Settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showError('Failed to save settings');
+            }
+        }
+
+        function showQuickReplies() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const quickRepliesDiv = document.createElement('div');
+            quickRepliesDiv.className = 'message bot';
+            quickRepliesDiv.innerHTML = `
+                <div class="message-content">
+                    <div>Quick replies:</div>
+                    <div class="quick-replies">
+                        <div class="quick-reply" onclick="sendQuickReply('Hello')">Hello</div>
+                        <div class="quick-reply" onclick="sendQuickReply('Help')">Help</div>
+                        <div class="quick-reply" onclick="sendQuickReply('About')">About</div>
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(quickRepliesDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function sendQuickReply(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
