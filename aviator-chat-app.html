@@ -1775,8 +1775,10 @@
                 categoriesContainer.style.display = 'grid';
             }
             
+            // Load quick questions immediately
+            loadQuickQuestions();
+            
             setTimeout(() => {
-                loadQuickQuestions();
                 sendWelcomeMessage();
             }, 100);
         }
@@ -1806,7 +1808,19 @@
                 chatSection.style.display = 'flex';
                 faqSection.style.display = 'none';
                 document.getElementById('messagesArea').style.display = 'block';
-                document.getElementById('quickQuestionsSection').style.display = 'block';
+                
+                // Ensure quick questions section is visible and properly sized
+                const quickQuestionsSection = document.getElementById('quickQuestionsSection');
+                quickQuestionsSection.style.display = 'block';
+                quickQuestionsSection.style.maxHeight = '60vh';
+                quickQuestionsSection.style.overflowY = 'auto';
+                
+                // Ensure categories container is visible
+                const categoriesContainer = document.getElementById('categoriesContainer');
+                if (categoriesContainer) {
+                    categoriesContainer.style.display = 'grid';
+                }
+                
                 loadQuickQuestions();
             } else if (tabName === 'faq') {
                 chatSection.style.display = 'none';
@@ -1823,11 +1837,28 @@
                     console.log('Quick questions data:', data);
                     const categories = Object.keys(data);
                     console.log('Categories found:', categories);
+                    
+                    // Always show categories, even if empty
                     if (categories.length > 0) {
                         displayCategories(categories);
                     } else {
                         console.log('No categories found, using defaults');
                         displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
+                    }
+                    
+                    // Ensure quick questions section is visible
+                    const quickSection = document.getElementById('quickQuestionsSection');
+                    if (quickSection) {
+                        quickSection.style.display = 'block';
+                        quickSection.style.maxHeight = '60vh';
+                        quickSection.style.overflowY = 'auto';
+                    }
+                    
+                    // Ensure categories container is visible
+                    const categoriesContainer = document.getElementById('categoriesContainer');
+                    if (categoriesContainer) {
+                        categoriesContainer.style.display = 'grid';
+                        console.log('Categories container display set to grid');
                     }
                 })
                 .catch(error => {
@@ -1849,6 +1880,9 @@
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
 
+            console.log('Displaying categories:', categories);
+            console.log('Container found:', container);
+
             categories.forEach(category => {
                 const btn = document.createElement('button');
                 btn.className = 'category-btn';
@@ -1856,6 +1890,12 @@
                 btn.onclick = () => selectCategory(category);
                 container.appendChild(btn);
             });
+
+            // Ensure the container is visible
+            if (container) {
+                container.style.display = 'grid';
+                console.log('Categories container display set to grid');
+            }
         }
 
         function selectCategory(category) {
@@ -2002,7 +2042,7 @@
                 setTimeout(() => {
                     const adminResponse = {
                         id: (Date.now() + 1).toString(),
-                        text: "🔐 Admin access granted! Admin panel is now available.",
+                        text: "🔐 Admin access granted! Opening admin panel...",
                         sender: 'admin',
                         timestamp: Date.now()
                     };
@@ -2011,6 +2051,11 @@
                     
                     isAdmin = true;
                     document.getElementById('adminPanelBtn').style.display = 'block';
+                    
+                    // Automatically open admin panel after 1 second
+                    setTimeout(() => {
+                        showAdminPanel();
+                    }, 1000);
                 }, 500);
                 return;
             }
