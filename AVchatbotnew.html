@@ -2230,21 +2230,22 @@
         function addMessageToUI(message) {
             const messagesArea = document.getElementById('messagesArea');
             const messageDiv = document.createElement('div');
+            let senderLabel = '';
+            if (message.sender === 'user') senderLabel = '<span style="color:#ff4444;font-size:11px;">You</span>';
+            else if (message.sender === 'admin') senderLabel = '<span style="color:#44f;font-size:11px;">Admin</span>';
+            else senderLabel = '<span style="color:#888;font-size:11px;">Bot</span>';
             messageDiv.className = `message ${message.sender === 'user' ? 'user' : ''} fade-in`;
-
-            const avatar = message.sender === 'user' ? 'fas fa-user' : 'fas fa-headset';
+            const avatar = message.sender === 'user' ? 'fas fa-user' : (message.sender === 'admin' ? 'fas fa-user-shield' : 'fas fa-headset');
             const time = new Date(message.timestamp).toLocaleTimeString();
-
             messageDiv.innerHTML = `
                 <div class="message-avatar">
                     <i class="${avatar}"></i>
                 </div>
                 <div class="message-content">
                     <div>${message.text}</div>
-                    <div class="message-time">${time}</div>
+                    <div class="message-time">${senderLabel} • ${time}</div>
                 </div>
             `;
-
             messagesArea.appendChild(messageDiv);
             messagesArea.scrollTop = messagesArea.scrollHeight;
         }
@@ -2270,43 +2271,14 @@
 
         function loadChat() {
             if (!currentUser) return;
-
-            database.ref(`chats/${currentUser.id}/messages`).once('value')
-                .then(snapshot => {
-                    const messages = snapshot.val() || {};
-                    const messagesArea = document.getElementById('messagesArea');
-                    messagesArea.innerHTML = '';
-
-                    Object.keys(messages).forEach(messageId => {
-                        addMessageToUI(messages[messageId]);
-                    });
-                });
-
-            database.ref('chatHistory').orderByChild('userId').equalTo(currentUser.id).once('value')
-                .then(snapshot => {
-                    const history = snapshot.val() || {};
-                    const messagesArea = document.getElementById('messagesArea');
-                    
-                    if (messagesArea.children.length === 0) {
-                        Object.keys(history).forEach(historyId => {
-                            const historyItem = history[historyId];
-                            const userMessage = {
-                                id: historyId + '_user',
-                                text: historyItem.message,
-                                sender: 'user',
-                                timestamp: new Date(historyItem.timestamp).getTime()
-                            };
-                            const botMessage = {
-                                id: historyId + '_bot',
-                                text: historyItem.response,
-                                sender: 'admin',
-                                timestamp: new Date(historyItem.timestamp).getTime() + 1000
-                            };
-                            addMessageToUI(userMessage);
-                            addMessageToUI(botMessage);
-                        });
-                    }
-                });
+            const messagesArea = document.getElementById('messagesArea');
+            messagesArea.innerHTML = '';
+            const chatRef = database.ref(`chats/${currentUser.id}/messages`);
+            chatRef.off(); // Remove previous listeners
+            chatRef.on('child_added', snapshot => {
+                const message = snapshot.val();
+                addMessageToUI(message);
+            });
         }
 
         function loadFAQSection() {
