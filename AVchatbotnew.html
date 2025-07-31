@@ -1175,6 +1175,49 @@
             border-radius: 8px;
         }
 
+        .user-chat-messages h4 {
+            color: #ff4444;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .user-chat-messages .message {
+            margin-bottom: 12px;
+            display: flex;
+        }
+
+        .user-chat-messages .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .user-chat-messages .message.admin {
+            flex-direction: row;
+        }
+
+        .user-chat-messages .message-content {
+            background: #2a2a2a;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .user-chat-messages .message.user .message-content {
+            background: #ff4444;
+            text-align: right;
+        }
+
+        .user-chat-messages .message.admin .message-content {
+            background: #444;
+        }
+
+        .user-chat-messages .message-time {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+        }
+
         .user-chat-input {
             display: flex;
             gap: 8px;
@@ -1759,10 +1802,30 @@
                 if (userData) {
                     currentUser = JSON.parse(userData);
                     console.log('Existing user found:', currentUser);
-                    // Hide registration modal and show main app directly
-                    document.getElementById('userRegistrationModal').style.display = 'none';
-                    showMainApp();
-                    loadChat();
+                    
+                    // Check if user still exists in database
+                    database.ref(`users/${currentUser.id}`).once('value')
+                        .then(snapshot => {
+                            if (snapshot.exists()) {
+                                // User exists, proceed normally
+                                document.getElementById('userRegistrationModal').style.display = 'none';
+                                showMainApp();
+                                loadChat();
+                            } else {
+                                // User was deleted from admin panel, ask for new details
+                                console.log('User was deleted from admin panel, asking for new details');
+                                localStorage.removeItem('aviatorUser');
+                                currentUser = null;
+                                showUserRegistration();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking user in database:', error);
+                            // If error, proceed with existing user
+                            document.getElementById('userRegistrationModal').style.display = 'none';
+                            showMainApp();
+                            loadChat();
+                        });
                 } else {
                     console.log('New user detected, showing registration');
                     showUserRegistration();
@@ -2450,6 +2513,10 @@
         }
 
         function loadUserChat(userId, userName) {
+            // Store user ID in the modal for sending messages
+            const userChatMessages = document.getElementById('userChatMessages');
+            userChatMessages.dataset.userId = userId;
+            
             database.ref(`chats/${userId}/messages`).once('value')
                 .then(snapshot => {
                     const messages = snapshot.val() || {};
@@ -2464,7 +2531,7 @@
             Object.keys(messages).forEach(messageId => {
                 const message = messages[messageId];
                 const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${message.sender === 'user' ? 'user' : ''}`;
+                messageDiv.className = `message ${message.sender === 'user' ? 'user' : 'admin'}`;
                 messageDiv.innerHTML = `
                     <div class="message-content">
                         <div>${message.text}</div>
@@ -2473,6 +2540,9 @@
                 `;
                 container.appendChild(messageDiv);
             });
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
         }
 
         function sendUserMessage() {
@@ -2481,17 +2551,60 @@
             
             if (!message) return;
 
-            // Send message to user (implement as needed)
-            console.log('Sending message to user:', message);
-            input.value = '';
+            // Get the current user ID from the modal
+            const userChatMessages = document.getElementById('userChatMessages');
+            const userId = userChatMessages.dataset.userId;
+            
+            if (!userId) {
+                alert('No user selected for chat');
+                return;
+            }
+
+            // Create admin message
+            const adminMessage = {
+                id: Date.now().toString(),
+                text: message,
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+
+            // Save message to user's chat
+            database.ref(`chats/${userId}/messages/${adminMessage.id}`).set(adminMessage)
+                .then(() => {
+                    // Add message to UI
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message admin';
+                    messageDiv.innerHTML = `
+                        <div class="message-content">
+                            <div>${message}</div>
+                            <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                        </div>
+                    `;
+                    userChatMessages.appendChild(messageDiv);
+                    userChatMessages.scrollTop = userChatMessages.scrollHeight;
+                    
+                    // Clear input
+                    input.value = '';
+                    
+                    console.log('Message sent to user:', userId, message);
+                })
+                .catch(error => {
+                    console.error('Error sending message to user:', error);
+                    alert('Error sending message. Please try again.');
+                });
         }
 
         function deleteUser(userId) {
-            if (confirm('Are you sure you want to delete this user?')) {
+            if (confirm('Are you sure you want to delete this user? This will force them to register again.')) {
                 database.ref(`users/${userId}`).remove()
                     .then(() => {
                         database.ref(`chats/${userId}`).remove();
                         loadUsers();
+                        console.log('User deleted:', userId);
+                    })
+                    .catch(error => {
+                        console.error('Error deleting user:', error);
+                        alert('Error deleting user. Please try again.');
                     });
             }
         }
