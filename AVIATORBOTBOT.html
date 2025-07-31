@@ -1,0 +1,4149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Aviator Support Chat</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="description" content="Aviator Game Support Chat with Admin Panel">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary-color: #ff4444;
+            --background-color: #1a1a1a;
+            --surface-color: #2a2a2a;
+            --text-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* User Registration Modal - Apple Design */
+        .user-registration-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .registration-form {
+            background: rgba(42, 42, 42, 0.95);
+            border-radius: 20px;
+            padding: 32px 24px;
+            width: 90%;
+            max-width: 360px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .registration-form h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #ff4444;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 16px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 16px;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #ff4444;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ff4444, #ff6666);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+            letter-spacing: 0.3px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Main App Container */
+        .main-app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: #1a1a1a;
+        }
+
+        /* Header - Top Toggle Design */
+        .header {
+            background: #2a2a2a;
+            padding: 8px 12px;
+            border-bottom: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-top h2 {
+            font-size: 16px;
+            color: #ff4444;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .header-tabs {
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            width: 100%;
+            background: #333;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            flex: 1;
+            justify-content: center;
+            text-align: center;
+            min-height: 36px;
+        }
+
+        .tab.active {
+            background: #ff4444;
+            color: white;
+            box-shadow: 0 2px 4px rgba(255, 68, 68, 0.3);
+        }
+
+        .tab:not(.active):hover {
+            background: #444;
+        }
+
+        .tab i {
+            font-size: 14px;
+        }
+
+        .admin-panel-btn {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .admin-panel-btn:hover {
+            background: #ff4444;
+            transform: translateY(-1px);
+        }
+
+        /* Chat Container - Mobile Optimized */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+            height: calc(100vh - 80px);
+        }
+
+        /* FAQ Container - Mobile Optimized */
+        .faq-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+            height: calc(100vh - 80px);
+        }
+
+        /* Messages Area - Mobile Optimized */
+        .messages-area {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: #1a1a1a;
+            min-height: 150px;
+            max-height: 65vh;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ff4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 8px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: #444;
+        }
+
+        .message-content {
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 12px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #ff4444;
+            text-align: right;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Real-time message animations */
+        .message.new-message {
+            animation: slideInAndGlow 0.5s ease-out;
+            border-left: 3px solid #ff4444;
+        }
+
+        @keyframes slideInAndGlow {
+            0% { 
+                opacity: 0; 
+                transform: translateX(-20px) scale(0.95);
+                box-shadow: 0 0 0 rgba(255, 68, 68, 0);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateX(0) scale(1);
+                box-shadow: 0 0 0 rgba(255, 68, 68, 0);
+            }
+        }
+
+        /* Online status indicator */
+        .user-online-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Quick Questions Section - Material 3 Design */
+        .quick-questions-section {
+            background: rgba(42, 42, 42, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 12px;
+            display: block;
+            transition: all 0.3s ease;
+            position: sticky;
+            bottom: 0;
+            z-index: 50;
+            min-height: 120px;
+            max-height: 60vh;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .quick-questions-section::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .quick-questions-section::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .quick-questions-section::-webkit-scrollbar-thumb {
+            background: rgba(255, 68, 68, 0.3);
+            border-radius: 2px;
+        }
+
+        .quick-questions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            position: sticky;
+            top: 0;
+            background: rgba(42, 42, 42, 0.95);
+            padding: 8px 0;
+            z-index: 10;
+        }
+
+        .quick-questions-header h3 {
+            color: #ff4444;
+            font-size: 16px;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+                 .quick-questions-toggle {
+             background: linear-gradient(135deg, rgba(255, 68, 68, 0.15), rgba(255, 68, 68, 0.25));
+             border: 1px solid rgba(255, 68, 68, 0.4);
+             color: #ff4444;
+             cursor: pointer;
+             font-size: 13px;
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             padding: 8px 16px;
+             border-radius: 10px;
+             transition: all 0.3s ease;
+             font-weight: 600;
+             box-shadow: 0 2px 8px rgba(255, 68, 68, 0.2);
+             backdrop-filter: blur(10px);
+             -webkit-backdrop-filter: blur(10px);
+         }
+
+         .quick-questions-toggle:hover {
+             background: linear-gradient(135deg, rgba(255, 68, 68, 0.25), rgba(255, 68, 68, 0.35));
+             transform: translateY(-2px);
+             box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+         }
+
+         .quick-questions-toggle i {
+             font-size: 14px;
+         }
+
+        .categories-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+                 .category-btn {
+             background: rgba(255, 255, 255, 0.08);
+             color: white;
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             padding: 12px 8px;
+             border-radius: 12px;
+             cursor: pointer;
+             transition: all 0.3s ease;
+             text-align: center;
+             font-size: 13px;
+             font-weight: 500;
+             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+             min-height: 44px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             backdrop-filter: blur(10px);
+             -webkit-backdrop-filter: blur(10px);
+             position: relative;
+         }
+         
+         .category-btn::before {
+             content: '\f059';
+             font-family: 'Font Awesome 6 Free';
+             font-weight: 900;
+             margin-right: 8px;
+             color: #ff4444;
+             font-size: 16px;
+         }
+
+        .category-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #ff4444, #ff6666);
+            border-color: #ff4444;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+        }
+
+        .questions-container {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .back-to-categories-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .back-to-categories-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .question-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            border-left: 4px solid #ff4444;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 52px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .question-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-btn i {
+            font-size: 16px;
+            color: #ff4444;
+            flex-shrink: 0;
+        }
+
+        .chat-with-us-btn {
+            background: linear-gradient(135deg, #ff4444, #ff6666);
+            color: white;
+            border: none;
+            padding: 14px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+            margin-top: 12px;
+            width: 100%;
+            min-height: 48px;
+            letter-spacing: 0.3px;
+        }
+
+                 .chat-with-us-btn:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+         }
+
+         /* Quick Questions Modal */
+         .quick-questions-modal {
+             max-width: 90vw;
+             max-height: 85vh;
+             width: 600px;
+             margin: auto;
+         }
+
+         .modal-header {
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+             padding: 20px 24px;
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+             background: rgba(255, 255, 255, 0.05);
+             border-radius: 16px 16px 0 0;
+         }
+
+         .modal-header h3 {
+             margin: 0;
+             color: #ff4444;
+             font-size: 18px;
+             flex: 1;
+             text-align: center;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             gap: 8px;
+         }
+
+         .back-btn {
+             background: rgba(255, 68, 68, 0.1);
+             border: 1px solid rgba(255, 68, 68, 0.3);
+             color: #ff4444;
+             padding: 10px 16px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 14px;
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             transition: all 0.3s ease;
+             font-weight: 500;
+         }
+
+         .back-btn:hover {
+             background: rgba(255, 68, 68, 0.2);
+             transform: translateY(-1px);
+         }
+
+         .close-btn {
+             background: rgba(255, 255, 255, 0.1);
+             border: 1px solid rgba(255, 255, 255, 0.2);
+             color: white;
+             padding: 10px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 16px;
+             transition: all 0.3s ease;
+             width: 40px;
+             height: 40px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+         }
+
+         .close-btn:hover {
+             background: rgba(255, 255, 255, 0.2);
+             transform: translateY(-1px);
+         }
+
+         .modal-body {
+             padding: 24px;
+             max-height: 60vh;
+             overflow-y: auto;
+         }
+
+         .popup-categories {
+             display: grid;
+             grid-template-columns: repeat(2, 1fr);
+             gap: 16px;
+         }
+
+         .popup-category-btn {
+             background: rgba(255, 255, 255, 0.08);
+             color: white;
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             padding: 18px 16px;
+             border-radius: 12px;
+             cursor: pointer;
+             transition: all 0.3s ease;
+             text-align: center;
+             font-size: 15px;
+             font-weight: 500;
+             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+             min-height: 70px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             backdrop-filter: blur(10px);
+             -webkit-backdrop-filter: blur(10px);
+             position: relative;
+         }
+
+         .popup-category-btn::before {
+             content: '\f059';
+             font-family: 'Font Awesome 6 Free';
+             font-weight: 900;
+             margin-right: 10px;
+             color: #ff4444;
+             font-size: 18px;
+         }
+
+         .popup-category-btn:hover {
+             background: rgba(255, 255, 255, 0.12);
+             transform: translateY(-2px);
+             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+         }
+
+         .popup-questions {
+             display: flex;
+             flex-direction: column;
+             gap: 12px;
+         }
+
+         .popup-question-btn {
+             background: rgba(255, 255, 255, 0.05);
+             color: white;
+             border: 1px solid rgba(255, 255, 255, 0.08);
+             padding: 16px 20px;
+             border-radius: 12px;
+             cursor: pointer;
+             transition: all 0.3s ease;
+             text-align: left;
+             border-left: 4px solid #ff4444;
+             display: flex;
+             align-items: center;
+             gap: 14px;
+             font-size: 15px;
+             line-height: 1.4;
+             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+             min-height: 58px;
+             backdrop-filter: blur(10px);
+             -webkit-backdrop-filter: blur(10px);
+         }
+
+         .popup-question-btn:hover {
+             background: rgba(255, 255, 255, 0.08);
+             transform: translateY(-2px);
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+         }
+
+         .popup-question-btn i {
+             font-size: 16px;
+             color: #ff4444;
+             flex-shrink: 0;
+         }
+
+         /* Fullscreen Modal */
+         .fullscreen-modal {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background: #1a1a1a;
+             z-index: 10000;
+             display: flex;
+             flex-direction: column;
+         }
+
+         .fullscreen-header {
+             background: #2a2a2a;
+             padding: 16px 20px;
+             border-bottom: 2px solid #444;
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+         }
+
+         .user-info {
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             flex: 1;
+         }
+
+         #chatUserName {
+             color: #ff4444;
+             font-size: 18px;
+             font-weight: 600;
+             margin-bottom: 4px;
+         }
+
+         .user-status {
+             font-size: 12px;
+             padding: 2px 8px;
+             border-radius: 12px;
+             font-weight: 500;
+         }
+
+         .user-status.online {
+             background: rgba(0, 255, 0, 0.2);
+             color: #00ff00;
+         }
+
+         .user-status.offline {
+             background: rgba(255, 255, 255, 0.1);
+             color: #ccc;
+         }
+
+         .chat-actions {
+             display: flex;
+             gap: 12px;
+         }
+
+         .action-btn {
+             background: rgba(255, 68, 68, 0.1);
+             border: 1px solid rgba(255, 68, 68, 0.3);
+             color: #ff4444;
+             padding: 10px 16px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 14px;
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             transition: all 0.3s ease;
+             font-weight: 500;
+         }
+
+         .action-btn.danger:hover {
+             background: rgba(255, 68, 68, 0.2);
+             transform: translateY(-1px);
+         }
+
+         .fullscreen-content {
+             flex: 1;
+             display: flex;
+             flex-direction: column;
+             overflow: hidden;
+         }
+
+         .chat-messages-admin {
+             flex: 1;
+             overflow-y: auto;
+             padding: 20px;
+             background: #1a1a1a;
+         }
+
+         .admin-chat-input {
+             background: #2a2a2a;
+             padding: 16px 20px;
+             border-top: 1px solid #444;
+             display: flex;
+             gap: 12px;
+             align-items: center;
+         }
+
+         .admin-chat-input input {
+             flex: 1;
+             background: rgba(255, 255, 255, 0.05);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             color: white;
+             padding: 12px 16px;
+             border-radius: 8px;
+             font-size: 14px;
+         }
+
+         .admin-chat-input input:focus {
+             outline: none;
+             border-color: #ff4444;
+         }
+
+         .send-btn {
+             background: #ff4444;
+             border: none;
+             color: white;
+             padding: 12px 16px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 16px;
+             transition: all 0.3s ease;
+         }
+
+         .send-btn:hover {
+             background: #ff6666;
+             transform: translateY(-1px);
+         }
+
+         /* Enhanced Admin Styles */
+         .users-stats {
+             display: flex;
+             gap: 16px;
+             margin-bottom: 20px;
+         }
+
+         .stat-card {
+             background: rgba(255, 255, 255, 0.05);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             border-radius: 12px;
+             padding: 16px;
+             text-align: center;
+             flex: 1;
+         }
+
+         .stat-number {
+             display: block;
+             font-size: 24px;
+             font-weight: 700;
+             color: #ff4444;
+             margin-bottom: 4px;
+         }
+
+         .stat-label {
+             font-size: 12px;
+             color: #ccc;
+             text-transform: uppercase;
+             letter-spacing: 0.5px;
+         }
+
+         .refresh-btn {
+             background: rgba(255, 255, 255, 0.1);
+             border: 1px solid rgba(255, 255, 255, 0.2);
+             color: white;
+             padding: 8px 16px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 14px;
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             transition: all 0.3s ease;
+         }
+
+         .refresh-btn:hover {
+             background: rgba(255, 255, 255, 0.15);
+         }
+
+         .user-card {
+             position: relative;
+         }
+
+         .user-card .online-indicator {
+             position: absolute;
+             top: 12px;
+             right: 12px;
+             width: 12px;
+             height: 12px;
+             background: #00ff00;
+             border-radius: 50%;
+             border: 2px solid #1a1a1a;
+         }
+
+         .user-card .offline-indicator {
+             position: absolute;
+             top: 12px;
+             right: 12px;
+             width: 12px;
+             height: 12px;
+             background: #666;
+             border-radius: 50%;
+             border: 2px solid #1a1a1a;
+         }
+
+         .icon-selector {
+             display: grid;
+             grid-template-columns: repeat(6, 1fr);
+             gap: 8px;
+             margin: 12px 0;
+             padding: 12px;
+             background: rgba(255, 255, 255, 0.05);
+             border-radius: 8px;
+         }
+
+         .icon-btn {
+             background: rgba(255, 255, 255, 0.1);
+             border: 1px solid rgba(255, 255, 255, 0.2);
+             color: #ff4444;
+             padding: 12px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 18px;
+             transition: all 0.3s ease;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+         }
+
+         .icon-btn:hover {
+             background: rgba(255, 68, 68, 0.2);
+             transform: scale(1.1);
+         }
+
+         .icon-btn.selected {
+             background: rgba(255, 68, 68, 0.3);
+             border-color: #ff4444;
+         }
+
+         /* Messages Management */
+         .messages-controls {
+             display: flex;
+             flex-direction: column;
+             gap: 20px;
+         }
+
+         .message-card {
+             background: rgba(255, 255, 255, 0.05);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             border-radius: 12px;
+             padding: 20px;
+         }
+
+         .message-card h3 {
+             color: #ff4444;
+             margin: 0 0 12px 0;
+             font-size: 16px;
+         }
+
+         .message-card textarea {
+             width: 100%;
+             background: rgba(255, 255, 255, 0.05);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             color: white;
+             padding: 12px;
+             border-radius: 8px;
+             font-size: 14px;
+             line-height: 1.5;
+             resize: vertical;
+             margin-bottom: 12px;
+         }
+
+         .message-card textarea:focus {
+             outline: none;
+             border-color: #ff4444;
+         }
+
+         .save-btn {
+             background: #ff4444;
+             color: white;
+             border: none;
+             padding: 10px 20px;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 14px;
+             font-weight: 500;
+             transition: all 0.3s ease;
+         }
+
+         .save-btn:hover {
+             background: #ff6666;
+             transform: translateY(-1px);
+         }
+
+        /* Input Area */
+        .input-area {
+            background: #2a2a2a;
+            padding: 12px;
+            border-top: 2px solid #444;
+            display: none;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: #333;
+            color: white;
+            font-size: 14px;
+            resize: none;
+            min-height: 40px;
+            max-height: 120px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #ff4444;
+        }
+
+        .send-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 40px;
+            min-width: 40px;
+        }
+
+        .send-btn:hover {
+            background: #ff6666;
+            transform: translateY(-1px);
+        }
+
+        /* FAQ Content - Material 3 Design */
+        .faq-content {
+            padding: 20px 16px;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .faq-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .faq-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .faq-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 68, 68, 0.3);
+            border-radius: 2px;
+        }
+
+        .faq-category {
+            margin-bottom: 24px;
+        }
+
+        .faq-category h3 {
+            color: #ff4444;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            padding: 0 4px;
+        }
+
+        .faq-item {
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .faq-question {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .faq-question i {
+            color: #ff4444;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-question.active i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 20px;
+            display: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+
+        .faq-answer.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .admin-sidebar {
+            background: #222;
+            padding: 12px;
+            border-bottom: 2px solid #444;
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            gap: 8px;
+        }
+
+        .admin-sidebar-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 12px;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+
+        .admin-sidebar-btn:hover {
+            background: #444;
+        }
+
+        .admin-sidebar-btn.active {
+            background: #ff4444;
+        }
+
+        .admin-content {
+            background: #1a1a1a;
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .admin-section h2 {
+            color: #ff4444;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        /* Admin Panel Components */
+        .search-filter {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-input, .filter-select {
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 14px;
+        }
+
+        .search-input {
+            flex: 1;
+        }
+
+        .users-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .user-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .user-info h4 {
+            margin: 0 0 4px 0;
+            color: #ff4444;
+        }
+
+        .user-info p {
+            margin: 0;
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-btn {
+            background: #ff4444;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* FAQ & Quick Management */
+        .faq-controls, .quick-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .add-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .category-select {
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            min-width: 150px;
+        }
+
+        .faq-list, .quick-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .faq-item-admin, .quick-item-admin {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item-admin:hover, .quick-item-admin:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .item-category {
+            background: #ff4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .edit-btn {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .item-content h4 {
+            margin: 0 0 8px 0;
+            color: white;
+            font-size: 14px;
+        }
+
+        .item-content p {
+            margin: 0;
+            color: #ccc;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 20000;
+        }
+
+        .modal-content {
+            background: rgba(42, 42, 42, 0.95);
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-content.large {
+            max-width: 800px;
+            max-height: 90vh;
+        }
+
+        .modal-content h3 {
+            color: #ff4444;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .modal-content .form-group {
+            margin-bottom: 16px;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 6px;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .modal-content input, .modal-content textarea, .modal-content select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 14px;
+        }
+
+        .modal-content textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .save-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .close-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
+        /* Icon Selector */
+        .icon-selector {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .icon-option {
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            color: #ccc;
+        }
+
+        .icon-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ff4444;
+        }
+
+        .icon-option.selected {
+            background: #ff4444;
+            color: white;
+            border-color: #ff4444;
+        }
+
+        /* Mobile Responsive - Optimized for 1080×720 */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+
+            .header {
+                padding: 8px 12px;
+            }
+
+            .header-top h2 {
+                font-size: 16px;
+            }
+
+            .tab {
+                font-size: 13px;
+                padding: 8px 10px;
+                min-height: 36px;
+            }
+
+            .messages-area {
+                padding: 10px;
+                max-height: 55vh;
+                min-height: 200px;
+            }
+
+            .message-content {
+                max-width: 75%;
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .quick-questions-section {
+                padding: 12px;
+                min-height: 100px;
+                max-height: 50vh;
+            }
+
+            .categories-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+
+            .category-btn {
+                font-size: 12px;
+                padding: 10px 8px;
+                min-height: 40px;
+            }
+
+            .question-btn {
+                font-size: 13px;
+                padding: 10px 12px;
+                min-height: 44px;
+            }
+
+            .back-to-categories-btn {
+                font-size: 13px;
+                padding: 10px 12px;
+                min-height: 44px;
+            }
+
+            .chat-with-us-btn {
+                font-size: 13px;
+                padding: 12px;
+                min-height: 44px;
+            }
+
+            .input-area {
+                padding: 10px;
+            }
+
+            .message-input {
+                font-size: 16px;
+                padding: 10px;
+                min-height: 44px;
+            }
+
+            .send-btn {
+                padding: 10px;
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            .faq-content {
+                padding: 16px 12px;
+            }
+
+            .faq-category h3 {
+                font-size: 16px;
+            }
+
+            .faq-question {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+                         .faq-answer {
+                 padding: 16px;
+                 font-size: 13px;
+             }
+
+             .quick-questions-modal {
+                 width: 95vw;
+                 max-height: 90vh;
+             }
+
+             .popup-categories {
+                 grid-template-columns: 1fr;
+                 gap: 12px;
+             }
+
+             .popup-category-btn {
+                 min-height: 60px;
+                 font-size: 14px;
+                 padding: 16px 12px;
+             }
+
+             .popup-question-btn {
+                 font-size: 14px;
+                 padding: 14px 16px;
+                 min-height: 54px;
+             }
+
+             .modal-header {
+                 padding: 16px 18px;
+             }
+
+             .modal-body {
+                 padding: 18px;
+                 max-height: 65vh;
+             }
+
+             .back-btn, .close-btn {
+                 padding: 8px 12px;
+                 font-size: 13px;
+             }
+
+             .close-btn {
+                 width: 36px;
+                 height: 36px;
+             }
+         }
+
+        @media (max-width: 480px) {
+            .categories-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .message-content {
+                max-width: 80%;
+            }
+
+            .quick-questions-section {
+                max-height: 45vh;
+            }
+        }
+
+                 /* Specific optimization for 1080×720 Android */
+         @media (width: 1080px) and (height: 720px) {
+             .messages-area {
+                 max-height: 60vh;
+             }
+
+             .quick-questions-section {
+                 max-height: 35vh;
+             }
+
+             .category-btn {
+                 min-height: 48px;
+                 font-size: 13px;
+             }
+
+             .question-btn {
+                 min-height: 52px;
+                 font-size: 14px;
+             }
+
+             .quick-questions-modal {
+                 width: 80vw;
+                 max-height: 80vh;
+             }
+
+             .popup-categories {
+                 grid-template-columns: repeat(2, 1fr);
+                 gap: 18px;
+             }
+
+             .popup-category-btn {
+                 min-height: 80px;
+                 font-size: 16px;
+                 padding: 20px 16px;
+             }
+
+             .popup-question-btn {
+                 min-height: 65px;
+                 font-size: 16px;
+                 padding: 18px 20px;
+             }
+
+             .modal-header {
+                 padding: 22px 28px;
+             }
+
+             .modal-body {
+                 padding: 28px;
+                 max-height: 55vh;
+             }
+         }
+    </style>
+</head>
+<body>
+    <!-- User Registration Modal -->
+    <div id="userRegistrationModal" class="user-registration-modal">
+        <div class="registration-form">
+            <h2><i class="fas fa-user-plus"></i> Welcome to Aviator Support</h2>
+                         <form id="registrationForm">
+                 <div class="form-group">
+                     <label for="userName">Full Name</label>
+                     <input type="text" id="userName" required>
+                 </div>
+                 <div class="form-group">
+                     <label for="userEmail">Email Address</label>
+                     <input type="email" id="userEmail" required>
+                 </div>
+                 <div class="form-group">
+                     <label for="userPhone">Phone Number</label>
+                     <input type="tel" id="userPhone" required>
+                 </div>
+                 <div class="form-group">
+                     <label for="userPromo">Promo Code (Optional)</label>
+                     <input type="text" id="userPromo">
+                 </div>
+                 <button type="submit" class="submit-btn">
+                     <i class="fas fa-paper-plane"></i> Start Chat
+                 </button>
+             </form>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="mainApp" class="main-app" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <h2>Aviator Support</h2>
+                <button id="adminPanelBtn" class="admin-panel-btn" style="display: none;">
+                    <i class="fas fa-cog"></i> Admin
+                </button>
+            </div>
+            <div class="header-tabs">
+                <div class="tab active" data-tab="chat">
+                    <i class="fas fa-comments"></i>
+                    Chat
+                </div>
+                <div class="tab" data-tab="faq">
+                    <i class="fas fa-question-circle"></i>
+                    FAQ
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Tab Section -->
+        <div id="chatTabSection" class="chat-container">
+            <!-- Messages Area -->
+            <div id="messagesArea" class="messages-area">
+                <!-- Messages will be added here -->
+            </div>
+
+                         <!-- Quick Questions Section -->
+             <div id="quickQuestionsSection" class="quick-questions-section">
+                 <div class="quick-questions-header">
+                     <h3><i class="fas fa-bolt"></i> Quick Help Questions</h3>
+                     <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="openQuickQuestionsPopup()">
+                         <i class="fas fa-search"></i> Browse All Questions
+                     </button>
+                 </div>
+             </div>
+             
+             <!-- Always visible Chat with Us button -->
+             <button class="chat-with-us-btn" onclick="showChatInput()">
+                 <i class="fas fa-comment"></i> Chat with Us
+             </button>
+
+            <!-- Input Area -->
+            <div id="chatInputArea" class="input-area">
+                <textarea id="messageInput" class="message-input" placeholder="Type your message..." rows="1"></textarea>
+                <button id="sendBtn" class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- FAQ Tab Section -->
+        <div id="faqTabSection" class="faq-container" style="display: none;">
+            <div id="faqContent" class="faq-content">
+                <!-- FAQ content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel">
+                         <div class="admin-sidebar">
+                     <button class="admin-sidebar-btn active" data-section="users">Users</button>
+                     <button class="admin-sidebar-btn" data-section="faq">FAQ</button>
+                     <button class="admin-sidebar-btn" data-section="quick">Quick Q</button>
+                     <button class="admin-sidebar-btn" data-section="categories">Categories</button>
+                     <button class="admin-sidebar-btn" data-section="messages">Messages</button>
+                     <button id="closeAdminBtn" class="admin-sidebar-btn" onclick="hideAdminPanel()" style="background:#ff4444;color:#fff;">Close</button>
+                 </div>
+        <div class="admin-content">
+            <!-- Users Section -->
+            <div id="usersSection" class="admin-section active">
+                <h2><i class="fas fa-users"></i> User Management</h2>
+                <div class="search-filter">
+                    <input type="text" id="userSearch" placeholder="Search users..." class="search-input">
+                    <select id="userFilter" class="filter-select">
+                        <option value="all">All Users</option>
+                        <option value="online">Online Users</option>
+                        <option value="recent">Recent Users</option>
+                        <option value="new">New Users</option>
+                    </select>
+                    <button id="refreshUsers" class="refresh-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div class="users-stats">
+                    <div class="stat-card">
+                        <span class="stat-number" id="totalUsers">0</span>
+                        <span class="stat-label">Total Users</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="onlineUsers">0</span>
+                        <span class="stat-label">Online Users</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="newUsersToday">0</span>
+                        <span class="stat-label">New Today</span>
+                    </div>
+                </div>
+                <div id="usersList" class="users-list">
+                    <!-- Users will be loaded here -->
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <div id="faqSection" class="admin-section">
+                <h2><i class="fas fa-question-circle"></i> FAQ Management</h2>
+                <div class="faq-controls">
+                    <button id="addFaqBtn" class="add-btn">Add New FAQ</button>
+                    <select id="faqCategorySelect" class="category-select">
+                        <option value="">Select Category</option>
+                    </select>
+                    <button id="addFaqCategoryBtn" class="add-btn">Add Category</button>
+                </div>
+                <div id="faqList" class="faq-list">
+                    <!-- FAQs will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Quick Questions Section -->
+            <div id="quickSection" class="admin-section">
+                <h2><i class="fas fa-bolt"></i> Quick Questions Management</h2>
+                <div class="quick-controls">
+                    <button id="addQuickBtn" class="add-btn">Add New Question</button>
+                    <select id="quickCategorySelect" class="category-select">
+                        <option value="">Select Category</option>
+                    </select>
+                    <button id="addQuickCategoryBtn" class="add-btn">Add Category</button>
+                </div>
+                <div id="quickList" class="quick-list">
+                    <!-- Quick questions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div id="categoriesSection" class="admin-section">
+                <h2><i class="fas fa-tags"></i> Category Management</h2>
+                <div class="faq-controls">
+                    <button id="addCategoryBtn" class="add-btn">Add New Category</button>
+                </div>
+                                 <div id="categoriesList" class="faq-list">
+                     <!-- Categories will be loaded here -->
+                 </div>
+             </div>
+
+             <!-- Messages Section -->
+             <div id="messagesSection" class="admin-section">
+                 <h2><i class="fas fa-comments"></i> Welcome Messages Management</h2>
+                 <div class="messages-controls">
+                     <div class="message-card">
+                         <h3>New User Welcome Message</h3>
+                         <textarea id="newUserWelcomeMsg" placeholder="Enter welcome message for new users..." rows="6">Hello {{name}}! 👋
+
+Welcome to Aviator Game Support! We're excited to help you get started.
+
+🎮 As a new player, here's what you can do:
+
+1️⃣ Browse our Quick Questions below for instant help
+2️⃣ Check the FAQ section for detailed information  
+3️⃣ Chat with us directly for personalized support
+
+💡 Pro tip: Start with our Quick Questions - they cover the most common topics!
+
+How can we help you today?</textarea>
+                         <button id="saveNewUserMsg" class="save-btn">Save New User Message</button>
+                     </div>
+                     
+                     <div class="message-card">
+                         <h3>Welcome Back Message</h3>
+                         <textarea id="welcomeBackMsg" placeholder="Enter welcome back message for returning users..." rows="4">Welcome back {{name}}! 👋
+
+📚 Your previous chat history has been restored. How can I help you today?</textarea>
+                         <button id="saveWelcomeBackMsg" class="save-btn">Save Welcome Back Message</button>
+                     </div>
+                     
+                     <div class="message-card">
+                         <h3>Regular Welcome Message</h3>
+                         <textarea id="regularWelcomeMsg" placeholder="Enter regular welcome message..." rows="6">Welcome back {{name}}! 🎮
+
+I'm here to help you with any questions about the Aviator game. You can:
+
+1️⃣ Use the Quick Questions below for instant answers
+2️⃣ Type your message directly for personalized support  
+3️⃣ Check the FAQ section for common questions
+
+💡 Tip: Use the Quick Questions for faster responses!</textarea>
+                         <button id="saveRegularMsg" class="save-btn">Save Regular Message</button>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+    <!-- Full Screen User Chat View -->
+    <div id="userChatFullscreen" class="fullscreen-modal" style="display: none;">
+        <div class="fullscreen-header">
+            <button class="back-btn" onclick="closeUserChatFullscreen()">
+                <i class="fas fa-arrow-left"></i> Back to Users
+            </button>
+            <div class="user-info">
+                <span id="chatUserName">User Name</span>
+                <span id="chatUserStatus" class="user-status offline">Offline</span>
+            </div>
+            <div class="chat-actions">
+                <button id="clearUserChat" class="action-btn danger">
+                    <i class="fas fa-trash"></i> Clear Chat
+                </button>
+                <button class="close-btn" onclick="closeUserChatFullscreen()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="fullscreen-content">
+            <div id="userChatMessages" class="chat-messages-admin">
+                <!-- User chat messages will be loaded here -->
+            </div>
+            <div class="admin-chat-input">
+                <input type="text" id="adminChatInput" placeholder="Type a message to user..." maxlength="500">
+                <button id="sendAdminMessage" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="faqModal" class="modal">
+        <div class="modal-content">
+            <h3>Add/Edit FAQ</h3>
+            <form id="faqForm">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="faqCategoryModal" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Question</label>
+                    <textarea id="faqQuestion" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Answer</label>
+                    <textarea id="faqAnswer" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <div class="icon-selector" id="faqIconSelector">
+                        <button type="button" class="icon-btn" data-icon="fas fa-question-circle"><i class="fas fa-question-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-info-circle"><i class="fas fa-info-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-exclamation-circle"><i class="fas fa-exclamation-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-lightbulb"><i class="fas fa-lightbulb"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-star"><i class="fas fa-star"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-heart"><i class="fas fa-heart"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-check-circle"><i class="fas fa-check-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-times-circle"><i class="fas fa-times-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-cog"><i class="fas fa-cog"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-user"><i class="fas fa-user"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-phone"><i class="fas fa-phone"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-envelope"><i class="fas fa-envelope"></i></button>
+                    </div>
+                    <input type="hidden" id="faqIcon" value="fas fa-question-circle">
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="save-btn">Save</button>
+                    <button type="button" class="cancel-btn" onclick="closeModal('faqModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="quickModal" class="modal">
+        <div class="modal-content">
+            <h3>Add/Edit Quick Question</h3>
+            <form id="quickForm">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="quickCategoryModal" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Question</label>
+                    <textarea id="quickQuestion" required placeholder="Enter the question users will see"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bot Response</label>
+                    <textarea id="quickResponse" required placeholder="Enter the response bot will give"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <div class="icon-selector" id="quickIconSelector">
+                        <button type="button" class="icon-btn" data-icon="fas fa-question-circle"><i class="fas fa-question-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-info-circle"><i class="fas fa-info-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-exclamation-circle"><i class="fas fa-exclamation-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-lightbulb"><i class="fas fa-lightbulb"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-star"><i class="fas fa-star"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-heart"><i class="fas fa-heart"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-check-circle"><i class="fas fa-check-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-times-circle"><i class="fas fa-times-circle"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-cog"><i class="fas fa-cog"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-user"><i class="fas fa-user"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-phone"><i class="fas fa-phone"></i></button>
+                        <button type="button" class="icon-btn" data-icon="fas fa-envelope"><i class="fas fa-envelope"></i></button>
+                    </div>
+                    <input type="hidden" id="quickIcon" value="fas fa-question-circle">
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="submit" class="save-btn">Save</button>
+                    <button type="button" class="cancel-btn" onclick="closeModal('quickModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+         <div id="categoryModal" class="modal">
+         <div class="modal-content">
+             <h3>Add New Category</h3>
+             <form id="categoryForm">
+                 <div class="form-group">
+                     <label>Category Name</label>
+                     <input type="text" id="categoryName" required placeholder="Enter category name">
+                 </div>
+                 <div class="form-group">
+                     <label>Description</label>
+                     <textarea id="categoryDescription" placeholder="Enter category description (optional)"></textarea>
+                 </div>
+                 <div class="modal-buttons">
+                     <button type="submit" class="save-btn">Save</button>
+                     <button type="button" class="cancel-btn" onclick="closeModal('categoryModal')">Cancel</button>
+                 </div>
+             </form>
+         </div>
+     </div>
+
+     <!-- Quick Questions Popup Modal -->
+     <div id="quickQuestionsPopup" class="modal" style="display: none;">
+         <div class="modal-content quick-questions-modal">
+             <div class="modal-header">
+                 <button id="backToCategoriesBtn" class="back-btn" onclick="showCategoriesInPopup()" style="display: none;">
+                     <i class="fas fa-arrow-left"></i> Back
+                 </button>
+                 <h3 id="popupTitle"><i class="fas fa-bolt"></i> Quick Help Questions</h3>
+                 <button class="close-btn" onclick="closeQuickQuestionsPopup()">
+                     <i class="fas fa-times"></i>
+                 </button>
+             </div>
+             <div class="modal-body">
+                 <div id="popupCategories" class="popup-categories">
+                     <!-- Categories will be loaded here -->
+                 </div>
+                 <div id="popupQuestions" class="popup-questions" style="display: none;">
+                     <!-- Questions will be loaded here -->
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Full Screen User Chat View -->
+     <div id="userChatFullscreen" class="fullscreen-modal" style="display: none;">
+         <div class="fullscreen-header">
+             <button class="back-btn" onclick="closeUserChatFullscreen()">
+                 <i class="fas fa-arrow-left"></i> Back to Users
+             </button>
+             <div class="user-info">
+                 <span id="chatUserName">User Name</span>
+                 <span id="chatUserStatus" class="user-status offline">Offline</span>
+             </div>
+             <div class="chat-actions">
+                 <button id="clearUserChat" class="action-btn danger">
+                     <i class="fas fa-trash"></i> Clear Chat
+                 </button>
+                 <button class="close-btn" onclick="closeUserChatFullscreen()">
+                     <i class="fas fa-times"></i>
+                 </button>
+             </div>
+         </div>
+         <div class="fullscreen-content">
+             <div id="userChatMessages" class="chat-messages-admin">
+                 <!-- User chat messages will be loaded here -->
+             </div>
+             <div class="admin-chat-input">
+                 <input type="text" id="adminChatInput" placeholder="Type a message to user..." maxlength="500">
+                 <button id="sendAdminMessage" class="send-btn">
+                     <i class="fas fa-paper-plane"></i>
+                 </button>
+             </div>
+         </div>
+     </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqXqXqXqXqXqXqXqXqXqXqXqXqXqXqXqXq",
+            authDomain: "aviator-pr01.firebaseapp.com",
+            databaseURL: "https://aviator-pr01-default-rtdb.firebaseio.com",
+            projectId: "aviator-pr01",
+            storageBucket: "aviator-pr01.firebasestorage.app",
+            messagingSenderId: "290788041297",
+            appId: "1:290788041297:web:168f99f1532997fb778e70",
+            measurementId: "G-ENCBTT4BL8"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Global variables
+        let currentUser = null;
+        let isAdmin = false;
+        let selectedCategory = null;
+        let editingItem = null;
+
+        // Update user activity
+        function updateUserActivity() {
+            if (currentUser && currentUser.id) {
+                currentUser.lastActivity = Date.now();
+                // Update in Firebase
+                database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
+                // Update in localStorage to maintain session
+                localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
+            }
+        }
+
+        // Ensure user session is maintained
+        function maintainUserSession() {
+            if (currentUser && currentUser.id) {
+                // Re-save to localStorage to prevent data loss
+                localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
+                console.log('User session maintained for:', currentUser.name);
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('App starting...');
+            setupEventListeners();
+            initializeDefaultData();
+            checkUserSession();
+            
+            // Update user activity every 30 seconds
+            setInterval(updateUserActivity, 30000);
+            
+            // Maintain user session every 60 seconds
+            setInterval(maintainUserSession, 60000);
+            
+            // Update activity on user interaction
+            document.addEventListener('click', updateUserActivity);
+            document.addEventListener('keypress', updateUserActivity);
+            
+            // Maintain session on page visibility change
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    maintainUserSession();
+                }
+            });
+            
+            // Save session before page unload
+            window.addEventListener('beforeunload', function() {
+                maintainUserSession();
+            });
+        });
+
+        function setupEventListeners() {
+            // Registration form
+            document.getElementById('registrationForm').addEventListener('submit', handleUserRegistration);
+            
+            // Message sending
+            document.getElementById('sendBtn').addEventListener('click', sendMessage);
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+
+            // Quick questions
+            document.getElementById('quickQuestionsToggle').addEventListener('click', toggleQuickQuestions);
+            
+            // Admin panel
+            document.getElementById('adminPanelBtn').addEventListener('click', showAdminPanel);
+            document.getElementById('closeAdminBtn').addEventListener('click', hideAdminPanel);
+        }
+
+        function checkUserSession() {
+            try {
+                const userData = localStorage.getItem('aviatorUser');
+                console.log('🔍 DEBUGGING: Checking user session. LocalStorage data:', userData);
+                
+                if (userData) {
+                    currentUser = JSON.parse(userData);
+                    console.log('📱 DEBUGGING: Found user in localStorage:', currentUser);
+                    console.log('🔍 DEBUGGING: User validation - ID:', currentUser.id, 'Name:', currentUser.name, 'Email:', currentUser.email);
+                    
+                    // Validate required user fields
+                    if (!currentUser.id || !currentUser.name || !currentUser.email) {
+                        console.log('❌ DEBUGGING: Invalid user data found, clearing localStorage');
+                        localStorage.removeItem('aviatorUser');
+                        currentUser = null;
+                        showUserRegistration();
+                        return;
+                    }
+                    
+                    // FORCE OLD USER TREATMENT - Skip Firebase check for now
+                    console.log('🔥 DEBUGGING: FORCING OLD USER TREATMENT for:', currentUser.name);
+                    currentUser.isNewUser = false;
+                    localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
+                    
+                    // Update last activity
+                    database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
+                    
+                    console.log('✅ DEBUGGING: Proceeding as OLD USER with history');
+                    document.getElementById('userRegistrationModal').style.display = 'none';
+                    showMainApp();
+                    
+                } else {
+                    console.log('🆕 DEBUGGING: No user data in localStorage, showing registration');
+                    showUserRegistration();
+                }
+            } catch (e) {
+                console.error('❌ DEBUGGING: Error checking user session:', e);
+                localStorage.removeItem('aviatorUser');
+                showUserRegistration();
+            }
+        }
+
+        // Comprehensive user existence check
+        function checkUserExistenceWithHistory(userId, userData) {
+            console.log('🔍 Comprehensive check for user:', userId);
+            
+            Promise.all([
+                database.ref(`users/${userId}`).once('value'),
+                database.ref(`chats/${userId}/messages`).once('value'),
+                database.ref('messages').orderByChild('userId').equalTo(userId).once('value'),
+                database.ref('chatHistory').orderByChild('userId').equalTo(userId).once('value')
+            ]).then(([userSnapshot, chatSnapshot, messagesSnapshot, historySnapshot]) => {
+                
+                const userExists = userSnapshot.exists();
+                const hasChats = chatSnapshot.exists() && Object.keys(chatSnapshot.val() || {}).length > 0;
+                const hasMessages = messagesSnapshot.exists();
+                const hasHistory = historySnapshot.exists();
+                
+                console.log('📊 User data analysis:', {
+                    userExists,
+                    hasChats,
+                    hasMessages, 
+                    hasHistory,
+                    userId
+                });
+                
+                if (userExists || hasChats || hasMessages || hasHistory) {
+                    // OLD USER - Has some data in Firebase
+                    console.log('✅ OLD USER DETECTED - Has chat history/data in Firebase');
+                    
+                    let finalUserData = userData;
+                    if (userExists) {
+                        const firebaseUserData = userSnapshot.val();
+                        finalUserData = {
+                            ...userData,
+                            ...firebaseUserData,
+                            isNewUser: false
+                        };
+                    } else {
+                        finalUserData.isNewUser = false;
+                    }
+                    
+                    currentUser = finalUserData;
+                    
+                    // Update last activity
+                    database.ref(`users/${userId}/lastActivity`).set(Date.now());
+                    
+                    // Save updated user data
+                    localStorage.setItem('aviatorUser', JSON.stringify(finalUserData));
+                    
+                    console.log('👤 OLD USER proceeding to main app with history');
+                    document.getElementById('userRegistrationModal').style.display = 'none';
+                    showMainApp();
+                    
+                } else {
+                    // NEW USER - No data found anywhere
+                    console.log('🆕 NEW USER DETECTED - No data found in Firebase');
+                    localStorage.removeItem('aviatorUser');
+                    currentUser = null;
+                    showUserRegistration();
+                }
+                
+            }).catch(error => {
+                console.error('❌ Error in comprehensive user check:', error);
+                // On error, if user data looks valid, proceed
+                if (userData.id && userData.name && userData.email) {
+                    console.log('⚠️ Firebase error, but user data valid, proceeding as old user');
+                    currentUser = { ...userData, isNewUser: false };
+                    localStorage.setItem('aviatorUser', JSON.stringify(currentUser));
+                    document.getElementById('userRegistrationModal').style.display = 'none';
+                    showMainApp();
+                } else {
+                    showUserRegistration();
+                }
+            });
+        }
+
+        // Check for returning user without localStorage
+        function checkForReturningUser() {
+            console.log('🔍 Checking for returning user without localStorage');
+            // For now, just show registration for users without localStorage
+            // In future, could implement phone/email based detection
+            showUserRegistration();
+        }
+
+        function showUserRegistration() {
+            document.getElementById('userRegistrationModal').style.display = 'flex';
+        }
+
+                 function handleUserRegistration(e) {
+             e.preventDefault();
+             
+             const userName = document.getElementById('userName').value;
+             const userEmail = document.getElementById('userEmail').value;
+             const userPhone = document.getElementById('userPhone').value;
+             const userPromo = document.getElementById('userPromo').value;
+
+             if (!userName || !userEmail || !userPhone) {
+                 alert('Please fill in all required fields');
+                 return;
+             }
+
+                         const userData = {
+                id: Date.now().toString(),
+                name: userName,
+                email: userEmail,
+                phone: userPhone,
+                promo: userPromo,
+                timestamp: Date.now(),
+                lastActivity: Date.now(),
+                isNewUser: true
+            };
+
+           try {
+               console.log('Saving new user data:', userData);
+               localStorage.setItem('aviatorUser', JSON.stringify(userData));
+               currentUser = userData;
+               console.log('User data saved to localStorage');
+
+               database.ref('users/' + userData.id).set(userData)
+                   .then(() => {
+                       console.log('User data saved to Firebase successfully');
+                       document.getElementById('userRegistrationModal').style.display = 'none';
+                       showMainApp();
+                       loadChat();
+                       sendNewUserWelcome();
+                   })
+                   .catch(error => {
+                       console.error('Error saving to Firebase:', error);
+                       // Still proceed even if Firebase fails
+                       document.getElementById('userRegistrationModal').style.display = 'none';
+                       showMainApp();
+                       loadChat();
+                       sendNewUserWelcome();
+                   });
+            } catch (error) {
+                console.error('Error in user registration:', error);
+                alert('Error during registration. Please try again.');
+            }
+        }
+
+        function sendNewUserWelcome() {
+            // Load custom message from Firebase or use default
+            database.ref('welcomeMessages/newUser').once('value')
+                .then(snapshot => {
+                    let messageText;
+                    if (snapshot.exists()) {
+                        messageText = snapshot.val();
+                    } else {
+                        messageText = `Hello {{name}}! 👋\n\nWelcome to Aviator Game Support! We're excited to help you get started.\n\n🎮 As a new player, here's what you can do:\n\n1️⃣ Browse our Quick Questions below for instant help\n2️⃣ Check the FAQ section for detailed information\n3️⃣ Chat with us directly for personalized support\n\n💡 Pro tip: Start with our Quick Questions - they cover the most common topics!\n\nHow can we help you today?`;
+                    }
+                    
+                    // Replace placeholder with actual name
+                    messageText = messageText.replace(/\{\{name\}\}/g, currentUser.name);
+                    
+                    const welcomeMessage = {
+                        id: Date.now().toString(),
+                        text: messageText,
+                        sender: 'admin',
+                        timestamp: Date.now()
+                    };
+
+                    addMessageToUI(welcomeMessage);
+                    saveMessageToFirebase(welcomeMessage);
+                })
+                .catch(error => {
+                    console.error('Error loading welcome message:', error);
+                    // Fallback to default
+                    const welcomeMessage = {
+                        id: Date.now().toString(),
+                        text: `Hello ${currentUser.name}! 👋\n\nWelcome to Aviator Game Support! How can I help you today?`,
+                        sender: 'admin',
+                        timestamp: Date.now()
+                    };
+                    addMessageToUI(welcomeMessage);
+                    saveMessageToFirebase(welcomeMessage);
+                });
+        }
+
+        function sendWelcomeBackMessage() {
+            const welcomeBackMessage = {
+                id: Date.now().toString(),
+                text: `Welcome back ${currentUser.name}! 👋\n\n📚 Your previous chat history has been restored. How can I help you today?`,
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+            addMessageToUI(welcomeBackMessage);
+            saveMessageToFirebase(welcomeBackMessage);
+        }
+
+        function showMainApp() {
+            document.getElementById('userRegistrationModal').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'flex';
+            document.getElementById('chatTabSection').style.display = 'flex';
+            document.getElementById('faqTabSection').style.display = 'none';
+            document.getElementById('quickQuestionsSection').style.display = 'block';
+            document.getElementById('chatInputArea').style.display = 'none';
+            
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'block';
+            }
+            
+                                     setTimeout(() => {
+                loadQuickQuestions();
+                
+                // Request notification permission
+                requestNotificationPermission();
+                
+                if (!currentUser.isNewUser) {
+                    // OLD USER - Load complete chat history and preserve it
+                    console.log('📚 DEBUGGING: OLD USER - Loading complete chat history for:', currentUser.name);
+                    loadUserChatHistory(); // This will also setup real-time messaging
+                    
+                    // NO WELCOME MESSAGE FOR OLD USERS - History speaks for itself
+                    console.log('🚫 DEBUGGING: Skipping welcome message for old user - history loaded');
+                    
+                } else {
+                    // NEW USER - Fresh start
+                    console.log('🆕 DEBUGGING: NEW USER - Setting up fresh experience for:', currentUser.name);
+                    setupRealTimeMessaging();
+                    setTimeout(() => {
+                        console.log('👋 DEBUGGING: Sending welcome message for new user');
+                        sendNewUserWelcome();
+                    }, 500);
+                }
+            }, 100);
+        }
+
+        function sendWelcomeMessage() {
+            const welcomeMessage = {
+                id: Date.now().toString(),
+                text: `Welcome back ${currentUser.name}! 🎮\n\nI'm here to help you with any questions about the Aviator game. You can:\n\n1️⃣ Use the Quick Questions below for instant answers\n2️⃣ Type your message directly for personalized support\n3️⃣ Check the FAQ section for common questions\n\n💡 Tip: Use the Quick Questions for faster responses!`,
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+
+            addMessageToUI(welcomeMessage);
+            saveMessageToFirebase(welcomeMessage);
+        }
+
+        function sendWelcomeBackMessage() {
+            const welcomeBackMessage = {
+                id: Date.now().toString(),
+                text: `Welcome back ${currentUser.name}! 👋\n\n📚 Your previous chat history has been restored. How can I help you today?`,
+                sender: 'admin',
+                timestamp: Date.now()
+            };
+            addMessageToUI(welcomeBackMessage);
+            saveMessageToFirebase(welcomeBackMessage);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            const chatSection = document.getElementById('chatTabSection');
+            const faqSection = document.getElementById('faqTabSection');
+            
+                         if (tabName === 'chat') {
+                 chatSection.style.display = 'flex';
+                 faqSection.style.display = 'none';
+                 document.getElementById('messagesArea').style.display = 'block';
+                 document.getElementById('quickQuestionsSection').style.display = 'block';
+                 loadQuickQuestions();
+             } else if (tabName === 'faq') {
+                chatSection.style.display = 'none';
+                faqSection.style.display = 'flex';
+                loadFAQSection();
+            }
+        }
+
+                 function loadQuickQuestions() {
+             database.ref('quickQuestions').once('value')
+                 .then(snapshot => {
+                     const data = snapshot.val() || {};
+                     displayCategories(Object.keys(data));
+                 })
+                 .catch(error => {
+                     console.error('Error loading quick questions:', error);
+                     displayCategories(['Deposits', 'Withdrawals', 'Game', 'Account', 'Technical']);
+                 });
+         }
+
+
+
+        function displayCategories(categories) {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = category;
+                btn.onclick = () => selectCategory(category);
+                container.appendChild(btn);
+            });
+        }
+
+                 function selectCategory(category) {
+             selectedCategory = category;
+             
+             document.querySelectorAll('.category-btn').forEach(btn => {
+                 btn.classList.remove('active');
+             });
+             event.target.classList.add('active');
+
+             document.getElementById('categoriesContainer').style.display = 'none';
+             document.getElementById('questionsContainer').style.display = 'flex';
+             
+             const backBtn = document.createElement('button');
+             backBtn.className = 'back-to-categories-btn';
+             backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Quick Ask Questions';
+             backBtn.onclick = showCategories;
+             
+             const questionsContainer = document.getElementById('questionsContainer');
+             questionsContainer.innerHTML = '';
+             questionsContainer.appendChild(backBtn);
+
+             database.ref(`quickQuestions/${category}`).once('value')
+                 .then(snapshot => {
+                     const questions = snapshot.val() || {};
+                     displayQuestions(questions);
+                 });
+         }
+
+        function showCategories() {
+            document.getElementById('categoriesContainer').style.display = 'grid';
+            document.getElementById('questionsContainer').style.display = 'none';
+            document.getElementById('questionsContainer').innerHTML = '';
+            
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+
+        function displayQuestions(questions) {
+            const container = document.getElementById('questionsContainer');
+            const backBtn = container.querySelector('.back-to-categories-btn');
+            
+            Object.keys(questions).forEach(questionId => {
+                const question = questions[questionId];
+                const btn = document.createElement('button');
+                btn.className = 'question-btn';
+                btn.innerHTML = `
+                    <i class="${question.icon}"></i>
+                    <span>${question.question}</span>
+                `;
+                btn.onclick = () => sendQuickResponse(question.question, question.response);
+                container.appendChild(btn);
+            });
+        }
+
+        function sendQuickResponse(question, response) {
+            const userMessage = {
+                id: Date.now().toString(),
+                text: question,
+                sender: 'user',
+                timestamp: Date.now()
+            };
+            addMessageToUI(userMessage);
+            saveMessageToFirebase(userMessage);
+
+            if (currentUser) {
+                const historyData = {
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userPhone: currentUser.phone,
+                    message: question,
+                    response: response,
+                    timestamp: new Date().toISOString(),
+                    type: 'quick_question'
+                };
+                database.ref('chatHistory').push(historyData);
+            }
+
+            setTimeout(() => {
+                const adminMessage = {
+                    id: (Date.now() + 1).toString(),
+                    text: response,
+                    sender: 'admin',
+                    timestamp: Date.now()
+                };
+                addMessageToUI(adminMessage);
+                saveMessageToFirebase(adminMessage);
+            }, 500);
+
+            // Close the quick questions popup
+            closeQuickQuestionsPopup();
+            
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'block';
+            }
+        }
+
+        function showChatInput() {
+            document.getElementById('chatInputArea').style.display = 'flex';
+            
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'none';
+            }
+            
+            document.getElementById('quickQuestionsSection').style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('messageInput').focus();
+            }, 100);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            if (text.toLowerCase() === 'aviator2025adminmaan') {
+                const message = {
+                    id: Date.now().toString(),
+                    text: text,
+                    sender: 'user',
+                    timestamp: Date.now()
+                };
+                addMessageToUI(message);
+                saveMessageToFirebase(message);
+                input.value = '';
+
+                setTimeout(() => {
+                    const adminResponse = {
+                        id: (Date.now() + 1).toString(),
+                        text: "🔐 Admin access granted! Opening admin panel...",
+                        sender: 'admin',
+                        timestamp: Date.now()
+                    };
+                    addMessageToUI(adminResponse);
+                    saveMessageToFirebase(adminResponse);
+                    
+                    isAdmin = true;
+                    // Hide admin button and auto-open admin panel
+                    document.getElementById('adminPanelBtn').style.display = 'none';
+                    setTimeout(() => {
+                        showAdminPanel();
+                        loadAdminData();
+                    }, 1000);
+                }, 500);
+                return;
+            }
+
+            const message = {
+                id: Date.now().toString(),
+                text: text,
+                sender: 'user',
+                timestamp: Date.now()
+            };
+
+            addMessageToUI(message);
+            saveMessageToFirebase(message);
+            input.value = '';
+
+            document.getElementById('chatInputArea').style.display = 'none';
+            
+            const chatWithUsBtn = document.querySelector('.chat-with-us-btn');
+            if (chatWithUsBtn) {
+                chatWithUsBtn.style.display = 'block';
+            }
+            
+            document.getElementById('quickQuestionsSection').style.display = 'block';
+
+            setTimeout(() => {
+                const adminResponse = {
+                    id: (Date.now() + 1).toString(),
+                    text: "Thank you for your message. Our support team will get back to you soon.",
+                    sender: 'admin',
+                    timestamp: Date.now()
+                };
+                addMessageToUI(adminResponse);
+                saveMessageToFirebase(adminResponse);
+            }, 1000);
+        }
+
+        function addMessageToUI(message) {
+            const messagesArea = document.getElementById('messagesArea');
+            
+            // Check if message already exists
+            if (message.id) {
+                const existingMessage = messagesArea.querySelector(`[data-message-id="${message.id}"]`);
+                if (existingMessage) {
+                    return; // Message already displayed
+                }
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.sender === 'user' ? 'user' : ''} fade-in`;
+            messageDiv.dataset.messageId = message.id || Date.now();
+
+            const avatar = message.sender === 'user' ? 'fas fa-user' : 'fas fa-headset';
+            const time = new Date(message.timestamp).toLocaleTimeString();
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="${avatar}"></i>
+                </div>
+                <div class="message-content">
+                    <div>${message.text}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            
+            // Add smooth scroll animation for new messages
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        function saveMessageToFirebase(message) {
+            if (!currentUser) return;
+
+            const chatRef = database.ref(`chats/${currentUser.id}/messages/${message.id}`);
+            chatRef.set(message);
+
+            if (message.sender === 'user') {
+                const historyData = {
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userPhone: currentUser.phone,
+                    message: message.text,
+                    timestamp: new Date(message.timestamp).toISOString(),
+                    type: 'chat_message'
+                };
+                database.ref('chatHistory').push(historyData);
+            }
+        }
+
+        function loadChat() {
+            if (!currentUser) return;
+
+            database.ref(`chats/${currentUser.id}/messages`).once('value')
+                .then(snapshot => {
+                    const messages = snapshot.val() || {};
+                    const messagesArea = document.getElementById('messagesArea');
+                    messagesArea.innerHTML = '';
+
+                    Object.keys(messages).forEach(messageId => {
+                        addMessageToUI(messages[messageId]);
+                    });
+                });
+        }
+
+        function loadUserChatHistory() {
+            if (!currentUser || !currentUser.id) return;
+
+            console.log('📚 Loading chat history for user:', currentUser.name, currentUser.id);
+            const messagesArea = document.getElementById('messagesArea');
+            
+            // Clear existing messages first to prevent duplicates
+            messagesArea.innerHTML = '';
+            console.log('🧹 Cleared messages area for fresh history load');
+            
+            // Load chat messages from multiple sources
+            Promise.all([
+                database.ref(`chats/${currentUser.id}/messages`).once('value'),
+                database.ref('messages').orderByChild('userId').equalTo(currentUser.id).once('value'),
+                database.ref('chatHistory').orderByChild('userId').equalTo(currentUser.id).once('value')
+            ]).then(([chatSnapshot, messagesSnapshot, historySnapshot]) => {
+                const allMessages = [];
+                
+                // Load from chats
+                if (chatSnapshot.exists()) {
+                    const chatMessages = chatSnapshot.val();
+                    Object.keys(chatMessages).forEach(msgId => {
+                        allMessages.push(chatMessages[msgId]);
+                    });
+                }
+                
+                // Load from messages
+                if (messagesSnapshot.exists()) {
+                    messagesSnapshot.forEach(child => {
+                        const msg = child.val();
+                        allMessages.push({
+                            id: child.key,
+                            text: msg.text,
+                            sender: msg.sender,
+                            timestamp: msg.timestamp
+                        });
+                    });
+                }
+                
+                // Load from chat history (quick questions, etc.)
+                if (historySnapshot.exists()) {
+                    historySnapshot.forEach(child => {
+                        const history = child.val();
+                        // Add user question
+                        if (history.message) {
+                            allMessages.push({
+                                id: child.key + '_q',
+                                text: history.message,
+                                sender: 'user',
+                                timestamp: new Date(history.timestamp).getTime()
+                            });
+                        }
+                        // Add bot response
+                        if (history.response) {
+                            allMessages.push({
+                                id: child.key + '_r',
+                                text: history.response,
+                                sender: 'admin',
+                                timestamp: new Date(history.timestamp).getTime() + 1000
+                            });
+                        }
+                    });
+                }
+                
+                // Sort messages by timestamp and display
+                allMessages.sort((a, b) => a.timestamp - b.timestamp);
+                
+                // Remove duplicates based on text and timestamp
+                const uniqueMessages = allMessages.filter((msg, index, arr) => {
+                    return index === arr.findIndex(m => 
+                        m.text === msg.text && 
+                        Math.abs(m.timestamp - msg.timestamp) < 5000 // 5 second tolerance
+                    );
+                });
+                
+                // Display messages
+                console.log('📝 Displaying', uniqueMessages.length, 'historical messages');
+                uniqueMessages.forEach(message => {
+                    addMessageToUI(message);
+                });
+                
+                // Scroll to bottom
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+                
+                console.log(`✅ Successfully loaded ${uniqueMessages.length} chat history messages for user ${currentUser.name}`);
+                if (uniqueMessages.length > 0) {
+                    console.log('📊 Message types loaded:', {
+                        userMessages: uniqueMessages.filter(m => m.sender === 'user').length,
+                        adminMessages: uniqueMessages.filter(m => m.sender === 'admin').length,
+                        totalMessages: uniqueMessages.length
+                    });
+                }
+                
+                // Set up real-time listeners after loading history
+                setupRealTimeMessaging();
+            }).catch(error => {
+                console.error('Error loading chat history:', error);
+            });
+        }
+
+        // Real-time messaging system
+        function setupRealTimeMessaging() {
+            if (!currentUser || !currentUser.id) return;
+
+            console.log('Setting up real-time messaging for user:', currentUser.name);
+
+            // Listen for new messages in user's chat
+            database.ref(`chats/${currentUser.id}/messages`).on('child_added', function(snapshot) {
+                const message = snapshot.val();
+                if (message && message.timestamp > Date.now() - 10000) { // Only new messages (last 10 seconds)
+                    // Check if message is not already displayed
+                    const messagesArea = document.getElementById('messagesArea');
+                    const existingMessages = messagesArea.querySelectorAll('.message');
+                    let messageExists = false;
+                    
+                    existingMessages.forEach(msgEl => {
+                        if (msgEl.dataset.messageId === message.id) {
+                            messageExists = true;
+                        }
+                    });
+                    
+                    if (!messageExists) {
+                        console.log('New real-time message received:', message);
+                        addMessageToUI(message);
+                        
+                        // Show notification if page is not visible
+                        if (document.hidden) {
+                            showNotification('New message received', message.text);
+                        }
+                    }
+                }
+            });
+
+            // Listen for admin messages from the general messages node
+            database.ref('messages').orderByChild('userId').equalTo(currentUser.id).on('child_added', function(snapshot) {
+                const message = snapshot.val();
+                if (message && message.sender === 'admin' && message.timestamp > Date.now() - 10000) {
+                    console.log('New admin message received:', message);
+                    addMessageToUI({
+                        id: snapshot.key,
+                        text: message.text,
+                        sender: 'admin',
+                        timestamp: message.timestamp
+                    });
+                    
+                    // Show notification for admin messages
+                    if (document.hidden) {
+                        showNotification('Admin replied', message.text);
+                    }
+                }
+            });
+        }
+
+        // Show browser notification
+        function showNotification(title, message) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message.substring(0, 100) + (message.length > 100 ? '...' : ''),
+                    icon: '/favicon.ico'
+                });
+            }
+        }
+
+        // Request notification permission
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                Notification.requestPermission();
+            }
+        }
+
+        function loadFAQSection() {
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    const faqs = snapshot.val() || {};
+                    const container = document.getElementById('faqContent');
+                    container.innerHTML = '';
+
+                    const categories = {};
+                    Object.keys(faqs).forEach(faqId => {
+                        const faq = faqs[faqId];
+                        if (!categories[faq.category]) {
+                            categories[faq.category] = [];
+                        }
+                        categories[faq.category].push(faq);
+                    });
+
+                    Object.keys(categories).forEach(category => {
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'faq-category';
+                        categoryDiv.innerHTML = `<h3>${category}</h3>`;
+
+                        categories[category].forEach(faq => {
+                            const faqDiv = document.createElement('div');
+                            faqDiv.className = 'faq-item';
+                            faqDiv.innerHTML = `
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    <span>${faq.question}</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer">
+                                    ${faq.answer}
+                                </div>
+                            `;
+                            categoryDiv.appendChild(faqDiv);
+                        });
+
+                        container.appendChild(categoryDiv);
+                    });
+                });
+        }
+
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('i');
+            
+            if (answer.classList.contains('show')) {
+                answer.classList.remove('show');
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                answer.classList.add('show');
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+                 function openQuickQuestionsPopup() {
+             document.getElementById('quickQuestionsPopup').style.display = 'flex';
+             loadCategoriesInPopup();
+             showCategoriesInPopup();
+         }
+
+         function closeQuickQuestionsPopup() {
+             document.getElementById('quickQuestionsPopup').style.display = 'none';
+         }
+
+         function loadCategoriesInPopup() {
+             database.ref('quickQuestions').once('value')
+                 .then(snapshot => {
+                     const data = snapshot.val() || {};
+                     displayCategoriesInPopup(Object.keys(data), data);
+                 })
+                 .catch(error => {
+                     console.error('Error loading categories:', error);
+                 });
+         }
+
+         function displayCategoriesInPopup(categories, data) {
+             const container = document.getElementById('popupCategories');
+             container.innerHTML = '';
+
+             categories.forEach(category => {
+                 const btn = document.createElement('button');
+                 btn.className = 'popup-category-btn';
+                 btn.textContent = category;
+                 btn.onclick = () => selectCategoryInPopup(category, data[category]);
+                 container.appendChild(btn);
+             });
+         }
+
+         function selectCategoryInPopup(category, questions) {
+             document.getElementById('popupTitle').innerHTML = `<i class="fas fa-bolt"></i> ${category}`;
+             document.getElementById('backToCategoriesBtn').style.display = 'flex';
+             document.getElementById('popupCategories').style.display = 'none';
+             document.getElementById('popupQuestions').style.display = 'flex';
+             
+             displayQuestionsInPopup(questions);
+         }
+
+         function displayQuestionsInPopup(questions) {
+             const container = document.getElementById('popupQuestions');
+             container.innerHTML = '';
+
+             Object.keys(questions).forEach(questionId => {
+                 const question = questions[questionId];
+                 const btn = document.createElement('button');
+                 btn.className = 'popup-question-btn';
+                 btn.innerHTML = `
+                     <i class="${question.icon}"></i>
+                     <span>${question.question}</span>
+                 `;
+                 btn.onclick = () => {
+                     sendQuickResponse(question.question, question.response);
+                     closeQuickQuestionsPopup();
+                 };
+                 container.appendChild(btn);
+             });
+         }
+
+         function showCategoriesInPopup() {
+             document.getElementById('popupTitle').innerHTML = '<i class="fas fa-bolt"></i> Quick Help Questions';
+             document.getElementById('backToCategoriesBtn').style.display = 'none';
+             document.getElementById('popupCategories').style.display = 'grid';
+             document.getElementById('popupQuestions').style.display = 'none';
+         }
+
+        function showAdminPanel() {
+            document.getElementById('adminPanel').style.display = 'flex';
+            loadAdminData();
+        }
+
+        function hideAdminPanel() {
+            console.log('Hiding admin panel...');
+            const adminPanel = document.getElementById('adminPanel');
+            if (adminPanel) {
+                adminPanel.style.display = 'none';
+                console.log('Admin panel hidden successfully');
+            } else {
+                console.error('Admin panel element not found');
+            }
+        }
+
+        function loadAdminData() {
+            console.log('Loading admin data...');
+            loadUsers();
+            loadFAQs();
+            loadQuickQuestionsAdmin();
+            loadCategories();
+            loadWelcomeMessages();
+            setupAdminEventListeners();
+        }
+
+        function setupAdminEventListeners() {
+            // Admin sidebar navigation
+            document.querySelectorAll('.admin-sidebar-btn[data-section]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const section = this.dataset.section;
+                    switchAdminSection(section);
+                });
+            });
+
+            // FAQ management
+            document.getElementById('addFaqBtn').addEventListener('click', () => openFaqModal());
+            document.getElementById('faqForm').addEventListener('submit', handleFaqSubmit);
+            document.getElementById('addFaqCategoryBtn').addEventListener('click', () => openCategoryModal('faq'));
+
+            // Quick questions management
+            document.getElementById('addQuickBtn').addEventListener('click', () => openQuickModal());
+            document.getElementById('quickForm').addEventListener('submit', handleQuickSubmit);
+            document.getElementById('addQuickCategoryBtn').addEventListener('click', () => openCategoryModal('quick'));
+
+            // Category management
+            document.getElementById('addCategoryBtn').addEventListener('click', () => openCategoryModal('general'));
+            document.getElementById('categoryForm').addEventListener('submit', handleCategorySubmit);
+
+            // User search and filter
+            document.getElementById('userSearch').addEventListener('input', filterUsers);
+            document.getElementById('userFilter').addEventListener('change', filterUsers);
+
+            // Icon selector
+            document.querySelectorAll('.icon-option').forEach(icon => {
+                icon.addEventListener('click', function() {
+                    selectIcon(this);
+                });
+            });
+        }
+
+        function switchAdminSection(section) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.admin-sidebar-btn').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(section + 'Section').classList.add('active');
+            document.querySelector(`[data-section="${section}"]`).classList.add('active');
+        }
+
+        // User Management
+        function loadUsers() {
+            database.ref('users').once('value')
+                .then(snapshot => {
+                    const users = snapshot.val() || {};
+                    displayUsers(users);
+                });
+        }
+
+        function displayUsers(users) {
+            const container = document.getElementById('usersList');
+            container.innerHTML = '';
+
+            let totalUsers = 0;
+            let onlineUsers = 0;
+            let newUsersToday = 0;
+            const today = new Date().toDateString();
+
+            Object.keys(users).forEach(userId => {
+                const user = users[userId];
+                totalUsers++;
+                
+                // Check if user is online (last activity within 5 minutes)
+                const isOnline = user.lastActivity && (Date.now() - user.lastActivity) < 300000;
+                if (isOnline) onlineUsers++;
+                
+                // Check if user joined today
+                if (user.timestamp && new Date(user.timestamp).toDateString() === today) {
+                    newUsersToday++;
+                }
+
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                userCard.innerHTML = `
+                    <div class="${isOnline ? 'online-indicator' : 'offline-indicator'}"></div>
+                    <div class="user-info">
+                        <h4>${user.name} ${isOnline ? '<span style="color: #00ff00;">●</span>' : '<span style="color: #666;">●</span>'}</h4>
+                        <p>${user.email} • ${user.phone}</p>
+                        <p>Promo: ${user.promo || 'None'} • Joined: ${new Date(user.timestamp).toLocaleDateString()}</p>
+                        <p class="user-status-text">${isOnline ? 'Online' : 'Offline'} • Last seen: ${user.lastActivity ? new Date(user.lastActivity).toLocaleString() : 'Never'}</p>
+                    </div>
+                    <div class="user-actions">
+                        <button class="action-btn view-btn" onclick="openUserChat('${userId}', '${user.name}', ${isOnline})">
+                            <i class="fas fa-comments"></i> Chat
+                        </button>
+                        <button class="action-btn clear-btn" onclick="clearUserChat('${userId}')">
+                            <i class="fas fa-broom"></i> Clear
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteUser('${userId}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                container.appendChild(userCard);
+            });
+
+            // Update stats
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('onlineUsers').textContent = onlineUsers;
+            document.getElementById('newUsersToday').textContent = newUsersToday;
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const filterValue = document.getElementById('userFilter').value;
+            
+            console.log('Filtering users:', searchTerm, filterValue);
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                database.ref(`users/${userId}`).remove()
+                    .then(() => {
+                        database.ref(`chats/${userId}`).remove();
+                        loadUsers();
+                    });
+            }
+        }
+
+        // FAQ Management
+        function loadFAQs() {
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    const faqs = snapshot.val() || {};
+                    displayFAQs(faqs);
+                    updateCategorySelects(faqs, 'faq');
+                });
+        }
+
+        function displayFAQs(faqs) {
+            const container = document.getElementById('faqList');
+            container.innerHTML = '';
+
+            Object.keys(faqs).forEach(faqId => {
+                const faq = faqs[faqId];
+                const faqItem = document.createElement('div');
+                faqItem.className = 'faq-item-admin';
+                faqItem.innerHTML = `
+                    <div class="item-header">
+                        <span class="item-category">${faq.category}</span>
+                        <div class="item-actions">
+                            <button class="action-btn edit-btn" onclick="editFAQ('${faqId}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteFAQ('${faqId}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="item-content">
+                        <h4>${faq.question}</h4>
+                        <p>${faq.answer}</p>
+                    </div>
+                `;
+                container.appendChild(faqItem);
+            });
+        }
+
+        function openFaqModal(faqId = null) {
+            document.getElementById('faqModal').style.display = 'flex';
+            editingItem = faqId;
+            if (faqId) {
+                loadFAQData(faqId);
+            } else {
+                document.getElementById('faqForm').reset();
+            }
+        }
+
+        function handleFaqSubmit(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('faqCategoryModal').value;
+            const question = document.getElementById('faqQuestion').value;
+            const answer = document.getElementById('faqAnswer').value;
+
+            const faqData = {
+                category: category,
+                question: question,
+                answer: answer,
+                timestamp: Date.now()
+            };
+
+            const ref = editingItem ? 
+                database.ref(`faqs/${editingItem}`) : 
+                database.ref('faqs').push();
+
+            ref.set(faqData)
+                .then(() => {
+                    closeModal('faqModal');
+                    loadFAQs();
+                    editingItem = null;
+                });
+        }
+
+        function editFAQ(faqId) {
+            openFaqModal(faqId);
+        }
+
+        function loadFAQData(faqId) {
+            database.ref(`faqs/${faqId}`).once('value')
+                .then(snapshot => {
+                    const faq = snapshot.val();
+                    if (faq) {
+                        document.getElementById('faqCategoryModal').value = faq.category;
+                        document.getElementById('faqQuestion').value = faq.question;
+                        document.getElementById('faqAnswer').value = faq.answer;
+                    }
+                });
+        }
+
+        function deleteFAQ(faqId) {
+            if (confirm('Are you sure you want to delete this FAQ?')) {
+                database.ref(`faqs/${faqId}`).remove()
+                    .then(() => {
+                        loadFAQs();
+                    });
+            }
+        }
+
+        // Quick Questions Management
+        function loadQuickQuestionsAdmin() {
+            database.ref('quickQuestions').once('value')
+                .then(snapshot => {
+                    const quickQuestions = snapshot.val() || {};
+                    displayQuickQuestionsAdmin(quickQuestions);
+                    updateCategorySelects(quickQuestions, 'quick');
+                });
+        }
+
+        function displayQuickQuestionsAdmin(quickQuestions) {
+            const container = document.getElementById('quickList');
+            container.innerHTML = '';
+
+            Object.keys(quickQuestions).forEach(category => {
+                const questions = quickQuestions[category];
+                Object.keys(questions).forEach(questionId => {
+                    const question = questions[questionId];
+                    const questionItem = document.createElement('div');
+                    questionItem.className = 'quick-item-admin';
+                    questionItem.innerHTML = `
+                        <div class="item-header">
+                            <span class="item-category">${category}</span>
+                            <div class="item-actions">
+                                <button class="action-btn edit-btn" onclick="editQuickQuestion('${category}', '${questionId}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete-btn" onclick="deleteQuickQuestion('${category}', '${questionId}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="item-content">
+                            <h4><i class="${question.icon}"></i> ${question.question}</h4>
+                            <p><strong>Response:</strong> ${question.response}</p>
+                        </div>
+                    `;
+                    container.appendChild(questionItem);
+                });
+            });
+        }
+
+        function openQuickModal(category = null, questionId = null) {
+            document.getElementById('quickModal').style.display = 'flex';
+            editingItem = { category, questionId };
+            if (category && questionId) {
+                loadQuickQuestionData(category, questionId);
+            } else {
+                document.getElementById('quickForm').reset();
+                document.getElementById('selectedIcon').value = 'fas fa-home';
+                updateIconSelection();
+            }
+        }
+
+        function handleQuickSubmit(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('quickCategoryModal').value;
+            const question = document.getElementById('quickQuestion').value;
+            const response = document.getElementById('quickResponse').value;
+            const icon = document.getElementById('selectedIcon').value;
+
+            const questionData = {
+                question: question,
+                response: response,
+                icon: icon,
+                timestamp: Date.now()
+            };
+
+            const ref = editingItem && editingItem.category && editingItem.questionId ? 
+                database.ref(`quickQuestions/${editingItem.category}/${editingItem.questionId}`) :
+                database.ref(`quickQuestions/${category}`).push();
+
+            ref.set(questionData)
+                .then(() => {
+                    closeModal('quickModal');
+                    loadQuickQuestionsAdmin();
+                    editingItem = null;
+                });
+        }
+
+        function selectIcon(iconElement) {
+            document.querySelectorAll('.icon-option').forEach(icon => icon.classList.remove('selected'));
+            iconElement.classList.add('selected');
+            document.getElementById('selectedIcon').value = iconElement.dataset.icon;
+        }
+
+        function updateIconSelection() {
+            const selectedIcon = document.getElementById('selectedIcon').value;
+            document.querySelectorAll('.icon-option').forEach(icon => {
+                icon.classList.remove('selected');
+                if (icon.dataset.icon === selectedIcon) {
+                    icon.classList.add('selected');
+                }
+            });
+        }
+
+        function editQuickQuestion(category, questionId) {
+            openQuickModal(category, questionId);
+        }
+
+        function loadQuickQuestionData(category, questionId) {
+            database.ref(`quickQuestions/${category}/${questionId}`).once('value')
+                .then(snapshot => {
+                    const question = snapshot.val();
+                    if (question) {
+                        document.getElementById('quickCategoryModal').value = category;
+                        document.getElementById('quickQuestion').value = question.question;
+                        document.getElementById('quickResponse').value = question.response;
+                        document.getElementById('selectedIcon').value = question.icon;
+                        updateIconSelection();
+                    }
+                });
+        }
+
+        function deleteQuickQuestion(category, questionId) {
+            if (confirm('Are you sure you want to delete this question?')) {
+                database.ref(`quickQuestions/${category}/${questionId}`).remove()
+                    .then(() => {
+                        loadQuickQuestionsAdmin();
+                    });
+            }
+        }
+
+        // Category Management
+        function loadCategories() {
+            database.ref('categories').once('value')
+                .then(snapshot => {
+                    const categories = snapshot.val() || {};
+                    displayCategories(categories);
+                });
+        }
+
+        function displayCategories(categories) {
+            const container = document.getElementById('categoriesList');
+            container.innerHTML = '';
+
+            Object.keys(categories).forEach(categoryId => {
+                const category = categories[categoryId];
+                const categoryItem = document.createElement('div');
+                categoryItem.className = 'faq-item-admin';
+                categoryItem.innerHTML = `
+                    <div class="item-header">
+                        <span class="item-category">Category</span>
+                        <div class="item-actions">
+                            <button class="action-btn delete-btn" onclick="deleteCategory('${categoryId}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="item-content">
+                        <h4>${category.name}</h4>
+                        <p>${category.description || 'No description'}</p>
+                    </div>
+                `;
+                container.appendChild(categoryItem);
+            });
+        }
+
+        function openCategoryModal(type = 'general') {
+            document.getElementById('categoryModal').style.display = 'flex';
+            document.getElementById('categoryForm').reset();
+        }
+
+        function handleCategorySubmit(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('categoryName').value;
+            const description = document.getElementById('categoryDescription').value;
+
+            const categoryData = {
+                name: name,
+                description: description,
+                timestamp: Date.now()
+            };
+
+            database.ref('categories').push(categoryData)
+                .then(() => {
+                    closeModal('categoryModal');
+                    loadCategories();
+                    updateAllCategorySelects();
+                });
+        }
+
+        function deleteCategory(categoryId) {
+            if (confirm('Are you sure you want to delete this category?')) {
+                database.ref(`categories/${categoryId}`).remove()
+                    .then(() => {
+                        loadCategories();
+                    });
+            }
+        }
+
+        function updateCategorySelects(data, type) {
+            const categories = new Set();
+            
+            if (type === 'faq') {
+                Object.values(data).forEach(item => categories.add(item.category));
+                const select = document.getElementById('faqCategoryModal');
+                updateSelectOptions(select, Array.from(categories));
+            } else if (type === 'quick') {
+                Object.keys(data).forEach(category => categories.add(category));
+                const select = document.getElementById('quickCategoryModal');
+                updateSelectOptions(select, Array.from(categories));
+            }
+        }
+
+        function updateSelectOptions(select, options) {
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Select Category</option>';
+            
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                select.appendChild(optionElement);
+            });
+            
+            if (options.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function updateAllCategorySelects() {
+            database.ref('categories').once('value')
+                .then(snapshot => {
+                    const categories = snapshot.val() || {};
+                    const categoryNames = Object.values(categories).map(cat => cat.name);
+                    
+                    updateSelectOptions(document.getElementById('faqCategoryModal'), categoryNames);
+                    updateSelectOptions(document.getElementById('quickCategoryModal'), categoryNames);
+                });
+        }
+
+        // Modal functions
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            editingItem = null;
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                editingItem = null;
+            }
+        });
+
+        function initializeDefaultData() {
+            console.log('Initializing default data...');
+            
+            database.ref('faqs').once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        addDefaultFAQs();
+                    }
+                });
+
+            database.ref('quickQuestions').once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        addDefaultQuickQuestions();
+                    }
+                });
+
+            database.ref('categories').once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        addDefaultCategories();
+                    }
+                });
+        }
+
+        function addDefaultCategories() {
+            const defaultCategories = {
+                'cat1': {
+                    name: 'Game Rules',
+                    description: 'Questions about how the game works',
+                    timestamp: Date.now()
+                },
+                'cat2': {
+                    name: 'Deposits',
+                    description: 'Questions about making deposits',
+                    timestamp: Date.now()
+                },
+                'cat3': {
+                    name: 'Withdrawals',
+                    description: 'Questions about withdrawing money',
+                    timestamp: Date.now()
+                },
+                'cat4': {
+                    name: 'Account',
+                    description: 'Account related questions',
+                    timestamp: Date.now()
+                },
+                'cat5': {
+                    name: 'Technical',
+                    description: 'Technical support questions',
+                    timestamp: Date.now()
+                }
+            };
+
+            database.ref('categories').set(defaultCategories);
+        }
+
+        function addDefaultFAQs() {
+            const defaultFAQs = {
+                'faq1': {
+                    id: 'faq1',
+                    category: 'Game Rules',
+                    question: 'How does Aviator game work?',
+                    answer: 'Aviator is a crash game where you bet on when to cash out before the multiplier crashes. The longer you wait, the higher the potential payout, but also the higher the risk of losing your bet.',
+                    timestamp: Date.now()
+                },
+                'faq2': {
+                    id: 'faq2',
+                    category: 'Deposits',
+                    question: 'How long do deposits take?',
+                    answer: 'Most deposits are processed instantly. Bank transfers may take 1-3 business days. If your deposit is delayed, please contact support.',
+                    timestamp: Date.now()
+                },
+                'faq3': {
+                    id: 'faq3',
+                    category: 'Withdrawals',
+                    question: 'When will I receive my withdrawal?',
+                    answer: 'Withdrawals are typically processed within 24 hours. Bank transfers may take 3-5 business days to appear in your account.',
+                    timestamp: Date.now()
+                }
+            };
+
+            database.ref('faqs').set(defaultFAQs);
+        }
+
+        function addDefaultQuickQuestions() {
+            const defaultQuickQuestions = {
+                'Deposits': {
+                    'q1': {
+                        id: 'q1',
+                        question: 'Deposit nahi aaya?',
+                        response: 'Aapka deposit process ho raha hai. Please wait 5-10 minutes. Agar 15 minutes ke baad bhi nahi aaya to contact karein.',
+                        icon: 'fas fa-money-bill-wave',
+                        timestamp: Date.now()
+                    },
+                    'q2': {
+                        id: 'q2',
+                        question: 'Deposit error aa raha hai',
+                        response: 'Please check your payment method and try again. Agar problem persist karta hai to different payment method try karein.',
+                        icon: 'fas fa-exclamation-triangle',
+                        timestamp: Date.now()
+                    }
+                },
+                'Withdrawals': {
+                    'q1': {
+                        id: 'q1',
+                        question: 'Withdrawal pending hai',
+                        response: 'Withdrawal process mein 24 hours lag sakte hain. Please wait. Agar 24 hours ke baad bhi pending hai to contact karein.',
+                        icon: 'fas fa-clock',
+                        timestamp: Date.now()
+                    }
+                },
+                'Game': {
+                    'q1': {
+                        id: 'q1',
+                        question: 'Game crash ho raha hai',
+                        response: 'Please refresh the page or try after some time. Server maintenance ho sakta hai.',
+                        icon: 'fas fa-gamepad',
+                        timestamp: Date.now()
+                    }
+                }
+            };
+
+            database.ref('quickQuestions').set(defaultQuickQuestions);
+        }
+
+        // Function to clear user data (for testing)
+        function clearUserData() {
+            localStorage.removeItem('aviatorUser');
+            location.reload();
+        }
+
+        // Function to hide admin button
+        function hideAdminButton() {
+            document.getElementById('adminPanelBtn').style.display = 'none';
+            isAdmin = false;
+        }
+
+        // Enhanced Admin Functions
+        function openUserChat(userId, userName, isOnline) {
+            currentChatUserId = userId;
+            document.getElementById('chatUserName').textContent = userName;
+            document.getElementById('chatUserStatus').textContent = isOnline ? 'Online' : 'Offline';
+            document.getElementById('chatUserStatus').className = `user-status ${isOnline ? 'online' : 'offline'}`;
+            
+            // Load user's chat history
+            loadUserChatHistory(userId);
+            
+            // Show fullscreen modal
+            document.getElementById('userChatFullscreen').style.display = 'flex';
+        }
+
+        function closeUserChatFullscreen() {
+            document.getElementById('userChatFullscreen').style.display = 'none';
+            currentChatUserId = null;
+        }
+
+        function loadUserChatHistory(userId) {
+            const messagesContainer = document.getElementById('userChatMessages');
+            messagesContainer.innerHTML = '<div class="loading">Loading chat history...</div>';
+
+            database.ref('chatHistory').orderByChild('userId').equalTo(userId).once('value')
+                .then(snapshot => {
+                    const messages = [];
+                    snapshot.forEach(child => {
+                        messages.push(child.val());
+                    });
+                    
+                    // Also load direct messages
+                    database.ref('messages').orderByChild('userId').equalTo(userId).once('value')
+                        .then(msgSnapshot => {
+                            msgSnapshot.forEach(child => {
+                                const msg = child.val();
+                                messages.push({
+                                    message: msg.text,
+                                    timestamp: msg.timestamp,
+                                    sender: msg.sender,
+                                    type: 'direct_message'
+                                });
+                            });
+                            
+                            displayUserChatHistory(messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)));
+                        });
+                })
+                .catch(error => {
+                    console.error('Error loading chat history:', error);
+                    messagesContainer.innerHTML = '<div class="error">Error loading chat history</div>';
+                });
+        }
+
+        function displayUserChatHistory(messages) {
+            const container = document.getElementById('userChatMessages');
+            container.innerHTML = '';
+
+            if (messages.length === 0) {
+                container.innerHTML = '<div class="no-messages">No chat history found</div>';
+                return;
+            }
+
+            messages.forEach(msg => {
+                const messageEl = document.createElement('div');
+                messageEl.className = `chat-message ${msg.sender === 'user' ? 'user-message' : 'admin-message'}`;
+                messageEl.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-text">${msg.message || msg.response || 'No content'}</div>
+                        <div class="message-time">${new Date(msg.timestamp).toLocaleString()}</div>
+                        <div class="message-type">${msg.type || 'chat'}</div>
+                    </div>
+                `;
+                container.appendChild(messageEl);
+            });
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearUserChat(userId) {
+            if (!confirm('Are you sure you want to clear this user\'s chat history? This action cannot be undone.')) {
+                return;
+            }
+
+            // Clear chat history
+            database.ref('chatHistory').orderByChild('userId').equalTo(userId).once('value')
+                .then(snapshot => {
+                    const updates = {};
+                    snapshot.forEach(child => {
+                        updates[child.key] = null;
+                    });
+                    return database.ref('chatHistory').update(updates);
+                })
+                .then(() => {
+                    // Clear direct messages
+                    return database.ref('messages').orderByChild('userId').equalTo(userId).once('value');
+                })
+                .then(snapshot => {
+                    const updates = {};
+                    snapshot.forEach(child => {
+                        updates[child.key] = null;
+                    });
+                    return database.ref('messages').update(updates);
+                })
+                .then(() => {
+                    alert('User chat history cleared successfully!');
+                    if (currentChatUserId === userId) {
+                        loadUserChatHistory(userId);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error clearing chat:', error);
+                    alert('Error clearing chat history');
+                });
+        }
+
+        function sendAdminMessage() {
+            const input = document.getElementById('adminChatInput');
+            const messageText = input.value.trim();
+            
+            if (!messageText || !currentChatUserId) return;
+
+            const message = {
+                id: Date.now().toString(),
+                text: messageText,
+                sender: 'admin',
+                timestamp: Date.now(),
+                userId: currentChatUserId,
+                isAdminMessage: true
+            };
+
+            console.log('Admin sending message to user:', currentChatUserId, messageText);
+            
+            // Save to multiple locations for real-time delivery
+            Promise.all([
+                // Save to general messages node
+                database.ref('messages').push(message),
+                // Save to user's specific chat node for real-time delivery
+                database.ref(`chats/${currentChatUserId}/messages/${message.id}`).set(message),
+                // Save to chat history for admin panel
+                database.ref('chatHistory').push({
+                    userId: currentChatUserId,
+                    message: messageText,
+                    timestamp: new Date().toISOString(),
+                    sender: 'admin',
+                    type: 'admin_message'
+                })
+            ]).then(() => {
+                console.log('Admin message sent successfully');
+                input.value = '';
+                // Add message to admin chat view immediately
+                const adminChatMessages = document.getElementById('userChatMessages');
+                if (adminChatMessages) {
+                    const messageEl = document.createElement('div');
+                    messageEl.className = 'chat-message admin-message';
+                    messageEl.innerHTML = `
+                        <div class="message-content">
+                            <div class="message-text">${messageText}</div>
+                            <div class="message-time">${new Date().toLocaleString()}</div>
+                            <div class="message-type">admin_message</div>
+                        </div>
+                    `;
+                    adminChatMessages.appendChild(messageEl);
+                    adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
+                }
+            }).catch(error => {
+                console.error('Error sending admin message:', error);
+                alert('Error sending message: ' + error.message);
+            });
+        }
+
+        function setupIconSelector(selectorId, hiddenInputId) {
+            const selector = document.getElementById(selectorId);
+            const hiddenInput = document.getElementById(hiddenInputId);
+            
+            if (!selector || !hiddenInput) return;
+
+            const iconBtns = selector.querySelectorAll('.icon-btn');
+            
+            // Set first icon as default selected
+            if (iconBtns.length > 0) {
+                iconBtns[0].classList.add('selected');
+                hiddenInput.value = iconBtns[0].dataset.icon;
+            }
+
+            iconBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove selected from all
+                    iconBtns.forEach(b => b.classList.remove('selected'));
+                    
+                    // Add selected to clicked
+                    btn.classList.add('selected');
+                    hiddenInput.value = btn.dataset.icon;
+                });
+            });
+        }
+
+        function searchUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const filterValue = document.getElementById('userFilter').value;
+            
+            database.ref('users').once('value')
+                .then(snapshot => {
+                    const users = snapshot.val() || {};
+                    const filteredUsers = {};
+                    
+                    Object.keys(users).forEach(userId => {
+                        const user = users[userId];
+                        const matchesSearch = !searchTerm || 
+                            user.name.toLowerCase().includes(searchTerm) ||
+                            user.email.toLowerCase().includes(searchTerm) ||
+                            user.phone.includes(searchTerm);
+                        
+                        let matchesFilter = true;
+                        if (filterValue === 'online') {
+                            matchesFilter = user.lastActivity && (Date.now() - user.lastActivity) < 300000;
+                        } else if (filterValue === 'recent') {
+                            const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
+                            matchesFilter = user.timestamp && user.timestamp > threeDaysAgo;
+                        } else if (filterValue === 'new') {
+                            const today = new Date().toDateString();
+                            matchesFilter = user.timestamp && new Date(user.timestamp).toDateString() === today;
+                        }
+                        
+                        if (matchesSearch && matchesFilter) {
+                            filteredUsers[userId] = user;
+                        }
+                    });
+                    
+                    displayUsers(filteredUsers);
+                })
+                .catch(error => {
+                    console.error('Error searching users:', error);
+                });
+        }
+
+        function updateUserActivity() {
+            if (currentUser && currentUser.id) {
+                database.ref(`users/${currentUser.id}/lastActivity`).set(Date.now());
+            }
+        }
+
+        // Global variables
+        let currentChatUserId = null;
+
+        // Welcome Messages Management
+        function loadWelcomeMessages() {
+            console.log('Loading welcome messages for admin panel');
+            
+            // Load New User Message
+            database.ref('welcomeMessages/newUser').once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        document.getElementById('newUserWelcomeMsg').value = snapshot.val();
+                    }
+                });
+            
+            // Load Welcome Back Message  
+            database.ref('welcomeMessages/welcomeBack').once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        document.getElementById('welcomeBackMsg').value = snapshot.val();
+                    }
+                });
+            
+            // Load Regular Welcome Message
+            database.ref('welcomeMessages/regular').once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        document.getElementById('regularWelcomeMsg').value = snapshot.val();
+                    }
+                });
+        }
+
+        function saveWelcomeMessage(type) {
+            let messageText, elementId;
+            
+            switch(type) {
+                case 'newUser':
+                    elementId = 'newUserWelcomeMsg';
+                    break;
+                case 'welcomeBack':
+                    elementId = 'welcomeBackMsg';
+                    break;
+                case 'regular':
+                    elementId = 'regularWelcomeMsg';
+                    break;
+            }
+            
+            messageText = document.getElementById(elementId).value;
+            
+            if (!messageText.trim()) {
+                alert('Message cannot be empty!');
+                return;
+            }
+            
+            database.ref(`welcomeMessages/${type}`).set(messageText)
+                .then(() => {
+                    alert('Welcome message saved successfully!');
+                })
+                .catch(error => {
+                    console.error('Error saving welcome message:', error);
+                    alert('Error saving message: ' + error.message);
+                });
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup icon selectors
+            setupIconSelector('faqIconSelector', 'faqIcon');
+            setupIconSelector('quickIconSelector', 'quickIcon');
+            
+            // User search
+            const userSearch = document.getElementById('userSearch');
+            if (userSearch) {
+                userSearch.addEventListener('input', searchUsers);
+            }
+            
+            const userFilter = document.getElementById('userFilter');
+            if (userFilter) {
+                userFilter.addEventListener('change', searchUsers);
+            }
+            
+            const refreshBtn = document.getElementById('refreshUsers');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', loadUsers);
+            }
+            
+            // Admin chat input
+            const adminChatInput = document.getElementById('adminChatInput');
+            if (adminChatInput) {
+                adminChatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendAdminMessage();
+                    }
+                });
+            }
+            
+            const sendAdminBtn = document.getElementById('sendAdminMessage');
+            if (sendAdminBtn) {
+                sendAdminBtn.addEventListener('click', sendAdminMessage);
+            }
+            
+            const clearUserChatBtn = document.getElementById('clearUserChat');
+            if (clearUserChatBtn) {
+                clearUserChatBtn.addEventListener('click', function() {
+                    if (currentChatUserId) {
+                        clearUserChat(currentChatUserId);
+                    }
+                });
+            }
+            
+            // Welcome message save buttons
+            const saveNewUserBtn = document.getElementById('saveNewUserMsg');
+            if (saveNewUserBtn) {
+                saveNewUserBtn.addEventListener('click', () => saveWelcomeMessage('newUser'));
+            }
+            
+            const saveWelcomeBackBtn = document.getElementById('saveWelcomeBackMsg');
+            if (saveWelcomeBackBtn) {
+                saveWelcomeBackBtn.addEventListener('click', () => saveWelcomeMessage('welcomeBack'));
+            }
+            
+            const saveRegularBtn = document.getElementById('saveRegularMsg');
+            if (saveRegularBtn) {
+                saveRegularBtn.addEventListener('click', () => saveWelcomeMessage('regular'));
+            }
+        });
+
+        // Update user activity every 30 seconds
+        setInterval(updateUserActivity, 30000);
+    </script>
+</body>
+</html>
