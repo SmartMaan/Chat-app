@@ -2231,11 +2231,18 @@
             const messagesArea = document.getElementById('messagesArea');
             const messageDiv = document.createElement('div');
             let senderLabel = '';
-            if (message.sender === 'user') senderLabel = '<span style="color:#ff4444;font-size:11px;">You</span>';
-            else if (message.sender === 'admin') senderLabel = '<span style="color:#44f;font-size:11px;">Admin</span>';
-            else senderLabel = '<span style="color:#888;font-size:11px;">Bot</span>';
+            let avatar = '';
+            if (message.sender === 'user') {
+                senderLabel = '<span style="color:#ff4444;font-size:11px;">You</span>';
+                avatar = 'fas fa-user';
+            } else if (message.sender === 'admin') {
+                senderLabel = '<span style="color:#44f;font-size:11px;">Team</span>';
+                avatar = 'fas fa-user-shield';
+            } else {
+                senderLabel = '<span style="color:#888;font-size:11px;">System</span>';
+                avatar = 'fas fa-robot';
+            }
             messageDiv.className = `message ${message.sender === 'user' ? 'user' : ''} fade-in`;
-            const avatar = message.sender === 'user' ? 'fas fa-user' : (message.sender === 'admin' ? 'fas fa-user-shield' : 'fas fa-headset');
             const time = new Date(message.timestamp).toLocaleTimeString();
             messageDiv.innerHTML = `
                 <div class="message-avatar">
@@ -2442,14 +2449,14 @@
         function displayUsers(users) {
             const container = document.getElementById('usersList');
             container.innerHTML = '';
-
             Object.keys(users).forEach(userId => {
                 const user = users[userId];
                 const userCard = document.createElement('div');
                 userCard.className = 'user-card';
+                const onlineDot = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${user.online ? '#28a745' : '#888'};margin-right:6px;"></span>`;
                 userCard.innerHTML = `
                     <div class="user-info">
-                        <h4>${user.name}</h4>
+                        <h4>${onlineDot}${user.name}</h4>
                         <p>${user.phone} • ${new Date(user.timestamp).toLocaleDateString()}</p>
                     </div>
                     <div class="user-actions">
@@ -3183,6 +3190,17 @@
 
             database.ref('quickQuestions').set(defaultQuickQuestions);
         }
+
+        // --- Online Status Tracking ---
+        function setUserOnlineStatus() {
+            if (!currentUser) return;
+            const userRef = database.ref(`users/${currentUser.id}/online`);
+            userRef.set(true);
+            userRef.onDisconnect().set(false);
+        }
+        // Call this after user logs in/registration
+        // In handleUserRegistration and after checkUserSession success:
+        // setUserOnlineStatus();
     </script>
 </body>
 </html>
