@@ -389,25 +389,35 @@
             margin-bottom: 16px;
         }
 
-        .category-btn {
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 8px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 500;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
+                 .category-btn {
+             background: rgba(255, 255, 255, 0.08);
+             color: white;
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             padding: 12px 8px;
+             border-radius: 12px;
+             cursor: pointer;
+             transition: all 0.3s ease;
+             text-align: center;
+             font-size: 13px;
+             font-weight: 500;
+             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+             min-height: 44px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             backdrop-filter: blur(10px);
+             -webkit-backdrop-filter: blur(10px);
+             position: relative;
+         }
+         
+         .category-btn::before {
+             content: '\f07b';
+             font-family: 'Font Awesome 6 Free';
+             font-weight: 900;
+             margin-right: 8px;
+             color: #ff4444;
+             font-size: 16px;
+         }
 
         .category-btn:hover {
             background: rgba(255, 255, 255, 0.12);
@@ -1152,42 +1162,27 @@
     <div id="userRegistrationModal" class="user-registration-modal">
         <div class="registration-form">
             <h2><i class="fas fa-user-plus"></i> Welcome to Aviator Support</h2>
-            <form id="registrationForm">
-                <div class="form-group">
-                    <label for="userName">Full Name</label>
-                    <input type="text" id="userName" required>
-                </div>
-                <div class="form-group">
-                    <label for="userPhone">Phone Number</label>
-                    <input type="tel" id="userPhone" required>
-                </div>
-                <div class="form-group">
-                    <label for="userEmail">Email Address</label>
-                    <input type="email" id="userEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="userAge">Age</label>
-                    <select id="userAge" required>
-                        <option value="">Select Age</option>
-                        <option value="18-25">18-25</option>
-                        <option value="26-35">26-35</option>
-                        <option value="36-45">36-45</option>
-                        <option value="46-55">46-55</option>
-                        <option value="55+">55+</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="userLocation">Location</label>
-                    <input type="text" id="userLocation" placeholder="City, State" required>
-                </div>
-                <div class="form-group">
-                    <label for="userPromo">Promo Code (Optional)</label>
-                    <input type="text" id="userPromo">
-                </div>
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-paper-plane"></i> Start Chat
-                </button>
-            </form>
+                         <form id="registrationForm">
+                 <div class="form-group">
+                     <label for="userName">Full Name</label>
+                     <input type="text" id="userName" required>
+                 </div>
+                 <div class="form-group">
+                     <label for="userEmail">Email Address</label>
+                     <input type="email" id="userEmail" required>
+                 </div>
+                 <div class="form-group">
+                     <label for="userPhone">Phone Number</label>
+                     <input type="tel" id="userPhone" required>
+                 </div>
+                 <div class="form-group">
+                     <label for="userPromo">Promo Code (Optional)</label>
+                     <input type="text" id="userPromo">
+                 </div>
+                 <button type="submit" class="submit-btn">
+                     <i class="fas fa-paper-plane"></i> Start Chat
+                 </button>
+             </form>
         </div>
     </div>
 
@@ -1220,24 +1215,24 @@
                 <!-- Messages will be added here -->
             </div>
 
-            <!-- Quick Questions Section -->
-            <div id="quickQuestionsSection" class="quick-questions-section">
-                <div class="quick-questions-header">
-                    <h3>Quick Questions</h3>
-                    <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="toggleQuickQuestions()">
-                        <i class="fas fa-chevron-up"></i> Hide
-                    </button>
-                </div>
-                <div id="categoriesContainer" class="categories-container">
-                    <!-- Categories will be loaded here -->
-                </div>
-                <div id="questionsContainer" class="questions-container">
-                    <!-- Questions will be loaded here -->
-                </div>
-                <button class="chat-with-us-btn" onclick="showChatInput()">
-                    <i class="fas fa-comment"></i> Chat with Us
-                </button>
-            </div>
+                         <!-- Quick Questions Section -->
+             <div id="quickQuestionsSection" class="quick-questions-section">
+                 <div class="quick-questions-header">
+                     <h3>Quick Ask Questions</h3>
+                     <button id="quickQuestionsToggle" class="quick-questions-toggle" onclick="toggleQuickQuestions()">
+                         <i class="fas fa-chevron-up"></i> Hide
+                     </button>
+                 </div>
+                 <div id="categoriesContainer" class="categories-container">
+                     <!-- Categories will be loaded here -->
+                 </div>
+                 <div id="questionsContainer" class="questions-container" style="display: none;">
+                     <!-- Questions will be loaded here -->
+                 </div>
+                 <button class="chat-with-us-btn" onclick="showChatInput()">
+                     <i class="fas fa-comment"></i> Chat with Us
+                 </button>
+             </div>
 
             <!-- Input Area -->
             <div id="chatInputArea" class="input-area">
@@ -1520,32 +1515,28 @@
             document.getElementById('userRegistrationModal').style.display = 'flex';
         }
 
-        function handleUserRegistration(e) {
-            e.preventDefault();
-            
-            const userName = document.getElementById('userName').value;
-            const userPhone = document.getElementById('userPhone').value;
-            const userEmail = document.getElementById('userEmail').value;
-            const userAge = document.getElementById('userAge').value;
-            const userLocation = document.getElementById('userLocation').value;
-            const userPromo = document.getElementById('userPromo').value;
+                 function handleUserRegistration(e) {
+             e.preventDefault();
+             
+             const userName = document.getElementById('userName').value;
+             const userEmail = document.getElementById('userEmail').value;
+             const userPhone = document.getElementById('userPhone').value;
+             const userPromo = document.getElementById('userPromo').value;
 
-            if (!userName || !userPhone || !userEmail || !userAge || !userLocation) {
-                alert('Please fill in all required fields');
-                return;
-            }
+             if (!userName || !userEmail || !userPhone) {
+                 alert('Please fill in all required fields');
+                 return;
+             }
 
-            const userData = {
-                id: Date.now().toString(),
-                name: userName,
-                phone: userPhone,
-                email: userEmail,
-                age: userAge,
-                location: userLocation,
-                promo: userPromo,
-                timestamp: Date.now(),
-                isNewUser: true
-            };
+             const userData = {
+                 id: Date.now().toString(),
+                 name: userName,
+                 email: userEmail,
+                 phone: userPhone,
+                 promo: userPromo,
+                 timestamp: Date.now(),
+                 isNewUser: true
+             };
 
             try {
                 localStorage.setItem('aviatorUser', JSON.stringify(userData));
@@ -1663,32 +1654,32 @@
             });
         }
 
-        function selectCategory(category) {
-            selectedCategory = category;
-            
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+                 function selectCategory(category) {
+             selectedCategory = category;
+             
+             document.querySelectorAll('.category-btn').forEach(btn => {
+                 btn.classList.remove('active');
+             });
+             event.target.classList.add('active');
 
-            document.getElementById('categoriesContainer').style.display = 'none';
-            document.getElementById('questionsContainer').style.display = 'flex';
-            
-            const backBtn = document.createElement('button');
-            backBtn.className = 'back-to-categories-btn';
-            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Categories';
-            backBtn.onclick = showCategories;
-            
-            const questionsContainer = document.getElementById('questionsContainer');
-            questionsContainer.innerHTML = '';
-            questionsContainer.appendChild(backBtn);
+             document.getElementById('categoriesContainer').style.display = 'none';
+             document.getElementById('questionsContainer').style.display = 'flex';
+             
+             const backBtn = document.createElement('button');
+             backBtn.className = 'back-to-categories-btn';
+             backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Quick Ask Questions';
+             backBtn.onclick = showCategories;
+             
+             const questionsContainer = document.getElementById('questionsContainer');
+             questionsContainer.innerHTML = '';
+             questionsContainer.appendChild(backBtn);
 
-            database.ref(`quickQuestions/${category}`).once('value')
-                .then(snapshot => {
-                    const questions = snapshot.val() || {};
-                    displayQuestions(questions);
-                });
-        }
+             database.ref(`quickQuestions/${category}`).once('value')
+                 .then(snapshot => {
+                     const questions = snapshot.val() || {};
+                     displayQuestions(questions);
+                 });
+         }
 
         function showCategories() {
             document.getElementById('categoriesContainer').style.display = 'grid';
@@ -2048,19 +2039,18 @@
                 const user = users[userId];
                 const userCard = document.createElement('div');
                 userCard.className = 'user-card';
-                userCard.innerHTML = `
-                    <div class="user-info">
-                        <h4>${user.name}</h4>
-                        <p>${user.phone} • ${user.email || 'No email'}</p>
-                        <p>Age: ${user.age || 'N/A'} • Location: ${user.location || 'N/A'}</p>
-                        <p>Joined: ${new Date(user.timestamp).toLocaleDateString()}</p>
-                    </div>
-                    <div class="user-actions">
-                        <button class="action-btn delete-btn" onclick="deleteUser('${userId}')">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                `;
+                                 userCard.innerHTML = `
+                     <div class="user-info">
+                         <h4>${user.name}</h4>
+                         <p>${user.email} • ${user.phone}</p>
+                         <p>Promo: ${user.promo || 'None'} • Joined: ${new Date(user.timestamp).toLocaleDateString()}</p>
+                     </div>
+                     <div class="user-actions">
+                         <button class="action-btn delete-btn" onclick="deleteUser('${userId}')">
+                             <i class="fas fa-trash"></i> Delete
+                         </button>
+                     </div>
+                 `;
                 container.appendChild(userCard);
             });
         }
